@@ -8,3 +8,9 @@ export {
   type StopTimeData,
   type EnrichedStopTimeUpdate
 } from "./fetchTrainData";
+
+export {
+  getSubwayLineColor,
+  getSubwayLineTextColor,
+  getSubwayLineColors,
+} from "./subwayColors";

@@ -98,14 +98,18 @@ def create_stop_lookup(stops_data):
     """
     Create a lookup dictionary for stops by stop_id and stop_code.
 
+    Since LIRR and Metro-North have overlapping stop IDs, we create
+    separate by_id lookups for each railroad to avoid conflicts.
+
     Args:
         stops_data: List of all stops from all railroads
 
     Returns:
-        Dictionary with stop_id and stop_code as keys
+        Dictionary with separate lookups by railroad and by code
     """
     lookup = {
-        'by_id': {},
+        'by_id_lirr': {},
+        'by_id_mtn': {},
         'by_code': {}
     }
 
@@ -115,8 +119,11 @@ def create_stop_lookup(stops_data):
         for stop_id, stop in railroad_data['stops'].items():
             stop_with_railroad = {**stop, 'railroad': railroad, 'stop_id': stop_id}
 
-            # Add to id lookup
-            lookup['by_id'][stop_id] = stop_with_railroad
+            # Add to railroad-specific id lookup
+            if railroad == 'lirr':
+                lookup['by_id_lirr'][stop_id] = stop_with_railroad
+            elif railroad == 'mtn':
+                lookup['by_id_mtn'][stop_id] = stop_with_railroad
 
             # Add to code lookup
             if stop.get('stop_code'):
@@ -153,29 +160,30 @@ def main():
     for data in all_data:
         railroad = data['railroad']
         railroad_dir = script_dir / railroad
-        output_file = railroad_dir / 'data.json'
+        output_file = railroad_dir / f'{railroad}_routes_stops.json'
 
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        print(f"[OK] Written {railroad}/data.json")
+        print(f"[OK] Written {railroad}/{railroad}_routes_stops.json")
 
     # Write combined JSON file in parent directory
-    combined_file = script_dir / 'combined_data.json'
+    combined_file = script_dir / 'railroad_all_data.json'
     with open(combined_file, 'w', encoding='utf-8') as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)
 
-    print(f"[OK] Written combined_data.json")
+    print(f"[OK] Written railroad_all_data.json")
 
     # Create stop lookup file in parent directory
     stop_lookup = create_stop_lookup(all_data)
-    lookup_file = script_dir / 'stops_lookup.json'
+    lookup_file = script_dir / 'railroad_stops_lookup.json'
 
     with open(lookup_file, 'w', encoding='utf-8') as f:
         json.dump(stop_lookup, f, indent=2, ensure_ascii=False)
 
-    print(f"[OK] Written stops_lookup.json")
-    print(f"  - {len(stop_lookup['by_id'])} stops indexed by ID")
+    print(f"[OK] Written railroad_stops_lookup.json")
+    print(f"  - {len(stop_lookup['by_id_lirr'])} LIRR stops indexed by ID")
+    print(f"  - {len(stop_lookup['by_id_mtn'])} Metro-North stops indexed by ID")
     print(f"  - {len(stop_lookup['by_code'])} stops indexed by code")
 
     print()
@@ -184,10 +192,10 @@ def main():
     print("=" * 60)
     print()
     print("Generated files:")
-    print("  - lirr/data.json: LIRR routes and stops")
-    print("  - mtn/data.json: Metro-North routes and stops")
-    print("  - combined_data.json: All data combined")
-    print("  - stops_lookup.json: Stop lookup by ID and code")
+    print("  - lirr/lirr_routes_stops.json: LIRR routes and stops")
+    print("  - mtn/mtn_routes_stops.json: Metro-North routes and stops")
+    print("  - railroad_all_data.json: All railroad data combined")
+    print("  - railroad_stops_lookup.json: Stop lookup by ID and code")
     print()
 
 

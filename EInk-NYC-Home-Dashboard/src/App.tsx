@@ -4,6 +4,8 @@ import {
   fetchMultipleTrainLines,
   getUpcomingTrainsAtStation,
   type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate,
+  getSubwayLineColor,
+  getSubwayLineTextColor,
 } from "./utils/subway";
 import {
   fetchMultipleRailroads,
@@ -11,142 +13,136 @@ import {
   type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate,
   type TrainDataResponse,
 } from "./utils/railroad";
+import {
+  getUpcomingBusesAtStop,
+  type EnrichedBusData,
+} from "./utils/bus";
+import {
+  getRailroadRouteColor,
+  getRailroadRouteTextColor,
+  getRailroadRouteName,
+} from "./utils/railroad";
+import displayConfig from "./displayConfig";
+import { TransitCard } from "./components/TransitCard";
+import { type TransitData } from "./types/transitData";
 
-const vernonBlvdStopId = 721;
-const grandCentral7TrainStopId = 723; // 7 train platform
-const grandCentral456StopId = 631; // 4/5/6 train platform
-const trainLinesToFetch = ["7", "4", "5", "6"]; // 7 for Vernon Blvd, 4/5/6 for Grand Central
-
-// Railroad stop IDs (placeholder - adjust as needed)
-const grandCentralRailroadStopId = "349"; // Grand Central Terminal for railroads
 const railroadsToFetch = ["lirr", "mtn"]; // LIRR and Metro-North
 
 function App() {
-  const [vernonSouthbound, setVernonSouthbound] = useState<
-    SubwayEnrichedStopTimeUpdate[]
-  >([]);
-  const [vernonNorthbound, setVernonNorthbound] = useState<
-    SubwayEnrichedStopTimeUpdate[]
-  >([]);
-  const [gcSouthbound, setGcSouthbound] = useState<
-    SubwayEnrichedStopTimeUpdate[]
-  >([]);
-  const [gcNorthbound, setGcNorthbound] = useState<
-    SubwayEnrichedStopTimeUpdate[]
-  >([]);
-  const [gcRailroadDepartures, setGcRailroadDepartures] = useState<
-    RailroadEnrichedStopTimeUpdate[]
-  >([]);
+  const [transitData, setTransitData] = useState<TransitData>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string>("");
-  const [railroadLastUpdate, setRailroadLastUpdate] = useState<string>("");
   const [showRawData, setShowRawData] = useState(false);
   const [railroadRawData, setRailroadRawData] =
     useState<TrainDataResponse | null>(null);
 
   useEffect(() => {
-    const loadTrainData = async () => {
+    const loadTransitData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const data = await fetchMultipleTrainLines(trainLinesToFetch);
+        // Collect all stops from displayConfig (excluding ferry)
+        const subwayStops = new Set<string>();
+        const subwayLines = new Set<string>();
+        const lirrStops = new Set<string>();
+        const mtnStops = new Set<string>();
+        const busStops = new Set<string>();
 
-        // Vernon Blvd
-        const vernonSouth = await getUpcomingTrainsAtStation(
-          data.feedMessage,
-          vernonBlvdStopId.toString(),
-          "S",
-          "7"
-        );
-        const vernonNorth = await getUpcomingTrainsAtStation(
-          data.feedMessage,
-          vernonBlvdStopId.toString(),
-          "N",
-          "7"
-        );
-
-        // Grand Central - combine both platforms (7 train + 4/5/6 trains)
-        const gc7South = await getUpcomingTrainsAtStation(
-          data.feedMessage,
-          grandCentral7TrainStopId.toString(),
-          "S"
-        );
-        const gc7North = await getUpcomingTrainsAtStation(
-          data.feedMessage,
-          grandCentral7TrainStopId.toString(),
-          "N"
-        );
-        const gc456South = await getUpcomingTrainsAtStation(
-          data.feedMessage,
-          grandCentral456StopId.toString(),
-          "S"
-        );
-        const gc456North = await getUpcomingTrainsAtStation(
-          data.feedMessage,
-          grandCentral456StopId.toString(),
-          "N"
-        );
-
-        // Merge trains from both platforms
-        const gcSouth = [...gc7South, ...gc456South].sort((a, b) => {
-          const timeA = a.arrival?.time || a.departure?.time || 0;
-          const timeB = b.arrival?.time || b.departure?.time || 0;
-          return timeA - timeB;
-        });
-        const gcNorth = [...gc7North, ...gc456North].sort((a, b) => {
-          const timeA = a.arrival?.time || a.departure?.time || 0;
-          const timeB = b.arrival?.time || b.departure?.time || 0;
-          return timeA - timeB;
+        displayConfig.rowDisplay.forEach((row) => {
+          row.forEach((card) => {
+            if (card.transitType === "subway") {
+              subwayStops.add(card.stopId);
+              card.lines?.forEach((line) => subwayLines.add(line));
+            } else if (card.transitType === "railroad-lirr") {
+              lirrStops.add(card.stopId);
+            } else if (card.transitType === "railroad-mtn") {
+              mtnStops.add(card.stopId);
+            } else if (card.transitType === "bus") {
+              busStops.add(card.stopId);
+            }
+          });
         });
 
-        setVernonSouthbound(vernonSouth.slice(0, 3));
-        setVernonNorthbound(vernonNorth.slice(0, 3));
-        setGcSouthbound(gcSouth.slice(0, 3));
-        setGcNorthbound(gcNorth.slice(0, 3));
-        setLastUpdate(data.metadata.timestamp);
+        const newTransitData: TransitData = {
+          subway: {},
+          "railroad-lirr": {},
+          "railroad-mtn": {},
+          bus: {},
+        };
 
-        // Fetch railroad data for Grand Central
-        const railroadData = await fetchMultipleRailroads(railroadsToFetch);
+        // Fetch subway data
+        if (subwayStops.size > 0) {
+          const data = await fetchMultipleTrainLines(Array.from(subwayLines));
 
-        // Store the raw railroad data for display
-        console.log("Setting railroad raw data:", railroadData);
-        setRailroadRawData(railroadData);
+          for (const stopId of subwayStops) {
+            const southbound = await getUpcomingTrainsAtStation(
+              data.feedMessage,
+              stopId,
+              "S"
+            );
+            const northbound = await getUpcomingTrainsAtStation(
+              data.feedMessage,
+              stopId,
+              "N"
+            );
 
-        console.log("Railroad data fetched:", {
-          totalEntities: railroadData.feedMessage.entity.length,
-          metadata: railroadData.metadata,
-        });
+            newTransitData.subway![stopId] = {
+              southbound: southbound.slice(0, 3),
+              northbound: northbound.slice(0, 3),
+            };
+          }
 
-        // Log some sample stop IDs to see the format
-        const sampleStops = railroadData.feedMessage.entity
-          .slice(0, 10)
-          .flatMap(
-            (entity) =>
-              entity.tripUpdate?.stopTimeUpdate.map((st) => st.stopId) || []
-          );
-        console.log("Sample stop IDs:", sampleStops);
+          setLastUpdate(data.metadata.timestamp);
+        }
 
-        const gcRailroad = await getRailroadTrainsAtStation(
-          railroadData.feedMessage,
-          grandCentralRailroadStopId
-        );
+        // Fetch railroad data
+        if (lirrStops.size > 0 || mtnStops.size > 0) {
+          const railroadData = await fetchMultipleRailroads(railroadsToFetch);
+          setRailroadRawData(railroadData);
 
-        console.log("GC Railroad trains found:", gcRailroad.length);
-        console.log("GC Railroad trains:", gcRailroad);
+          // Process LIRR stops
+          for (const stopId of lirrStops) {
+            const trains = await getRailroadTrainsAtStation(
+              railroadData.feedMessage,
+              stopId,
+              undefined, // routeId
+              "lirr" // Filter by LIRR only
+            );
+            newTransitData["railroad-lirr"]![stopId] = trains.slice(0, 5);
+          }
 
-        setGcRailroadDepartures(gcRailroad.slice(0, 5));
-        setRailroadLastUpdate(railroadData.metadata.timestamp);
+          // Process Metro-North stops
+          for (const stopId of mtnStops) {
+            const trains = await getRailroadTrainsAtStation(
+              railroadData.feedMessage,
+              stopId,
+              undefined, // routeId
+              "mtn" // Filter by Metro-North only
+            );
+            newTransitData["railroad-mtn"]![stopId] = trains.slice(0, 5);
+          }
+        }
+
+        // Fetch bus data
+        if (busStops.size > 0) {
+          for (const stopId of busStops) {
+            const buses = await getUpcomingBusesAtStop(stopId, 5);
+            newTransitData.bus![stopId] = buses;
+          }
+        }
+
+        setTransitData(newTransitData);
       } catch (error) {
-        console.error("Error fetching train data:", error);
+        console.error("Error fetching transit data:", error);
         setError(error instanceof Error ? error.message : "Unknown error");
       } finally {
         setLoading(false);
       }
     };
 
-    loadTrainData();
+    loadTransitData();
   }, []);
 
   const formatTime = (timestamp?: number) => {
@@ -187,6 +183,32 @@ function App() {
       >
         {trains.map((stop, index) => {
           const minutes = getMinutesUntil(stop.arrival?.time);
+
+          // Determine if this is a railroad or subway train
+          const isRailroad = "railroad" in stop && stop.railroad;
+
+          // Get route-specific colors
+          let routeColor: string;
+          let routeTextColor: string;
+          let routeDisplayName: string | undefined;
+
+          if (isRailroad && stop.routeId) {
+            // Railroad train - use railroad colors
+            routeColor = `#${getRailroadRouteColor(stop.routeId, stop.railroad as "lirr" | "mtn")}`;
+            routeTextColor = `#${getRailroadRouteTextColor(stop.routeId, stop.railroad as "lirr" | "mtn")}`;
+            routeDisplayName = getRailroadRouteName(stop.routeId, stop.railroad as "lirr" | "mtn");
+          } else if (stop.routeId) {
+            // Subway train - use subway colors
+            routeColor = getSubwayLineColor(stop.routeId);
+            routeTextColor = getSubwayLineTextColor(stop.routeId);
+            routeDisplayName = stop.routeId;
+          } else {
+            // Fallback
+            routeColor = `#${color.replace('#', '')}`;
+            routeTextColor = "white";
+            routeDisplayName = stop.routeId;
+          }
+
           return (
             <div
               key={index}
@@ -194,7 +216,7 @@ function App() {
                 padding: "15px",
                 backgroundColor: "#f5f5f5",
                 borderRadius: "8px",
-                borderLeft: `4px solid ${color}`,
+                borderLeft: `4px solid ${routeColor}`,
               }}
             >
               <div
@@ -215,20 +237,20 @@ function App() {
                     {stop.routeId && (
                       <span
                         style={{
-                          fontSize: "16px",
+                          fontSize: isRailroad ? "12px" : "16px",
                           fontWeight: "bold",
-                          backgroundColor: color,
-                          color: "white",
+                          backgroundColor: routeColor,
+                          color: routeTextColor,
                           padding: "2px 8px",
                           borderRadius: "4px",
-                          minWidth: "24px",
+                          minWidth: isRailroad ? "auto" : "24px",
                           textAlign: "center",
                         }}
                       >
-                        {stop.routeId}
+                        {routeDisplayName}
                       </span>
                     )}
-                    {"railroad" in stop && stop.railroad && (
+                    {isRailroad && stop.railroad && (
                       <span
                         style={{
                           fontSize: "12px",
@@ -281,6 +303,112 @@ function App() {
     );
   };
 
+  const renderBusList = (buses: EnrichedBusData[], color: string) => {
+    if (buses.length === 0) {
+      return (
+        <p style={{ color: "#999", fontSize: "14px" }}>No upcoming buses</p>
+      );
+    }
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          marginTop: "15px",
+        }}
+      >
+        {buses.map((bus, index) => {
+          const arrivalTime = bus.expectedArrival || bus.expectedDeparture;
+          const minutes = arrivalTime
+            ? Math.floor((arrivalTime.getTime() - Date.now()) / 60000)
+            : null;
+
+          return (
+            <div
+              key={index}
+              style={{
+                padding: "15px",
+                backgroundColor: "#f5f5f5",
+                borderRadius: "8px",
+                borderLeft: `4px solid ${color}`,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        backgroundColor: color,
+                        color: "white",
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        minWidth: "40px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {bus.routeName}
+                    </span>
+                    <div style={{ fontSize: "14px", color: "#666" }}>
+                      to {bus.destination}
+                    </div>
+                  </div>
+                  {arrivalTime && (
+                    <div
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {arrivalTime.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  )}
+                  {minutes !== null && (
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        color: "#666",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {minutes <= 0
+                        ? "Arriving now"
+                        : `${minutes} min${minutes !== 1 ? "s" : ""}`}
+                      {bus.stopsAway > 0 && ` (${bus.stopsAway} stops away)`}
+                    </div>
+                  )}
+                </div>
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  {bus.distanceAway}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <>
       <h1>NYC Home Dashboard</h1>
@@ -294,51 +422,28 @@ function App() {
 
       {!loading && !error && (
         <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-          {/* Vernon Blvd */}
-          <div className="card">
-            <h2>Vernon Blvd - Jackson Av</h2>
-            <div style={{ display: "flex", gap: "30px", marginTop: "20px" }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ marginBottom: "10px" }}>To Manhattan</h3>
-                {renderTrainList(vernonSouthbound, "S", "#b933ad")}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ marginBottom: "10px" }}>To Flushing</h3>
-                {renderTrainList(vernonNorthbound, "N", "#b933ad")}
-              </div>
+          {/* Render rows and columns from displayConfig */}
+          {displayConfig.rowDisplay.map((row, rowIndex) => (
+            <div
+              key={`row-${rowIndex}`}
+              style={{
+                display: "flex",
+                gap: "30px",
+                flexWrap: "wrap",
+              }}
+            >
+              {row.map((card, cardIndex) => (
+                <TransitCard
+                  key={`${card.transitType}-${card.stopId}-${cardIndex}`}
+                  card={card}
+                  transitData={transitData}
+                  lastUpdate={lastUpdate}
+                  onRenderTrainList={renderTrainList}
+                  onRenderBusList={renderBusList}
+                />
+              ))}
             </div>
-          </div>
-
-          {/* Grand Central Subway */}
-          <div className="card">
-            <h2>Grand Central - 42 St (Subway)</h2>
-            <div style={{ display: "flex", gap: "30px", marginTop: "20px" }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ marginBottom: "10px" }}>To Hudson Yards</h3>
-                {renderTrainList(gcSouthbound, "S", "#b933ad")}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ marginBottom: "10px" }}>To Flushing</h3>
-                {renderTrainList(gcNorthbound, "N", "#b933ad")}
-              </div>
-            </div>
-          </div>
-
-          {/* Grand Central Railroad */}
-          <div className="card">
-            <h2>Grand Central Terminal (Railroad)</h2>
-            {railroadLastUpdate && (
-              <p style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
-                Last updated: {railroadLastUpdate}
-              </p>
-            )}
-            <div style={{ marginTop: "20px" }}>
-              <h3 style={{ marginBottom: "10px" }}>
-                Departures (Next 5 trains)
-              </h3>
-              {renderTrainList(gcRailroadDepartures, "", "#0039a6")}
-            </div>
-          </div>
+          ))}
 
           {/* Raw Railroad API Data */}
           <div className="card">

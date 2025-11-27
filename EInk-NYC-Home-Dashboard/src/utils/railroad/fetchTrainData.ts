@@ -143,16 +143,23 @@ export async function fetchMultipleRailroads(
  * @param feedMessage - The decoded GTFS-realtime FeedMessage
  * @param stopId - The stop ID to filter by
  * @param routeId - Optional route ID to filter by
+ * @param railroad - Optional railroad to filter by ("lirr" or "mtn")
  * @returns Array of stop time data for the specified stop with route and railroad information
  */
 export async function extractDataByStop(
   feedMessage: FeedMessage,
   stopId: string,
-  routeId?: string
+  routeId?: string,
+  railroad?: string
 ): Promise<EnrichedStopTimeUpdate[]> {
   const possibleTrainsOnStation: EnrichedStopTimeUpdate[] = [];
 
   feedMessage.entity.forEach((entity: any) => {
+    // Filter by railroad if provided (important when LIRR and MTN have overlapping stop IDs)
+    if (railroad && entity._railroad !== railroad) {
+      return;
+    }
+
     // Filter by route if provided
     if (routeId && entity.tripUpdate?.trip?.routeId !== routeId) {
       return;
@@ -160,7 +167,7 @@ export async function extractDataByStop(
 
     const trainRouteId = entity.tripUpdate?.trip?.routeId;
     const tripId = entity.tripUpdate?.trip?.tripId;
-    const railroad = entity._railroad; // Get the railroad tag if present
+    const entityRailroad = entity._railroad; // Get the railroad tag if present
 
     entity.tripUpdate?.stopTimeUpdate.forEach((stopTime: TripUpdate_StopTimeUpdate) => {
       if (stopTime.stopId === stopId) {
@@ -168,7 +175,7 @@ export async function extractDataByStop(
           ...stopTime,
           routeId: trainRouteId,
           tripId,
-          railroad,
+          railroad: entityRailroad,
         });
       }
     });
@@ -206,14 +213,16 @@ export function filterUpcomingTrains(
  * @param feedMessage - The decoded GTFS-realtime FeedMessage
  * @param stopId - The stop ID to filter by
  * @param routeId - Optional route ID to filter by
+ * @param railroad - Optional railroad to filter by ("lirr" or "mtn")
  * @returns Filtered and sorted array of upcoming trains at the specified stop with route information
  */
 export async function getUpcomingTrainsAtStation(
   feedMessage: FeedMessage,
   stopId: string,
-  routeId?: string
+  routeId?: string,
+  railroad?: string
 ): Promise<EnrichedStopTimeUpdate[]> {
-  const stopTimes = await extractDataByStop(feedMessage, stopId, routeId);
+  const stopTimes = await extractDataByStop(feedMessage, stopId, routeId, railroad);
   const upcomingTrains = filterUpcomingTrains(stopTimes);
   return upcomingTrains;
 }

@@ -251,7 +251,11 @@ export async function getUpcomingTrainsAtStation(
   const stopIdWithDirection = `${stopId}${direction}`;
 
   // Extract stop data for the specific stop with direction
-  const stopTimes = await extractDataByStop(feedMessage, stopIdWithDirection, subwayLine);
+  const stopTimes = await extractDataByStop(
+    feedMessage,
+    stopIdWithDirection,
+    subwayLine
+  );
 
   // Filter to only show upcoming trains
   const upcomingTrains = filterUpcomingTrains(stopTimes);

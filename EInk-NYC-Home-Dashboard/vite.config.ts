@@ -9,5 +9,16 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']],
       },
     }),
+    {
+      name: 'geojson-loader',
+      transform(code, id) {
+        if (id.endsWith('.geojson')) {
+          return {
+            code: `export default ${code}`,
+            map: null,
+          }
+        }
+      },
+    },
   ],
 })
