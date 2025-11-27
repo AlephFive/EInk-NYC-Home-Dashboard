@@ -1,0 +1,19 @@
+{
+  "subway": {
+    "stopId": "721",
+    "lines": ["7"],
+    "walkTime": 10
+  },
+  "railroad": {
+    "stopId": "721",
+    "walkTime": 5
+  },
+  "ferry": {
+    "stopId": "",
+    "walkTime": 5
+  },
+  "bus": {
+    "stopId": "",
+    "walkTime": 3
+  }
+}

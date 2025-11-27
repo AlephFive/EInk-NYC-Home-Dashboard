@@ -1,0 +1,6 @@
+{
+  "apiUrl": {
+    "lirr": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/lirr%2Fgtfs-lirr",
+    "mtn": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/mnr%2Fgtfs-mnr"
+  }
+}
