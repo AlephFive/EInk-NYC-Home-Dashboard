@@ -150,7 +150,7 @@ export async function fetchMultipleTrainLines(
   };
 
   // Calculate total data size
-  const totalSize = feedMessages.reduce((sum, _feed, index) => {
+  const totalSize = feedMessages.reduce((sum, _feed, _index) => {
     // We don't have the original arrayBuffer sizes here, so we'll estimate
     return sum + mergedEntities.length;
   }, 0);

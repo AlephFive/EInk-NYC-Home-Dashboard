@@ -8,3 +8,8 @@ export {
   type MonitoredStopVisit,
   type EnrichedBusData,
 } from "./fetchBusData";
+
+export {
+  getBusRouteInfo,
+  getBusStopInfo,
+} from "./displayDataLookup";

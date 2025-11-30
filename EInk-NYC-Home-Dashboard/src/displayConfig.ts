@@ -18,9 +18,13 @@ export interface TransitCard {
 
 export interface DisplayConfiguration {
   rowDisplay: TransitCard[][];
+  use24HourTime?: boolean;
+  urgentThresholdMinutes?: number;
 }
 
 const displayConfig: DisplayConfiguration = {
+  use24HourTime: true,
+  urgentThresholdMinutes: 10,
   rowDisplay: [
     // Row 1: Two subway cards
     [
@@ -36,22 +40,13 @@ const displayConfig: DisplayConfiguration = {
         lines: ["G"],
         walkTime: 15,
       },
-    ],
-    // Row 2: Railroad and Bus
-    [
-      {
-        transitType: "railroad-lirr",
-        stopId: "118", // Long Island City
-        lines: ["1", "7"],
-        walkTime: 5,
-      },
       {
         transitType: "bus",
         stopId: "700748",
         walkTime: 3,
       },
     ],
-    // Row 3: Ferry
+    // Row 2: Railroad and Ferry
     [
       {
         transitType: "ferry",
@@ -60,7 +55,8 @@ const displayConfig: DisplayConfiguration = {
       },
       {
         transitType: "railroad-lirr",
-        stopId: "349",
+        stopId: "118", // Long Island City
+        lines: ["1", "7"],
         walkTime: 5,
       },
     ],

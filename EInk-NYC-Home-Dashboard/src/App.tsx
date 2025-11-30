@@ -4,19 +4,18 @@ import {
   fetchMultipleTrainLines,
   getUpcomingTrainsAtStation,
   type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate,
-  getSubwayLineColor,
-  getSubwayLineTextColor,
 } from "./utils/subway";
 import {
   fetchMultipleRailroads,
   getUpcomingTrainsAtStation as getRailroadTrainsAtStation,
   type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate,
-  type TrainDataResponse,
 } from "./utils/railroad";
 import {
   getUpcomingBusesAtStop,
   type EnrichedBusData,
+  getBusRouteInfo,
 } from "./utils/bus";
+import { getUpcomingFerryDepartures, type FerryDeparture } from "./utils/ferry";
 import {
   getRailroadRouteColor,
   getRailroadRouteTextColor,
@@ -25,6 +24,7 @@ import {
 import displayConfig from "./displayConfig";
 import { TransitCard } from "./components/TransitCard";
 import { type TransitData } from "./types/transitData";
+import { getDisplayColor } from "./utils/displayMode";
 
 const railroadsToFetch = ["lirr", "mtn"]; // LIRR and Metro-North
 
@@ -33,9 +33,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string>("");
-  const [showRawData, setShowRawData] = useState(false);
-  const [railroadRawData, setRailroadRawData] =
-    useState<TrainDataResponse | null>(null);
 
   useEffect(() => {
     const loadTransitData = async () => {
@@ -43,12 +40,13 @@ function App() {
         setLoading(true);
         setError(null);
 
-        // Collect all stops from displayConfig (excluding ferry)
+        // Collect all stops from displayConfig
         const subwayStops = new Set<string>();
         const subwayLines = new Set<string>();
         const lirrStops = new Set<string>();
         const mtnStops = new Set<string>();
         const busStops = new Set<string>();
+        const ferryStops = new Set<string>();
 
         displayConfig.rowDisplay.forEach((row) => {
           row.forEach((card) => {
@@ -61,6 +59,8 @@ function App() {
               mtnStops.add(card.stopId);
             } else if (card.transitType === "bus") {
               busStops.add(card.stopId);
+            } else if (card.transitType === "ferry") {
+              ferryStops.add(card.stopId);
             }
           });
         });
@@ -70,6 +70,7 @@ function App() {
           "railroad-lirr": {},
           "railroad-mtn": {},
           bus: {},
+          ferry: {},
         };
 
         // Fetch subway data
@@ -89,8 +90,8 @@ function App() {
             );
 
             newTransitData.subway![stopId] = {
-              southbound: southbound.slice(0, 3),
-              northbound: northbound.slice(0, 3),
+              southbound: southbound,
+              northbound: northbound,
             };
           }
 
@@ -100,7 +101,6 @@ function App() {
         // Fetch railroad data
         if (lirrStops.size > 0 || mtnStops.size > 0) {
           const railroadData = await fetchMultipleRailroads(railroadsToFetch);
-          setRailroadRawData(railroadData);
 
           // Process LIRR stops
           for (const stopId of lirrStops) {
@@ -110,7 +110,7 @@ function App() {
               undefined, // routeId
               "lirr" // Filter by LIRR only
             );
-            newTransitData["railroad-lirr"]![stopId] = trains.slice(0, 5);
+            newTransitData["railroad-lirr"]![stopId] = trains;
           }
 
           // Process Metro-North stops
@@ -121,7 +121,7 @@ function App() {
               undefined, // routeId
               "mtn" // Filter by Metro-North only
             );
-            newTransitData["railroad-mtn"]![stopId] = trains.slice(0, 5);
+            newTransitData["railroad-mtn"]![stopId] = trains;
           }
         }
 
@@ -130,6 +130,30 @@ function App() {
           for (const stopId of busStops) {
             const buses = await getUpcomingBusesAtStop(stopId, 5);
             newTransitData.bus![stopId] = buses;
+          }
+        }
+
+        // Fetch ferry data (from schedule, no API call)
+        if (ferryStops.size > 0) {
+          for (const stopName of ferryStops) {
+            const uptown = getUpcomingFerryDepartures(
+              "ER",
+              stopName,
+              "uptown",
+              undefined,
+              2
+            );
+            const downTown = getUpcomingFerryDepartures(
+              "ER",
+              stopName,
+              "downTown",
+              undefined,
+              2
+            );
+            newTransitData.ferry![stopName] = {
+              uptown,
+              downTown,
+            };
           }
         }
 
@@ -150,6 +174,7 @@ function App() {
     return new Date(timestamp * 1000).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: !displayConfig.use24HourTime,
     });
   };
 
@@ -163,12 +188,30 @@ function App() {
 
   const renderTrainList = (
     trains: (SubwayEnrichedStopTimeUpdate | RailroadEnrichedStopTimeUpdate)[],
-    direction: string,
-    color: string
+    _direction: string,
+    walkTime: number,
+    limit: number = 3
   ) => {
-    if (trains.length === 0) {
+    const threshold = displayConfig.urgentThresholdMinutes ?? 10;
+
+    // Filter trains where arrival time >= walk time
+    const accessibleTrains = trains.filter((stop) => {
+      const minutes = getMinutesUntil(stop.arrival?.time);
+      return minutes !== null && minutes >= walkTime;
+    });
+
+    // Apply limit AFTER filtering
+    const limitedTrains = accessibleTrains.slice(0, limit);
+
+    if (limitedTrains.length === 0) {
       return (
-        <p style={{ color: "#999", fontSize: "14px" }}>No upcoming trains</p>
+        <p style={{
+          color: "#000",
+          fontSize: "13px",
+          fontWeight: "bold"
+        }}>
+          No upcoming trains
+        </p>
       );
     }
 
@@ -177,12 +220,16 @@ function App() {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          marginTop: "15px",
+          gap: "4px",
+          marginTop: "6px",
         }}
       >
-        {trains.map((stop, index) => {
+        {limitedTrains.map((stop, index) => {
           const minutes = getMinutesUntil(stop.arrival?.time);
+
+          // Calculate if this specific item is urgent
+          const leaveTime = minutes !== null ? minutes - walkTime : null;
+          const isItemUrgent = leaveTime !== null && leaveTime < threshold;
 
           // Determine if this is a railroad or subway train
           const isRailroad = "railroad" in stop && stop.railroad;
@@ -194,18 +241,31 @@ function App() {
 
           if (isRailroad && stop.routeId) {
             // Railroad train - use railroad colors
-            routeColor = `#${getRailroadRouteColor(stop.routeId, stop.railroad as "lirr" | "mtn")}`;
-            routeTextColor = `#${getRailroadRouteTextColor(stop.routeId, stop.railroad as "lirr" | "mtn")}`;
-            routeDisplayName = getRailroadRouteName(stop.routeId, stop.railroad as "lirr" | "mtn");
+            routeColor = getDisplayColor(
+              `#${getRailroadRouteColor(
+                stop.routeId,
+                stop.railroad as "lirr" | "mtn"
+              )}`
+            );
+            routeTextColor = getDisplayColor(
+              `#${getRailroadRouteTextColor(
+                stop.routeId,
+                stop.railroad as "lirr" | "mtn"
+              )}`
+            );
+            routeDisplayName = getRailroadRouteName(
+              stop.routeId,
+              stop.railroad as "lirr" | "mtn"
+            );
           } else if (stop.routeId) {
-            // Subway train - use subway colors
-            routeColor = getSubwayLineColor(stop.routeId);
-            routeTextColor = getSubwayLineTextColor(stop.routeId);
+            // Subway train - force white on black
+            routeColor = "#000000";
+            routeTextColor = "#FFFFFF";
             routeDisplayName = stop.routeId;
           } else {
             // Fallback
-            routeColor = `#${color.replace('#', '')}`;
-            routeTextColor = "white";
+            routeColor = "#000000";
+            routeTextColor = "#FFFFFF";
             routeDisplayName = stop.routeId;
           }
 
@@ -213,10 +273,12 @@ function App() {
             <div
               key={index}
               style={{
-                padding: "15px",
-                backgroundColor: "#f5f5f5",
-                borderRadius: "8px",
-                borderLeft: `4px solid ${routeColor}`,
+                padding: "6px",
+                backgroundColor: isItemUrgent ? "#000" : "#fff",
+                borderRadius: "4px",
+                borderLeft: isItemUrgent
+                  ? `3px solid #000`
+                  : `3px solid ${routeColor}`,
               }}
             >
               <div
@@ -231,20 +293,25 @@ function App() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
+                      gap: "4px",
                     }}
                   >
                     {stop.routeId && (
                       <span
                         style={{
-                          fontSize: isRailroad ? "12px" : "16px",
+                          fontSize: "11px",
                           fontWeight: "bold",
-                          backgroundColor: routeColor,
-                          color: routeTextColor,
-                          padding: "2px 8px",
-                          borderRadius: "4px",
-                          minWidth: isRailroad ? "auto" : "24px",
+                          backgroundColor: isItemUrgent ? "#fff" : routeColor,
+                          color: isItemUrgent ? "#000" : routeTextColor,
+                          padding: "0",
+                          borderRadius: "50%",
                           textAlign: "center",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "18px",
+                          height: "18px",
+                          flexShrink: 0,
                         }}
                       >
                         {routeDisplayName}
@@ -253,32 +320,43 @@ function App() {
                     {isRailroad && stop.railroad && (
                       <span
                         style={{
-                          fontSize: "12px",
+                          fontSize: "10px",
                           fontWeight: "bold",
-                          backgroundColor: "#666",
-                          color: "white",
-                          padding: "2px 6px",
-                          borderRadius: "3px",
+                          backgroundColor: isItemUrgent ? "#fff" : "#666",
+                          color: isItemUrgent ? "#000" : "white",
+                          padding: "1px 3px",
+                          borderRadius: "2px",
                         }}
                       >
                         {stop.railroad.toUpperCase()}
                       </span>
                     )}
-                    <div style={{ fontSize: "18px", fontWeight: "bold" }}>
+                    <div
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "bold",
+                        textAlign: "left",
+                        color: isItemUrgent ? "#fff" : undefined,
+                      }}
+                    >
                       {formatTime(stop.arrival?.time)}
                     </div>
                   </div>
                   {minutes !== null && (
                     <div
                       style={{
-                        fontSize: "14px",
-                        color: "#666",
-                        marginTop: "4px",
+                        fontSize: "13px",
+                        fontWeight: "bold",
+                        color: isItemUrgent ? "#fff" : "#000",
+                        marginTop: "2px",
+                        textAlign: "left",
                       }}
                     >
-                      {minutes <= 0
-                        ? "Arriving now"
-                        : `${minutes} min${minutes !== 1 ? "s" : ""}`}
+                      {(() => {
+                        const leaveTime = minutes - walkTime;
+                        if (leaveTime <= 0) return "Go now";
+                        return `Go in ${leaveTime} min${leaveTime !== 1 ? "s" : ""}`;
+                      })()}
                     </div>
                   )}
                 </div>
@@ -286,8 +364,12 @@ function App() {
                   stop.arrival.delay !== 0 && (
                     <div
                       style={{
-                        fontSize: "12px",
-                        color: stop.arrival.delay > 0 ? "#d32f2f" : "#388e3c",
+                        fontSize: "10px",
+                        color: isItemUrgent
+                          ? "#fff"
+                          : getDisplayColor(
+                              stop.arrival.delay > 0 ? "#d32f2f" : "#388e3c"
+                            ),
                         fontWeight: "bold",
                       }}
                     >
@@ -303,10 +385,27 @@ function App() {
     );
   };
 
-  const renderBusList = (buses: EnrichedBusData[], color: string) => {
-    if (buses.length === 0) {
+  const renderFerryList = (
+    ferries: FerryDeparture[],
+    _direction: string,
+    walkTime: number
+  ) => {
+    const threshold = displayConfig.urgentThresholdMinutes ?? 10;
+
+    // Filter ferries where arrival time >= walk time
+    const accessibleFerries = ferries.filter((ferry) => {
+      return ferry.minutesUntil >= walkTime;
+    });
+
+    if (accessibleFerries.length === 0) {
       return (
-        <p style={{ color: "#999", fontSize: "14px" }}>No upcoming buses</p>
+        <p style={{
+          color: "#000",
+          fontSize: "13px",
+          fontWeight: "bold"
+        }}>
+          No upcoming ferries
+        </p>
       );
     }
 
@@ -315,24 +414,25 @@ function App() {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          marginTop: "15px",
+          gap: "4px",
+          marginTop: "6px",
         }}
       >
-        {buses.map((bus, index) => {
-          const arrivalTime = bus.expectedArrival || bus.expectedDeparture;
-          const minutes = arrivalTime
-            ? Math.floor((arrivalTime.getTime() - Date.now()) / 60000)
-            : null;
+        {accessibleFerries.map((ferry, index) => {
+          const minutes = ferry.minutesUntil;
+
+          // Calculate if this specific item is urgent
+          const leaveTime = minutes - walkTime;
+          const isItemUrgent = leaveTime < threshold;
 
           return (
             <div
               key={index}
               style={{
-                padding: "15px",
-                backgroundColor: "#f5f5f5",
-                borderRadius: "8px",
-                borderLeft: `4px solid ${color}`,
+                padding: "6px",
+                backgroundColor: isItemUrgent ? "#000" : "#fff",
+                borderRadius: "4px",
+                borderLeft: "3px solid #000000",
               }}
             >
               <div
@@ -347,59 +447,213 @@ function App() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
-                      marginBottom: "4px",
+                      gap: "4px",
                     }}
                   >
                     <span
                       style={{
-                        fontSize: "16px",
+                        fontSize: "11px",
                         fontWeight: "bold",
-                        backgroundColor: color,
-                        color: "white",
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                        minWidth: "40px",
+                        backgroundColor: isItemUrgent ? "#FFFFFF" : "#000000",
+                        color: isItemUrgent ? "#000000" : "#FFFFFF",
+                        padding: "1px 4px",
+                        borderRadius: "2px",
+                        minWidth: "24px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {ferry.route}
+                    </span>
+                    <div
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "bold",
+                        textAlign: "left",
+                        color: isItemUrgent ? "#fff" : undefined,
+                      }}
+                    >
+                      {ferry.departureTime.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: !displayConfig.use24HourTime,
+                      })}
+                      {ferry.isNextDay && (
+                        <span style={{ marginLeft: "4px" }}>+1</span>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: "bold",
+                      color: isItemUrgent ? "#fff" : "#000",
+                      marginTop: "2px",
+                      textAlign: "left",
+                    }}
+                  >
+                    {(() => {
+                      const leaveTime = minutes - walkTime;
+                      if (leaveTime <= 0) return "Go now";
+                      return `Go in ${leaveTime} min${leaveTime !== 1 ? "s" : ""}`;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderBusList = (buses: EnrichedBusData[], walkTime: number) => {
+    const threshold = displayConfig.urgentThresholdMinutes ?? 10;
+
+    // Filter buses where arrival time >= walk time
+    const accessibleBuses = buses.filter((bus) => {
+      const arrivalTime = bus.expectedArrival || bus.expectedDeparture;
+      const minutes = arrivalTime
+        ? Math.floor((arrivalTime.getTime() - Date.now()) / 60000)
+        : null;
+      return minutes !== null && minutes >= walkTime;
+    });
+
+    if (accessibleBuses.length === 0) {
+      return (
+        <p style={{
+          color: "#000",
+          fontSize: "13px",
+          fontWeight: "bold"
+        }}>
+          No upcoming buses
+        </p>
+      );
+    }
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+          marginTop: "6px",
+        }}
+      >
+        {accessibleBuses.map((bus, index) => {
+          const arrivalTime = bus.expectedArrival || bus.expectedDeparture;
+          const minutes = arrivalTime
+            ? Math.floor((arrivalTime.getTime() - Date.now()) / 60000)
+            : null;
+
+          // Calculate if this specific item is urgent
+          const leaveTime = minutes !== null ? minutes - walkTime : null;
+          const isItemUrgent = leaveTime !== null && leaveTime < threshold;
+
+          // Get route display data
+          const routeInfo = getBusRouteInfo(bus.routeName);
+          // Force black background with white text for buses
+          const routeColor = "#000000";
+          const routeTextColor = "#FFFFFF";
+          const routeLongName = routeInfo?.route_long_name || null;
+
+          return (
+            <div
+              key={index}
+              style={{
+                padding: "6px",
+                backgroundColor: isItemUrgent ? "#000" : "#fff",
+                borderRadius: "4px",
+                borderLeft: `3px solid ${routeColor}`,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginBottom: "2px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "bold",
+                        backgroundColor: isItemUrgent ? "#fff" : routeColor,
+                        color: isItemUrgent ? "#000" : routeTextColor,
+                        padding: "1px 4px",
+                        borderRadius: "2px",
+                        minWidth: "24px",
                         textAlign: "center",
                       }}
                     >
                       {bus.routeName}
                     </span>
-                    <div style={{ fontSize: "14px", color: "#666" }}>
-                      to {bus.destination}
-                    </div>
+                    {routeLongName && (
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "bold",
+                          color: isItemUrgent ? "#fff" : "#000",
+                        }}
+                      >
+                        {routeLongName}
+                      </div>
+                    )}
+                    {!routeLongName && (
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "bold",
+                          color: isItemUrgent ? "#fff" : "#000",
+                        }}
+                      >
+                        to {bus.destination}
+                      </div>
+                    )}
                   </div>
                   {arrivalTime && (
                     <div
                       style={{
-                        fontSize: "18px",
+                        fontSize: "15px",
                         fontWeight: "bold",
-                        marginTop: "4px",
+                        marginTop: "2px",
+                        textAlign: "left",
+                        color: isItemUrgent ? "#fff" : undefined,
                       }}
                     >
                       {arrivalTime.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
+                        hour12: !displayConfig.use24HourTime,
                       })}
                     </div>
                   )}
                   {minutes !== null && (
                     <div
                       style={{
-                        fontSize: "14px",
-                        color: "#666",
-                        marginTop: "4px",
+                        fontSize: "13px",
+                        fontWeight: "bold",
+                        color: isItemUrgent ? "#fff" : "#000",
+                        marginTop: "2px",
+                        textAlign: "left",
                       }}
                     >
-                      {minutes <= 0
-                        ? "Arriving now"
-                        : `${minutes} min${minutes !== 1 ? "s" : ""}`}
+                      {(() => {
+                        const leaveTime = minutes - walkTime;
+                        if (leaveTime <= 0) return "Go now";
+                        return `Go in ${leaveTime} min${leaveTime !== 1 ? "s" : ""}`;
+                      })()}
                       {bus.stopsAway > 0 && ` (${bus.stopsAway} stops away)`}
                     </div>
                   )}
-                </div>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  {bus.distanceAway}
                 </div>
               </div>
             </div>
@@ -410,26 +664,37 @@ function App() {
   };
 
   return (
-    <>
-      <h1>NYC Home Dashboard</h1>
-      {lastUpdate && (
-        <p style={{ fontSize: "14px", color: "#666", marginBottom: "20px" }}>
-          Last updated: {lastUpdate}
-        </p>
-      )}
-      {loading && <p>Loading train data...</p>}
+    <div
+      style={{
+        width: "800px",
+        height: "480px",
+        border: "2px solid #000",
+        overflow: "auto",
+        boxSizing: "border-box",
+        padding: "6px",
+        position: "relative",
+      }}
+    >
+      {loading && <p>Loading transit data...</p>}
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
       {!loading && !error && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+            height: "100%",
+          }}
+        >
           {/* Render rows and columns from displayConfig */}
           {displayConfig.rowDisplay.map((row, rowIndex) => (
             <div
               key={`row-${rowIndex}`}
               style={{
                 display: "flex",
-                gap: "30px",
-                flexWrap: "wrap",
+                gap: "6px",
+                flex: 1,
               }}
             >
               {row.map((card, cardIndex) => (
@@ -440,63 +705,30 @@ function App() {
                   lastUpdate={lastUpdate}
                   onRenderTrainList={renderTrainList}
                   onRenderBusList={renderBusList}
+                  onRenderFerryList={renderFerryList}
                 />
               ))}
             </div>
           ))}
-
-          {/* Raw Railroad API Data */}
-          <div className="card">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h2>Raw Railroad API Data</h2>
-              <button
-                onClick={() => setShowRawData(!showRawData)}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#0039a6",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                }}
-              >
-                {showRawData ? "Hide" : "Show"} JSON
-              </button>
-            </div>
-            {showRawData && (
-              <div style={{ marginTop: "20px" }}>
-                {railroadRawData ? (
-                  <pre
-                    style={{
-                      backgroundColor: "#f5f5f5",
-                      padding: "15px",
-                      borderRadius: "8px",
-                      overflow: "auto",
-                      maxHeight: "600px",
-                      fontSize: "12px",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {JSON.stringify(railroadRawData, null, 2)}
-                  </pre>
-                ) : (
-                  <p style={{ color: "#999", marginTop: "10px" }}>
-                    No railroad data available
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       )}
-    </>
+
+      {lastUpdate && (
+        <p
+          style={{
+            fontSize: "13px",
+            fontWeight: "bold",
+            color: "#000",
+            position: "absolute",
+            bottom: "5px",
+            right: "10px",
+            margin: 0,
+          }}
+        >
+          Last updated: {lastUpdate}
+        </p>
+      )}
+    </div>
   );
 }
 

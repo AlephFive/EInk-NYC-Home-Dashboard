@@ -1,5 +1,6 @@
 import subwayStationsGeoJSON from "../staticData/subway/MTA_Subway_Stations_20251126.geojson";
 import railroadStopsLookup from "../staticData/railroad/railroad_stops_lookup.json";
+import { getBusStopInfo } from "./bus/displayDataLookup";
 
 // Subway station lookup
 interface SubwayStation {
@@ -99,9 +100,8 @@ export function getStationName(
   }
 
   if (transitType === "bus") {
-    // Bus stop names would need a separate lookup file
-    // For now, return the ID
-    return `Bus Stop ${stopId}`;
+    const stopInfo = getBusStopInfo(stopId);
+    return stopInfo?.stop_name || `Bus Stop ${stopId}`;
   }
 
   return `Stop ${stopId}`;

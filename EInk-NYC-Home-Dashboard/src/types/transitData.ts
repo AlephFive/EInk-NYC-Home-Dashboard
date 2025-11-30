@@ -5,6 +5,7 @@ import {
   type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate,
 } from "../utils/railroad";
 import { type EnrichedBusData } from "../utils/bus";
+import { type FerryDeparture } from "../utils/ferry";
 
 export interface TransitData {
   subway?: {
@@ -21,5 +22,11 @@ export interface TransitData {
   };
   bus?: {
     [stopId: string]: EnrichedBusData[];
+  };
+  ferry?: {
+    [stopName: string]: {
+      uptown: FerryDeparture[];
+      downTown: FerryDeparture[];
+    };
   };
 }
