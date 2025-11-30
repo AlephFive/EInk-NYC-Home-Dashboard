@@ -622,36 +622,40 @@ function App() {
                   {arrivalTime && (
                     <div
                       style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        marginTop: "2px",
-                        textAlign: "left",
-                        color: isItemUrgent ? "#fff" : undefined,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
                       }}
                     >
-                      {arrivalTime.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: !displayConfig.use24HourTime,
-                      })}
-                    </div>
-                  )}
-                  {minutes !== null && (
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: "bold",
-                        color: isItemUrgent ? "#fff" : "#000",
-                        marginTop: "2px",
-                        textAlign: "left",
-                      }}
-                    >
-                      {(() => {
-                        const leaveTime = minutes - walkTime;
-                        if (leaveTime <= 0) return "Go now";
-                        return `Go in ${leaveTime} min${leaveTime !== 1 ? "s" : ""}`;
-                      })()}
-                      {bus.stopsAway > 0 && ` (${bus.stopsAway} stops away)`}
+                      <div
+                        style={{
+                          fontSize: "15px",
+                          fontWeight: "bold",
+                          textAlign: "left",
+                          color: isItemUrgent ? "#fff" : undefined,
+                        }}
+                      >
+                        {arrivalTime.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: !displayConfig.use24HourTime,
+                        })}
+                      </div>
+                      {minutes !== null && (
+                        <div
+                          style={{
+                            fontSize: "13px",
+                            fontWeight: "bold",
+                            color: isItemUrgent ? "#fff" : "#000",
+                          }}
+                        >
+                          {(() => {
+                            const leaveTime = minutes - walkTime;
+                            if (leaveTime <= 0) return "Go now";
+                            return `Go in ${leaveTime} min${leaveTime !== 1 ? "s" : ""}`;
+                          })()}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
