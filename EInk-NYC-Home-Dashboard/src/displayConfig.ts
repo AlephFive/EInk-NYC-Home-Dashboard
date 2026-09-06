@@ -86,12 +86,9 @@ const displayConfig: DisplayConfiguration = {
         walkTime: 10,
       },
       {
-        // Times Sq-42 St is five separate stop IDs, one per platform group:
-        // 127 (1/2/3), R16 (N/Q/R/W), A27 (A/C/E), 725 (7), 902 (shuttle).
-        // Listing more of them here would merge them into one card.
         transitType: "subway",
-        stopIds: ["127"],
-        lines: ["1", "2", "3"],
+        stopIds: ["G24"], // 21 St
+        lines: ["G"],
         walkTime: 15,
       },
     ],
@@ -99,16 +96,14 @@ const displayConfig: DisplayConfiguration = {
     [
       {
         transitType: "bus",
-        // Borden Av/5 St: one ID per direction, same stop_name on both.
-        stopIds: ["505513", "505507"],
+        stopIds: ["505506"], // Center Blvd/Borden Av
         walkTime: 3,
       },
       {
-        // Coney Island-Stillwell Av: one stop ID serving four lines (D F N Q),
-        // and a true terminal — southbound trains all end here.
-        transitType: "subway",
-        stopIds: ["D43"],
-        lines: ["D", "F", "N", "Q"],
+        // Long Island City is peak-direction only, so this card is empty
+        // outside weekday rush hours. That is real service, not a fault.
+        transitType: "railroad-lirr",
+        stopIds: ["118"],
         walkTime: 5,
       },
     ],
