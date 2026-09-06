@@ -3,6 +3,7 @@ import displayConfig, {
 } from "../displayConfig";
 import { type TransitData, type TransitErrors } from "../types/transitData";
 import { departuresForCard } from "../utils/cardCapacity";
+import { collectErrors, mergeSorted, stopTimeOf } from "../utils/multiStop";
 import {
   isBoardable,
   type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate,
@@ -92,36 +93,6 @@ const cardStyle: React.CSSProperties = {
   minHeight: 0,
   overflow: "hidden",
 };
-
-/**
- * A card may list several stop IDs (a bus corner is one per direction, a subway
- * complex one per platform group). Data and errors are stored per stop, so a
- * card gathers its own IDs and merges them.
- */
-function collectErrors(
-  stopIds: string[],
-  errors: Record<string, string> | undefined
-): string | undefined {
-  if (!errors) return undefined;
-  const hit = stopIds.map((id) => errors[id]).filter(Boolean);
-  return hit.length > 0 ? hit[0] : undefined;
-}
-
-/** Merge per-stop arrays into one list, sorted by the given time accessor. */
-function mergeSorted<T>(
-  parts: (T[] | undefined)[],
-  time: (item: T) => number
-): T[] {
-  return parts
-    .filter((p): p is T[] => Array.isArray(p))
-    .flat()
-    .sort((a, b) => time(a) - time(b));
-}
-
-const stopTimeOf = (s: {
-  departure?: { time?: number };
-  arrival?: { time?: number };
-}) => Number(s.departure?.time ?? s.arrival?.time ?? 0);
 
 /**
  * The route bullets a subway card shows in place of a "Subway" type tag: the

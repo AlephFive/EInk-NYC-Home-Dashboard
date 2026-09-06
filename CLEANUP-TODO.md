@@ -126,11 +126,20 @@ would collapse all four.
 
 Structural, larger diffs:
 
-7. Extract `DepartureRow` / `EmptyRow` into `components/` (3)
-8. Move generic helpers into `utils/` (4)
-9. Unify the three render functions behind shared filter/urgency helpers (2, 15)
-10. Extract fetch orchestration out of `useEffect` (6)
-11. `TransitCard.tsx`: extract the repeated header/error skeleton (5)
+7. ~~Extract `DepartureRow` / `EmptyRow` into `components/` (3)~~ — now
+   `components/DepartureRow.tsx`. `listStyle` went to `cardCapacity.ts` instead, beside
+   the constants it must agree with; lint caught that exporting it from a component file
+   breaks Fast Refresh.
+8. ~~Move generic helpers into `utils/` (4)~~ — `collectErrors`, `mergeSorted` and
+   `stopTimeOf` are now `utils/multiStop.ts`. `mostCommon` was already gone.
+9. ~~Unify the three render functions (2, 15)~~ — `utils/departures.ts` holds
+   `minutesUntil`, `formatClockTime`, `leaveTimeFor`, `isUrgent` and
+   `reachableDepartures`; a `renderDepartures` helper in `App.tsx` builds the list, and
+   each type supplies only its own time accessor and row. Also removed a fourth copy of
+   the `/ 60000` arithmetic that was in the ferry module.
+   `badgeWidthForLabels` moved to `railroad/routeLookup.ts`.
+10. Extract fetch orchestration out of `useEffect` (6) — **still open**
+11. `TransitCard.tsx`: extract the repeated header/error skeleton (5) — **still open**
 
 Deferred to the redesign: 17, 18. Flagged only: 19.
 

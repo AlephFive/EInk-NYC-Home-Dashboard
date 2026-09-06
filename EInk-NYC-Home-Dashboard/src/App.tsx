@@ -15,202 +15,26 @@ import {
   type EnrichedBusData,
 } from "./utils/bus";
 import { getUpcomingFerryDepartures, type FerryDeparture } from "./utils/ferry";
-import { getRailroadRouteShortName, isCityBound } from "./utils/railroad";
+import {
+  getRailroadRouteShortName,
+  isCityBound,
+  badgeWidthForLabels,
+} from "./utils/railroad";
+import {
+  minutesUntil,
+  formatClockTime,
+  leaveTimeFor,
+  isUrgent,
+  reachableDepartures,
+  type DepartureTime,
+} from "./utils/departures";
 import { isBoardable } from "./utils/subway";
 import displayConfig from "./displayConfig";
 import { TransitCard } from "./components/TransitCard";
+import { DepartureRow, EmptyRow } from "./components/DepartureRow";
+import { listStyle } from "./utils/cardCapacity";
 import { type TransitData, type TransitErrors } from "./types/transitData";
 import { getDestinationName } from "./utils/stationLookup";
-
-/**
- * One departure line, shared by every transit type so rows are identical in
- * height and column positions across cards.
- *
- * Layout: [badge] [destination, flexible and clipped] [time, right-aligned].
- * The fixed ROW_HEIGHT is what keeps rows uniform — content never dictates it,
- * so a long destination or a two-character bullet cannot make one row taller
- * than its neighbours.
- */
-const ROW_HEIGHT = 26;
-
-const listStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "3px",
-  marginTop: "4px",
-};
-
-function EmptyRow({ label }: { label: string }) {
-  return (
-    <p
-      style={{
-        color: "#000",
-        fontSize: "13px",
-        fontWeight: "bold",
-        margin: "4px 0 0 0",
-      }}
-    >
-      {label}
-    </p>
-  );
-}
-
-function DepartureRow({
-  badge,
-  badgeShape,
-  point,
-  badgeWidth,
-  destination,
-  time,
-  urgent,
-  leaveIn,
-}: {
-  badge: string;
-  /** "bullet" = circular subway disc; "rect" = wider label for routes with names */
-  badgeShape: "bullet" | "rect";
-  /**
-   * Shapes the badge into an arrow pointing this way, for routes where the
-   * direction of travel matters. Omitted leaves the badge a plain rectangle.
-   */
-  point?: "left" | "right";
-  /**
-   * Fixed badge width, so every row in a list lines up rather than each badge
-   * sizing to its own text. Callers compute it from the longest label present.
-   */
-  badgeWidth?: string;
-  destination: string | null;
-  time: string;
-  urgent: boolean;
-  /** Minutes until you should leave; omitted when the setting is off */
-  leaveIn?: number;
-}) {
-  const fg = urgent ? "#fff" : "#000";
-  const bg = urgent ? "#000" : "#fff";
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        height: `${ROW_HEIGHT}px`,
-        minHeight: `${ROW_HEIGHT}px`,
-        padding: "0 4px",
-        boxSizing: "border-box",
-        backgroundColor: bg,
-        color: fg,
-        borderLeft: `3px solid ${fg}`,
-        borderRadius: "3px",
-        overflow: "hidden",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "11px",
-          fontWeight: "bold",
-          backgroundColor: fg,
-          color: bg,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          whiteSpace: "nowrap",
-          ...(badgeShape === "bullet"
-            ? {
-                width: "18px",
-                height: "18px",
-                borderRadius: "50%",
-                padding: 0,
-              }
-            : {
-                // Rectangular label for named routes (bus, railroad branches),
-                // capped so a long name cannot crowd out the destination.
-                height: "18px",
-                padding: "0 4px",
-                ...(badgeWidth
-                  ? { width: badgeWidth }
-                  : { maxWidth: "76px" }),
-                overflow: "hidden",
-                // The badge ellipsizes even though the rest of the row clips
-                // hard: a truncated branch name is easy to misread as a
-                // different branch, so the cut is worth signalling here.
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                display: "block",
-                lineHeight: "18px",
-                textAlign: "left",
-                ...(point
-                  ? {
-                      // Cut the badge into an arrowhead so the direction of
-                      // travel is the shape of the label, not a separate glyph
-                      // competing with it for width. The three corners away
-                      // from the point keep the same 2px radius as an
-                      // unpointed badge; clip-path trims the rest.
-                      borderRadius:
-                        point === "right" ? "2px 0 0 2px" : "0 2px 2px 0",
-                      // Both paddings clear the taper, so the label starts at
-                      // the same x whichever way the badge points — otherwise
-                      // the text jogs 5px across the column as the direction
-                      // alternates row to row.
-                      paddingLeft: "9px",
-                      paddingRight: "9px",
-                      clipPath:
-                        point === "right"
-                          ? "polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%)"
-                          : "polygon(6px 0, 100% 0, 100% 100%, 6px 100%, 0 50%)",
-                    }
-                  : { borderRadius: "2px" }),
-              }),
-        }}
-      >
-        {badge}
-      </span>
-
-      {/* Destination takes the slack and is allowed to clip. It clips hard
-          rather than ellipsizing: "..." costs about three characters of the
-          very space it is reporting is short, and on a fixed panel a name cut
-          mid-word still reads. */}
-      <span
-        style={{
-          flex: 1,
-          minWidth: 0,
-          fontSize: "12px",
-          fontWeight: "bold",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textAlign: "left",
-        }}
-      >
-        {destination ?? ""}
-      </span>
-
-      {leaveIn !== undefined && (
-        <span
-          style={{
-            fontSize: "11px",
-            fontWeight: "bold",
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {leaveIn <= 0 ? "now" : `${leaveIn}m`}
-        </span>
-      )}
-
-      <span
-        style={{
-          fontSize: "14px",
-          fontWeight: "bold",
-          flexShrink: 0,
-          whiteSpace: "nowrap",
-          textAlign: "right",
-        }}
-      >
-        {time}
-      </span>
-    </div>
-  );
-}
 
 const railroadsToFetch = ["lirr", "mtn"]; // LIRR and Metro-North
 
@@ -429,23 +253,27 @@ function App() {
     loadTransitData();
   }, []);
 
-  const formatTime = (timestamp?: number) => {
-    if (!timestamp) return "N/A";
-    return new Date(timestamp * 1000).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: !displayConfig.use24HourTime,
-    });
-  };
-
   const showLeaveIn = displayConfig.showLeaveIn ?? false;
 
-  const getMinutesUntil = (timestamp?: number) => {
-    if (!timestamp) return null;
-    const now = Date.now();
-    const arrival = timestamp * 1000;
-    const minutes = Math.floor((arrival - now) / 60000);
-    return minutes;
+  /** Builds one card's list, or the empty-state line when nothing is reachable. */
+  const renderDepartures = <T,>(
+    items: T[],
+    timeOf: (item: T) => DepartureTime,
+    walkTime: number,
+    limit: number,
+    emptyLabel: string,
+    toRow: (item: T, leaveTime: number | null) => React.ReactNode
+  ) => {
+    const reachable = reachableDepartures(items, timeOf, walkTime, limit);
+    if (reachable.length === 0) return <EmptyRow label={emptyLabel} />;
+
+    return (
+      <div style={listStyle}>
+        {reachable.map((item) =>
+          toRow(item, leaveTimeFor(minutesUntil(timeOf(item)), walkTime))
+        )}
+      </div>
+    );
   };
 
   const renderTrainList = (
@@ -454,102 +282,70 @@ function App() {
     walkTime: number,
     limit: number = 3
   ) => {
-    const threshold = displayConfig.urgentThresholdMinutes ?? 10;
-
     // A card lists trains you can board, so the time that matters is when the
     // train leaves. At a terminal the two are disjoint: trains ending their run
     // carry only `arrival`, trains starting one carry only `departure`.
-    const boardingTime = (
+    const boardable = trains.filter(isBoardable);
+    const timeOf = (
       stop: SubwayEnrichedStopTimeUpdate | RailroadEnrichedStopTimeUpdate
     ) => stop.departure?.time ?? stop.arrival?.time;
 
-    // Trains that terminate here cannot be boarded. Railroad feeds signal this
-    // by omitting `departure`; subway feeds do not, so `destinationStopId` —
-    // undefined when this stop ends the trip — is the test that works for both.
-    const boardable = trains.filter(isBoardable);
+    // Railroad badges share one width per card, set by the longest branch name,
+    // so destinations line up instead of stepping in and out with each badge.
+    const uniformBadgeWidth = badgeWidthForLabels(
+      reachableDepartures(boardable, timeOf, walkTime, limit).map((stop) =>
+        "railroad" in stop && stop.railroad && stop.routeId
+          ? getRailroadRouteShortName(
+              stop.routeId,
+              stop.railroad as "lirr" | "mtn"
+            )
+          : ""
+      )
+    );
 
-    // Filter to trains reachable in the walk time
-    const accessibleTrains = boardable.filter((stop) => {
-      const minutes = getMinutesUntil(boardingTime(stop));
-      return minutes !== null && minutes >= walkTime;
-    });
-
-    // Apply limit AFTER filtering
-    const limitedTrains = accessibleTrains.slice(0, limit);
-
-    if (limitedTrains.length === 0) {
-      return <EmptyRow label="No upcoming trains" />;
-    }
-
-    // Railroad badges are sized as one: the longest branch name on this card
-    // sets the width for every row, so the destinations line up instead of
-    // stepping in and out with each badge. Estimated from character count
-    // rather than measured, since the panel renders once and a layout pass to
-    // measure text would be its own complication. 6.2px/char suits the 11px
-    // bold face; the cap keeps a long name from crowding the destination, and
-    // overflowing labels still ellipsize.
-    const badgeLabels = limitedTrains.map((stop) => {
-      const rr = "railroad" in stop && stop.railroad;
-      return rr && stop.routeId
-        ? getRailroadRouteShortName(stop.routeId, stop.railroad as "lirr" | "mtn")
-        : "";
-    });
-    const longest = Math.max(0, ...badgeLabels.map((l) => l.length));
-    const uniformBadgeWidth =
-      longest > 0 ? `${Math.min(76, Math.ceil(longest * 6.2) + 8)}px` : undefined;
-
-    return (
-      <div style={listStyle}>
-        {limitedTrains.map((stop, index) => {
-          const minutes = getMinutesUntil(boardingTime(stop));
-          const leaveTime = minutes !== null ? minutes - walkTime : null;
-          const isItemUrgent = leaveTime !== null && leaveTime < threshold;
-
-          const isRailroad = "railroad" in stop && stop.railroad;
-          const railroad = isRailroad
+    return renderDepartures(
+      boardable,
+      timeOf,
+      walkTime,
+      limit,
+      "No upcoming trains",
+      (stop, leaveTime) => {
+        const railroad =
+          "railroad" in stop && stop.railroad
             ? (stop.railroad as "lirr" | "mtn")
             : undefined;
 
-          // Railroads get the branch name with "Branch" trimmed off; subway
-          // keeps its one-character bullet.
-          const badgeLabel =
-            railroad && stop.routeId
-              ? getRailroadRouteShortName(stop.routeId, railroad)
-              : stop.routeId ?? "";
+        const cityBound = railroad
+          ? isCityBound(stop.destinationStopId, railroad)
+          : null;
 
-          const destination = getDestinationName(
-            stop.destinationStopId,
-            railroad === "lirr"
-              ? "railroad-lirr"
-              : railroad === "mtn"
-                ? "railroad-mtn"
-                : "subway"
-          );
-
-          // Railroads only: mark whether the train runs toward a city terminal
-          // or out. Derived from the destination, since GTFS directionId is
-          // unusable here — see isCityBound().
-          const cityBound = railroad ? isCityBound(stop.destinationStopId, railroad) : null;
-
-          return (
-            <DepartureRow
-              key={index}
-              badge={badgeLabel}
-              badgeShape={railroad ? "rect" : "bullet"}
-              badgeWidth={railroad ? uniformBadgeWidth : undefined}
-              point={
-                cityBound === true ? "left" : cityBound === false ? "right" : undefined
-              }
-              destination={destination}
-              time={formatTime(boardingTime(stop))}
-              urgent={isItemUrgent}
-              leaveIn={
-                showLeaveIn && leaveTime !== null ? leaveTime : undefined
-              }
-            />
-          );
-        })}
-      </div>
+        return (
+          <DepartureRow
+            key={stop.tripId ?? `${stop.stopId}-${stop.departure?.time}`}
+            badge={
+              railroad && stop.routeId
+                ? getRailroadRouteShortName(stop.routeId, railroad)
+                : stop.routeId ?? ""
+            }
+            badgeShape={railroad ? "rect" : "bullet"}
+            badgeWidth={railroad ? uniformBadgeWidth : undefined}
+            point={
+              cityBound === true ? "left" : cityBound === false ? "right" : undefined
+            }
+            destination={getDestinationName(
+              stop.destinationStopId,
+              railroad === "lirr"
+                ? "railroad-lirr"
+                : railroad === "mtn"
+                  ? "railroad-mtn"
+                  : "subway"
+            )}
+            time={formatClockTime(timeOf(stop))}
+            urgent={isUrgent(leaveTime)}
+            leaveIn={showLeaveIn && leaveTime !== null ? leaveTime : undefined}
+          />
+        );
+      }
     );
   };
 
@@ -558,105 +354,51 @@ function App() {
     _direction: string,
     walkTime: number,
     limit: number = 3
-  ) => {
-    const threshold = displayConfig.urgentThresholdMinutes ?? 10;
-
-    const accessibleFerries = ferries
-      .filter((ferry) => ferry.minutesUntil >= walkTime)
-      .slice(0, limit);
-
-    if (accessibleFerries.length === 0) {
-      return <EmptyRow label="No upcoming ferries" />;
-    }
-
-    return (
-      <div style={listStyle}>
-        {accessibleFerries.map((ferry, index) => {
-          const leaveTime = ferry.minutesUntil - walkTime;
-          const isItemUrgent = leaveTime < threshold;
-
-          return (
-            <DepartureRow
-              key={index}
-              badge={ferry.route}
-              badgeShape="rect"
-              // The ferry schedule carries no destination; the card's two
-              // columns already say uptown vs downtown.
-              destination={ferry.isNextDay ? "+1 day" : null}
-              time={ferry.departureTime.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: !displayConfig.use24HourTime,
-              })}
-              urgent={isItemUrgent}
-              leaveIn={showLeaveIn ? leaveTime : undefined}
-            />
-          );
-        })}
-      </div>
+  ) =>
+    renderDepartures(
+      ferries,
+      (ferry) => ferry.departureTime,
+      walkTime,
+      limit,
+      "No upcoming ferries",
+      (ferry, leaveTime) => (
+        <DepartureRow
+          key={ferry.departureTime.getTime()}
+          badge={ferry.route}
+          badgeShape="rect"
+          // The ferry schedule carries no destination; the card's two columns
+          // already say uptown vs downtown.
+          destination={ferry.isNextDay ? "+1 day" : null}
+          time={formatClockTime(ferry.departureTime)}
+          urgent={isUrgent(leaveTime)}
+          leaveIn={showLeaveIn && leaveTime !== null ? leaveTime : undefined}
+        />
+      )
     );
-  };
 
   const renderBusList = (
     buses: EnrichedBusData[],
     walkTime: number,
     limit: number = 3
-  ) => {
-    const threshold = displayConfig.urgentThresholdMinutes ?? 10;
-
-    const busTime = (bus: EnrichedBusData) =>
-      bus.expectedArrival || bus.expectedDeparture;
-    const busMinutes = (bus: EnrichedBusData) => {
-      const t = busTime(bus);
-      return t ? Math.floor((t.getTime() - Date.now()) / 60000) : null;
-    };
-
-    // Filter buses where arrival time >= walk time
-    const accessibleBuses = buses.filter((bus) => {
-      const minutes = busMinutes(bus);
-      return minutes !== null && minutes >= walkTime;
-    });
-
-    // Apply limit AFTER filtering
-    const limitedBuses = accessibleBuses.slice(0, limit);
-
-    if (limitedBuses.length === 0) {
-      return <EmptyRow label="No upcoming buses" />;
-    }
-
-    return (
-      <div style={listStyle}>
-        {limitedBuses.map((bus, index) => {
-          const minutes = busMinutes(bus);
-          const leaveTime = minutes !== null ? minutes - walkTime : null;
-          const isItemUrgent = leaveTime !== null && leaveTime < threshold;
-          const arrivalTime = busTime(bus);
-
-          return (
-            <DepartureRow
-              key={index}
-              badge={bus.routeName}
-              badgeShape="rect"
-              destination={bus.destination ?? null}
-              time={
-                arrivalTime
-                  ? arrivalTime.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: !displayConfig.use24HourTime,
-                    })
-                  : "--"
-              }
-              urgent={isItemUrgent}
-              leaveIn={
-                showLeaveIn && leaveTime !== null ? leaveTime : undefined
-              }
-            />
-          );
-        })}
-      </div>
+  ) =>
+    renderDepartures(
+      buses,
+      (bus) => bus.expectedArrival ?? bus.expectedDeparture,
+      walkTime,
+      limit,
+      "No upcoming buses",
+      (bus, leaveTime) => (
+        <DepartureRow
+          key={`${bus.routeName}-${(bus.expectedArrival ?? bus.expectedDeparture)?.getTime()}`}
+          badge={bus.routeName}
+          badgeShape="rect"
+          destination={bus.destination ?? null}
+          time={formatClockTime(bus.expectedArrival ?? bus.expectedDeparture)}
+          urgent={isUrgent(leaveTime)}
+          leaveIn={showLeaveIn && leaveTime !== null ? leaveTime : undefined}
+        />
+      )
     );
-  };
 
   return (
     <div

@@ -68,3 +68,15 @@ export function departuresForCard(
   // The final row needs no trailing gap, so one gap is credited back.
   return Math.max(1, Math.floor((available + 3) / ROW_BLOCK));
 }
+
+/**
+ * The departure list wrapper. Its 3px gap and 4px top margin are the same
+ * values `ROW_BLOCK` and `LIST_MARGIN` above account for, so the fitted row
+ * count and the rendered spacing cannot drift apart.
+ */
+export const listStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "3px",
+  marginTop: `${LIST_MARGIN}px`,
+} as const;

@@ -106,3 +106,23 @@ export function isCityBound(
   const terminals = cityTerminals[railroad] as Record<string, string>;
   return Object.prototype.hasOwnProperty.call(terminals, destinationStopId);
 }
+
+/**
+ * One badge width for a whole card, sized to the longest branch name in it, so
+ * destinations start at the same x on every row rather than stepping in and
+ * out with each badge.
+ *
+ * Estimated from character count rather than measured: the panel renders once
+ * and is screenshotted, so there is no second pass in which a measured width
+ * could settle. ~6.2px per character suits the 11px bold face; the 76px cap
+ * stops a long name crowding out the destination, and over-long labels
+ * ellipsize instead.
+ *
+ * @param labels - Badge labels appearing on the card
+ * @returns A CSS width, or undefined when no label needs one
+ */
+export function badgeWidthForLabels(labels: string[]): string | undefined {
+  const longest = Math.max(0, ...labels.map((l) => l.length));
+  if (longest === 0) return undefined;
+  return `${Math.min(76, Math.ceil(longest * 6.2) + 8)}px`;
+}

@@ -13,6 +13,7 @@ export {
   getRailroadRouteName,
   getRailroadRouteShortName,
   isCityBound,
+  badgeWidthForLabels,
   getRailroadRouteColor,
   getRailroadRouteTextColor,
 } from "./routeLookup";
