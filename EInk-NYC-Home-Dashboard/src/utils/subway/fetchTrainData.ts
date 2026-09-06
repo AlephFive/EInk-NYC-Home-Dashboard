@@ -29,6 +29,11 @@ export interface StopTimeData {
 export interface EnrichedStopTimeUpdate extends TripUpdate_StopTimeUpdate {
   routeId?: string;
   tripId?: string;
+  /**
+   * GTFS stop ID of the trip's last stop. Undefined when this stop *is* the
+   * last one, i.e. the train terminates here and has nowhere onward to show.
+   */
+  destinationStopId?: string;
 }
 
 /**
@@ -192,18 +197,47 @@ export async function extractDataByStop(
     const routeId = entity.tripUpdate?.trip?.routeId;
     const tripId = entity.tripUpdate?.trip?.tripId;
 
-    entity.tripUpdate?.stopTimeUpdate.forEach((stopTime) => {
+    // The trip's last stop is where this train ends up. GTFS-RT drops stops
+    // already passed, so the final entry is the terminus for what remains.
+    const stopTimeUpdates = entity.tripUpdate?.stopTimeUpdate ?? [];
+    const terminusStopId = stopTimeUpdates[stopTimeUpdates.length - 1]?.stopId;
+
+    stopTimeUpdates.forEach((stopTime) => {
       if (stopTime.stopId === stopId) {
         possibleTrainsOnStation.push({
           ...stopTime,
           routeId,
           tripId,
+          // Omit when the train terminates at this very stop.
+          destinationStopId:
+            terminusStopId === stopId ? undefined : terminusStopId,
         });
       }
     });
   });
 
   return possibleTrainsOnStation;
+}
+
+/**
+ * Whether a stop time is a departure a rider can actually take.
+ *
+ * Two different signals matter, because the feeds are inconsistent:
+ *  - Railroad terminals omit `departure` on trains ending their run.
+ *  - Subway terminals do *not* — at Coney Island all 51 southbound trains carry
+ *    both `arrival` and `departure` despite every one of them terminating.
+ *
+ * `destinationStopId` is the reliable test: `extractDataByStop` leaves it
+ * undefined when this stop is the last of the trip, whichever feed it came from.
+ */
+export function isBoardable(stopTime: {
+  departure?: { time?: number };
+  destinationStopId?: string;
+}): boolean {
+  return (
+    stopTime.departure?.time !== undefined &&
+    stopTime.destinationStopId !== undefined
+  );
 }
 
 /**
