@@ -60,6 +60,48 @@ here is actioned yet — verdicts are a proposal for Shao-en to greenlight.
 
 ---
 
+## Extraction list
+
+Items 2, 3 and 4 named the *areas*; these are the specific functions, each verified as
+repeated or misplaced. Proposed homes assume `utils/` for logic and `components/` for
+rendering.
+
+### Repeated logic — extract to `utils/departures.ts`
+
+| Extract | Repeated at | Note |
+|---|---|---|
+| `minutesUntil(time)` | `App.tsx:443` (as `getMinutesUntil`, seconds) and `:611` (inline, `Date`) | Two implementations of the same idea, one taking Unix seconds and one a `Date`. One helper accepting both. |
+| `formatClockTime(time)` | `:434`, `:586`, `:643` | Three `toLocaleTimeString` calls with identical options, each repeating `hour12: !displayConfig.use24HourTime` (`:437`, `:589`, `:646`). |
+| `leaveTimeFor(minutes, walkTime)` + `isUrgent(leaveTime)` | `:505-506`, `:575-576`, `:631-632` | The same two lines three times, plus `urgentThresholdMinutes ?? 10` read separately in each render function. |
+| `reachableWithin(items, walkTime, limit, timeOf)` | `renderTrainList:473`, `renderFerryList:565`, `renderBusList:617` | The filter-then-slice shape, identical but for how each type reads its time. A `timeOf` accessor parameterises the difference. |
+
+### Misplaced generic helpers — move out of `TransitCard.tsx` to `utils/`
+
+`mergeSorted`, `stopTimeOf`, `collectErrors`, `mostCommon`. None are card-specific;
+`mergeSorted` and `mostCommon` are generic list utilities. Note `mostCommon` is currently
+**unused** — the bus column heading that consumed it was removed — so it should be deleted
+rather than moved.
+
+### Components living in `App.tsx` — move to `components/`
+
+`DepartureRow` and `EmptyRow`, plus the `ROW_HEIGHT` and `listStyle` constants they own.
+
+### Repeated markup — extract to a `CardShell` component
+
+The card header block is duplicated **four times verbatim** in `TransitCard.tsx` (grep for
+`borderBottom: "2px dotted #000"` — four identical hits at the ferry, subway, railroad and
+bus branches). Each branch also repeats the same skeleton: resolve `cardError`, map
+`card.stopIds` to data, bail if neither, render header, then render either `CardError` or
+the body (`:200`, `:281`, `:412`, `:478`). A shell taking a type mark, title and body
+would collapse all four.
+
+### Deliberately not extracted
+
+- The two `fetchTrainData.ts` modules (item 16) — differences are real, not incidental.
+- `SubwayBullets` and `CardError` — already extracted, single-use but correctly placed.
+
+---
+
 ## Proposed order
 
 Low risk, clears the lint baseline:
