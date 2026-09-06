@@ -111,8 +111,8 @@ const displayConfig: DisplayConfiguration = {
     [
       {
         transitType: "railroad-lirr",
-        stopIds: ["102"], // Jamaica — a hub, so departures fan out across branches
-        walkTime: 5,
+        stopIds: ["349"], // Grand Central (Grand Central Madison)
+        walkTime: 20,
       },
     ],
   ],
