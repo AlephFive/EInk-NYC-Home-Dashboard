@@ -142,6 +142,85 @@ function SubwayBullets({ routes }: { routes: string[] }) {
  */
 const HEADER_HEIGHT = 34;
 
+/**
+ * The frame every card shares: a fixed-height header carrying a type mark and
+ * the station name, a dotted rule, then either the card's body or the error
+ * that stopped it loading.
+ *
+ * Keeping this in one place is what makes the dotted rules line up across a
+ * row — the header height is fixed here rather than left to each card's
+ * content, since the type marks differ in height (24px subway bullets against
+ * 28px "Bus"/"LIRR" tags).
+ */
+function CardShell({
+  typeMark,
+  title,
+  error,
+  children,
+}: {
+  /** Route bullets or a type tag, shown before the title */
+  typeMark: React.ReactNode;
+  title: string;
+  /** When set, replaces the body with the failure message */
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="card" style={cardStyle}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          gap: "6px",
+          marginBottom: "4px",
+          paddingBottom: "4px",
+          borderBottom: "2px dotted #000",
+          minWidth: 0,
+          height: `${HEADER_HEIGHT}px`,
+          boxSizing: "border-box",
+        }}
+      >
+        {typeMark}
+        <h2
+          style={{
+            fontSize: "16px",
+            margin: "0",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            // Without minWidth the h2 keeps its content's width and the
+            // ellipsis above never engages.
+            minWidth: 0,
+          }}
+        >
+          {title}
+        </h2>
+      </div>
+      {error ? <CardError message={error} /> : children}
+    </div>
+  );
+}
+
+/** The "Bus" / "LIRR" / "Metro-North" / "Ferry" label a non-subway card leads with. */
+function TypeTag({ label }: { label: string }) {
+  return (
+    <span
+      style={{
+        fontSize: "13px",
+        fontWeight: "bold",
+        border: "2px solid #000",
+        borderRadius: "4px",
+        padding: "2px 6px",
+        flexShrink: 0,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
 export function TransitCard({
   card,
   cardsInColumn,
@@ -184,67 +263,30 @@ export function TransitCard({
     };
 
     return (
-      <div className="card" style={cardStyle}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          gap: "6px",
-          marginBottom: "4px",
-          paddingBottom: "4px",
-          borderBottom: "2px dotted #000",
-          minWidth: 0,
-          // Fixed so the rule sits at the same y on every card. The type marks
-          // differ in height — 24px subway bullets against 28px "Bus"/"LIRR"
-          // tags — and without this the header grows to fit whichever it holds.
-          height: `${HEADER_HEIGHT}px`,
-          boxSizing: "border-box",
-        }}>
-          <span style={{
-            fontSize: "13px",
-            fontWeight: "bold",
-            border: "2px solid #000",
-            borderRadius: "4px",
-            padding: "2px 6px",
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-          }}>
-            Ferry
-          </span>
-          <h2 style={{
-            fontSize: "16px",
-            margin: "0",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            // Without minWidth the h2 keeps its content's width and the
-            // ellipsis above never engages.
+      <CardShell
+        typeMark={<TypeTag label="Ferry" />}
+        title={card.title ?? primaryStopId}
+        error={cardError}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            marginTop: "2px",
             minWidth: 0,
-          }}>{card.title ?? primaryStopId}</h2>
-        </div>
-        {cardError ? (
-          <CardError message={cardError} />
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              marginTop: "2px",
-              minWidth: 0,
-            }}
-          >
-            {/* flex-basis 0 keeps the two columns equal whatever they hold */}
-            <div style={{ flex: "1 1 0", minWidth: 0 }}>
-              <h3 style={{ margin: "0 0 4px 0", fontSize: "13px" }}>Uptown</h3>
-              {onRenderFerryList(data.uptown, "uptown", card.walkTime, departures)}
-            </div>
-            <div style={{ flex: "1 1 0", minWidth: 0 }}>
-              <h3 style={{ margin: "0 0 4px 0", fontSize: "13px" }}>Downtown</h3>
-              {onRenderFerryList(data.downTown, "downTown", card.walkTime, departures)}
-            </div>
+          }}
+        >
+          {/* flex-basis 0 keeps the two columns equal whatever they hold */}
+          <div style={{ flex: "1 1 0", minWidth: 0 }}>
+            <h3 style={{ margin: "0 0 4px 0", fontSize: "13px" }}>Uptown</h3>
+            {onRenderFerryList(data.uptown, "uptown", card.walkTime, departures)}
           </div>
-        )}
-      </div>
+          <div style={{ flex: "1 1 0", minWidth: 0 }}>
+            <h3 style={{ margin: "0 0 4px 0", fontSize: "13px" }}>Downtown</h3>
+            {onRenderFerryList(data.downTown, "downTown", card.walkTime, departures)}
+          </div>
+        </div>
+      </CardShell>
     );
   }
 
@@ -273,106 +315,79 @@ export function TransitCard({
     ];
 
     return (
-      <div className="card" style={cardStyle}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          gap: "6px",
-          marginBottom: "4px",
-          paddingBottom: "4px",
-          borderBottom: "2px dotted #000",
-          minWidth: 0,
-          // Fixed so the rule sits at the same y on every card. The type marks
-          // differ in height — 24px subway bullets against 28px "Bus"/"LIRR"
-          // tags — and without this the header grows to fit whichever it holds.
-          height: `${HEADER_HEIGHT}px`,
-          boxSizing: "border-box",
-        }}>
-          <SubwayBullets routes={cardRoutes} />
-          <h2 style={{
-            fontSize: "16px",
-            margin: "0",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            // Without minWidth the h2 keeps its content's width and the
-            // ellipsis above never engages.
-            minWidth: 0,
-          }}>{stationName}</h2>
-        </div>
-        {cardError ? (
-          <CardError message={cardError} />
-        ) : (
-          (() => {
-            // At a terminal every train in one direction terminates here, so
-            // that direction has nothing boardable. Show the single live
-            // direction full-width rather than half the card reading "No
-            // upcoming trains".
-            const directions = [
-              {
-                key: "S" as const,
-                trains: data.southbound,
-                label:
-                  directionLabels?.southbound ||
-                  card.directionNames?.southbound ||
-                  "Southbound",
-              },
-              {
-                key: "N" as const,
-                trains: data.northbound,
-                label:
-                  directionLabels?.northbound ||
-                  card.directionNames?.northbound ||
-                  "Northbound",
-              },
-            ];
+      <CardShell
+        typeMark={<SubwayBullets routes={cardRoutes} />}
+        title={stationName}
+        error={cardError}
+      >
+        {(() => {
+          // At a terminal every train in one direction terminates here, so
+          // that direction has nothing boardable. Show the single live
+          // direction full-width rather than half the card reading "No
+          // upcoming trains".
+          const directions = [
+            {
+              key: "S" as const,
+              trains: data.southbound,
+              label:
+                directionLabels?.southbound ||
+                card.directionNames?.southbound ||
+                "Southbound",
+            },
+            {
+              key: "N" as const,
+              trains: data.northbound,
+              label:
+                directionLabels?.northbound ||
+                card.directionNames?.northbound ||
+                "Northbound",
+            },
+          ];
 
-            const live = directions.filter((d) => d.trains.some(isBoardable));
-            // If neither direction runs, keep both so the card still explains
-            // itself instead of rendering nothing.
-            const shown = live.length > 0 ? live : directions;
+          const live = directions.filter((d) => d.trains.some(isBoardable));
+          // If neither direction runs, keep both so the card still explains
+          // itself instead of rendering nothing.
+          const shown = live.length > 0 ? live : directions;
 
-            return (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginTop: "2px",
-                  minWidth: 0,
-                }}
-              >
-                {shown.map((d) => (
-                  <div
-                    key={d.key}
-                    // flex-basis 0 makes the columns equal regardless of their
-                    // content; minWidth 0 lets them shrink inside the card.
-                    style={{ flex: "1 1 0", minWidth: 0 }}
+          return (
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                marginTop: "2px",
+                minWidth: 0,
+              }}
+            >
+              {shown.map((d) => (
+                <div
+                  key={d.key}
+                  // flex-basis 0 makes the columns equal regardless of their
+                  // content; minWidth 0 lets them shrink inside the card.
+                  style={{ flex: "1 1 0", minWidth: 0 }}
+                >
+                  <h3
+                    style={{
+                      margin: "0 0 4px 0",
+                      fontSize: "13px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
                   >
-                    <h3
-                      style={{
-                        margin: "0 0 4px 0",
-                        fontSize: "13px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {d.label}
-                    </h3>
-                    {onRenderTrainList(
-                      d.trains,
-                      d.key,
-                      card.walkTime,
-                      departures
-                    )}
-                  </div>
-                ))}
-              </div>
-            );
-          })()
-        )}
-      </div>
+                    {d.label}
+                  </h3>
+                  {onRenderTrainList(
+                    d.trains,
+                    d.key,
+                    card.walkTime,
+                    departures
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </CardShell>
     );
   }
 
@@ -396,52 +411,15 @@ export function TransitCard({
       card.transitType === "railroad-lirr" ? "LIRR" : "Metro-North";
 
     return (
-      <div className="card" style={cardStyle}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          gap: "6px",
-          marginBottom: "4px",
-          paddingBottom: "4px",
-          borderBottom: "2px dotted #000",
-          minWidth: 0,
-          // Fixed so the rule sits at the same y on every card. The type marks
-          // differ in height — 24px subway bullets against 28px "Bus"/"LIRR"
-          // tags — and without this the header grows to fit whichever it holds.
-          height: `${HEADER_HEIGHT}px`,
-          boxSizing: "border-box",
-        }}>
-          <span style={{
-            fontSize: "13px",
-            fontWeight: "bold",
-            border: "2px solid #000",
-            borderRadius: "4px",
-            padding: "2px 6px",
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-          }}>
-            {railroadLabel}
-          </span>
-          <h2 style={{
-            fontSize: "16px",
-            margin: "0",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            // Without minWidth the h2 keeps its content's width and the
-            // ellipsis above never engages.
-            minWidth: 0,
-          }}>{stationName}</h2>
-        </div>
+      <CardShell
+        typeMark={<TypeTag label={railroadLabel} />}
+        title={stationName}
+        error={cardError}
+      >
         <div style={{ marginTop: "2px" }}>
-          {cardError ? (
-            <CardError message={cardError} />
-          ) : (
-            onRenderTrainList(data, "", card.walkTime, departures)
-          )}
+          {onRenderTrainList(data, "", card.walkTime, departures)}
         </div>
-      </div>
+      </CardShell>
     );
   }
 
@@ -462,81 +440,42 @@ export function TransitCard({
     const stationName = card.title ?? getStationName(primaryStopId, "bus");
 
     return (
-      <div className="card" style={cardStyle}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          gap: "6px",
-          marginBottom: "4px",
-          paddingBottom: "4px",
-          borderBottom: "2px dotted #000",
-          minWidth: 0,
-          // Fixed so the rule sits at the same y on every card. The type marks
-          // differ in height — 24px subway bullets against 28px "Bus"/"LIRR"
-          // tags — and without this the header grows to fit whichever it holds.
-          height: `${HEADER_HEIGHT}px`,
-          boxSizing: "border-box",
-        }}>
-          <span style={{
-            fontSize: "13px",
-            fontWeight: "bold",
-            border: "2px solid #000",
-            borderRadius: "4px",
-            padding: "2px 6px",
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-          }}>
-            Bus
-          </span>
-          <h2 style={{
-            fontSize: "16px",
-            margin: "0",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            // Without minWidth the h2 keeps its content's width and the
-            // ellipsis above never engages.
-            minWidth: 0,
-          }}>{stationName}</h2>
-        </div>
-        {cardError ? (
-          <div style={{ marginTop: "2px" }}>
-            <CardError message={cardError} />
-          </div>
-        ) : (
-          (() => {
-            const columns = busGroups.map(({ stopId, buses }) => ({
-              key: stopId,
-              buses: [...buses].sort(
-                (a, b) =>
-                  ((a.expectedArrival ?? a.expectedDeparture)?.getTime() ?? 0) -
-                  ((b.expectedArrival ?? b.expectedDeparture)?.getTime() ?? 0)
-              ),
-            }));
+      <CardShell
+        typeMark={<TypeTag label="Bus" />}
+        title={stationName}
+        error={cardError}
+      >
+        {(() => {
+          const columns = busGroups.map(({ stopId, buses }) => ({
+            key: stopId,
+            buses: [...buses].sort(
+              (a, b) =>
+                ((a.expectedArrival ?? a.expectedDeparture)?.getTime() ?? 0) -
+                ((b.expectedArrival ?? b.expectedDeparture)?.getTime() ?? 0)
+            ),
+          }));
 
-            return (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginTop: "2px",
-                  minWidth: 0,
-                }}
-              >
-                {/* No column heading: a stop serves several routes, so a
-                    single label can only show the most common destination,
-                    which is wrong for the rest of the column. */}
-                {columns.map((c) => (
-                  <div key={c.key} style={{ flex: "1 1 0", minWidth: 0 }}>
-                    {onRenderBusList(c.buses, card.walkTime, departures)}
-                  </div>
-                ))}
-              </div>
-            );
-          })()
-        )}
-      </div>
+          return (
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                marginTop: "2px",
+                minWidth: 0,
+              }}
+            >
+              {/* No column heading: a stop serves several routes, so a
+                  single label can only show the most common destination,
+                  which is wrong for the rest of the column. */}
+              {columns.map((c) => (
+                <div key={c.key} style={{ flex: "1 1 0", minWidth: 0 }}>
+                  {onRenderBusList(c.buses, card.walkTime, departures)}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </CardShell>
     );
   }
 

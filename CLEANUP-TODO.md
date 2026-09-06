@@ -138,8 +138,20 @@ Structural, larger diffs:
    each type supplies only its own time accessor and row. Also removed a fourth copy of
    the `/ 60000` arithmetic that was in the ferry module.
    `badgeWidthForLabels` moved to `railroad/routeLookup.ts`.
-10. Extract fetch orchestration out of `useEffect` (6) — **still open**
-11. `TransitCard.tsx`: extract the repeated header/error skeleton (5) — **still open**
+10. ~~Extract fetch orchestration out of `useEffect` (6)~~ — `utils/loadTransitData.ts`,
+    one loader per transit type plus `collectStops`. The effect is now only React.
+11. ~~`TransitCard.tsx`: extract the repeated header/error skeleton (5)~~ — `CardShell`
+    owns the header, dotted rule and error branch; `TypeTag` owns the "Bus"/"LIRR" label.
+    573 -> 483 lines.
+
+### Result
+
+`App.tsx` 764 -> 320 lines, `TransitCard.tsx` 573 -> 483, lint 7 errors -> 0. Six new
+focused modules: `departures.ts`, `multiStop.ts`, `loadTransitData.ts`, `cardCapacity.ts`,
+`components/DepartureRow.tsx`, and `CardShell`/`TypeTag` inside `TransitCard.tsx`.
+
+Still open, deliberately: magic numbers in styles (17) and the inline-style system (18),
+both deferred to the redesign; test infrastructure (19), which is its own decision.
 
 Deferred to the redesign: 17, 18. Flagged only: 19.
 
