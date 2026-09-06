@@ -104,14 +104,25 @@ would collapse all four.
 
 ## Proposed order
 
-Low risk, clears the lint baseline:
+### Low risk — DONE (lint baseline now clean, 7 errors -> 0)
 
-1. Delete the dead `totalSize` reduce (7)
-2. Remove the `console.log`s (10)
-3. Delete orphaned modules and dead exports, keeping what planned work needs (8, 9, 14)
-4. Fix the `any` escapes (13)
-5. Drop the pointless `async` (12)
-6. Resolve the unused `subwayLine` parameter (20)
+1. ~~Delete the dead `totalSize` reduce (7)~~ — also removed the `dataSize` metadata
+   field it fed, which nothing read, from both fetchers.
+2. ~~Remove the `console.log`s (10)~~ — the `console.warn` for a missing stop is kept;
+   that is the retired-stop-ID signal.
+3. ~~Delete orphaned modules and dead exports (8, 9, 14)~~ — deleted `subway/stations.ts`
+   (superseded, and importing a path that does not exist) and `displayMode.ts`
+   (redundant: the server does the 1-bit conversion, `renderer.ts:110`), plus
+   `getStationInfo`. **Kept** `subwayColors.ts` and its exports for the redesign, and
+   `getFerryStops` for the live-ferry work.
+4. ~~Fix the `any` escapes (13)~~ — `TaggedEntity` for the railroad's `_railroad` field,
+   a `FerryScheduleData` shape for the schedule JSON, typed GeoJSON properties. The last
+   of these caught two genuinely-optional fields being assigned to required ones.
+5. ~~Drop the pointless `async` (12)~~ — `extractDataByStop` and
+   `getUpcomingTrainsAtStation` in both fetchers, plus the three now-redundant `await`s.
+6. ~~Resolve the unused `subwayLine` parameter (20)~~ — documented rather than removed:
+   it must stay unused, because matching on stop ID alone is what makes rerouted trains
+   appear.
 
 Structural, larger diffs:
 

@@ -1,5 +1,15 @@
 import ferrySchedule from "../../staticData/ferry/schedule.json";
 
+/**
+ * Shape of `staticData/ferry/schedule.json`: route -> day type -> direction ->
+ * stop name -> departure times. Typed here rather than cast to `any` so a
+ * missing level is a compile error instead of a runtime undefined.
+ */
+type FerryScheduleData = Record<
+  string,
+  Record<string, Record<string, Record<string, string[]>>>
+>;
+
 export type DayType = "weekday" | "weekend";
 export type Direction = "uptown" | "downTown";
 export type Route = "ER";
@@ -126,8 +136,7 @@ function getDeparturesForDay(
 ): FerryDeparture[] {
   const now = new Date();
 
-  // Access the schedule data
-  const scheduleData = ferrySchedule as any;
+  const scheduleData = ferrySchedule as FerryScheduleData;
   const routeData = scheduleData[route];
 
   if (!routeData) {
@@ -184,7 +193,7 @@ export function getFerryStops(
   dayType?: DayType
 ): string[] {
   const scheduleType = dayType || getDayType();
-  const scheduleData = ferrySchedule as any;
+  const scheduleData = ferrySchedule as FerryScheduleData;
   const routeData = scheduleData[route];
 
   if (!routeData) return [];

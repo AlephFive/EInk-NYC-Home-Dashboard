@@ -32,16 +32,14 @@ interface RailroadStop {
 // Build subway station lookup by gtfs_stop_id (what the API uses)
 const subwayStationsByGtfsId: Record<string, SubwayStation> = {};
 
-console.log("Loading subway stations...", subwayStationsGeoJSON);
-
 if (subwayStationsGeoJSON && subwayStationsGeoJSON.features) {
-  subwayStationsGeoJSON.features.forEach((feature: any) => {
-    const props = feature.properties;
+  subwayStationsGeoJSON.features.forEach((feature) => {
+    const props = feature.properties as Partial<SubwayStation> | undefined;
     if (props && props.gtfs_stop_id) {
       subwayStationsByGtfsId[props.gtfs_stop_id] = {
         gtfs_stop_id: props.gtfs_stop_id,
-        station_id: props.station_id,
-        stop_name: props.stop_name,
+        station_id: props.station_id ?? "",
+        stop_name: props.stop_name ?? `Stop ${props.gtfs_stop_id}`,
         daytime_routes: props.daytime_routes,
         complex_id: props.complex_id,
         north_direction_label: props.north_direction_label,
@@ -49,7 +47,6 @@ if (subwayStationsGeoJSON && subwayStationsGeoJSON.features) {
       };
     }
   });
-  console.log(`Loaded ${Object.keys(subwayStationsByGtfsId).length} subway stations`);
 } else {
   console.error("Failed to load subway stations GeoJSON");
 }
@@ -76,9 +73,7 @@ export function getStationName(
 ): string {
   if (transitType === "subway") {
     const station = subwayStationsByGtfsId[stopId];
-    const name = station?.stop_name || `Stop ${stopId}`;
-    console.log(`Subway lookup: ${stopId} -> ${name}`, station);
-    return name;
+    return station?.stop_name || `Stop ${stopId}`;
   }
 
   if (transitType === "railroad-lirr" || transitType === "railroad-mtn") {
@@ -88,10 +83,7 @@ export function getStationName(
       : railroadStopsByIdMtn[stopId];
 
     if (stop) {
-      const name = stop.stop_name;
-      const railroad = transitType === "railroad-lirr" ? "LIRR" : "Metro-North";
-      console.log(`${railroad} lookup: ${stopId} -> ${name}`, stop);
-      return name;
+      return stop.stop_name;
     }
 
     const railroad = transitType === "railroad-lirr" ? "LIRR" : "Metro-North";
@@ -118,29 +110,6 @@ export function getSubwayRoutes(stopId: string): string[] {
     return station.daytime_routes.split(" ");
   }
   return [];
-}
-
-/**
- * Get detailed station info
- */
-export function getStationInfo(
-  stopId: string,
-  transitType: "subway" | "railroad-lirr" | "railroad-mtn" | "bus" | "ferry"
-): any {
-  if (transitType === "subway") {
-    return subwayStationsByGtfsId[stopId] || null;
-  }
-
-  if (transitType === "railroad-lirr" || transitType === "railroad-mtn") {
-    // Use separate lookups to avoid ID conflicts between railroads
-    const stop = transitType === "railroad-lirr"
-      ? railroadStopsByIdLirr[stopId]
-      : railroadStopsByIdMtn[stopId];
-
-    return stop || null;
-  }
-
-  return null;
 }
 
 /**

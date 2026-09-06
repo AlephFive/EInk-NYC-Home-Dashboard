@@ -291,12 +291,12 @@ function App() {
             const data = await fetchMultipleTrainLines(Array.from(subwayLines));
 
             for (const stopId of subwayStops) {
-              const southbound = await getUpcomingTrainsAtStation(
+              const southbound = getUpcomingTrainsAtStation(
                 data.feedMessage,
                 stopId,
                 "S"
               );
-              const northbound = await getUpcomingTrainsAtStation(
+              const northbound = getUpcomingTrainsAtStation(
                 data.feedMessage,
                 stopId,
                 "N"
@@ -342,7 +342,7 @@ function App() {
                   continue;
                 }
 
-                newTransitData[key]![stopId] = await getRailroadTrainsAtStation(
+                newTransitData[key]![stopId] = getRailroadTrainsAtStation(
                   railroadData.feedMessage,
                   stopId,
                   undefined, // routeId

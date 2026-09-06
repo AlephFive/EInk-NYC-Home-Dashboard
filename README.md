@@ -16,8 +16,9 @@ cp .env.example .env   # then add your MTA API key
 npm run dev
 ```
 
-`VITE_MTA_API_KEY` (from https://api.mta.info/) is required for bus data.
-`VITE_DISPLAY_MODE=bw` collapses colors to pure black/white for the panel.
+`VITE_MTA_API_KEY` (from https://api.mta.info/) is required for bus data. It is the only
+environment variable the app uses — the 1-bit conversion for the panel is done by the
+screenshot server, not here.
 
 ## Configuring what's displayed
 

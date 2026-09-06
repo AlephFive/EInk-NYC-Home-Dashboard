@@ -9,7 +9,6 @@ export interface TrainDataResponse {
   metadata: {
     url: string;
     contentType: string | null;
-    dataSize: number;
     timestamp: string;
     entityCount: number;
   };
@@ -81,7 +80,6 @@ export async function fetchTrainData(
     metadata: {
       url: apiUrl,
       contentType: response.headers.get("content-type"),
-      dataSize: arrayBuffer.byteLength,
       timestamp: feedMessage.header?.timestamp
         ? new Date(feedMessage.header.timestamp * 1000).toLocaleString()
         : "N/A",
@@ -154,18 +152,11 @@ export async function fetchMultipleTrainLines(
     entity: mergedEntities,
   };
 
-  // Calculate total data size
-  const totalSize = feedMessages.reduce((sum, _feed, _index) => {
-    // We don't have the original arrayBuffer sizes here, so we'll estimate
-    return sum + mergedEntities.length;
-  }, 0);
-
   return {
     feedMessage: mergedFeedMessage,
     metadata: {
       url: `Multiple APIs (${apiKeySet.size} endpoints)`,
       contentType: "application/x-protobuf",
-      dataSize: totalSize,
       timestamp: primaryHeader?.timestamp
         ? new Date(primaryHeader.timestamp * 1000).toLocaleString()
         : "N/A",
@@ -178,14 +169,18 @@ export async function fetchMultipleTrainLines(
  * Extracts stop time data for a specific stop from the feed message
  * @param feedMessage - The decoded GTFS-realtime FeedMessage
  * @param stopId - The stop ID to filter by (e.g., "127N", "127S")
- * @param subwayLine - Optional subway line to filter by (e.g., "7", "A"). If not provided, shows all lines
+ * @param subwayLine - Optional route filter. **The app deliberately never
+ *   passes this.** Matching on stop ID alone is what makes rerouted trains
+ *   appear: when the N runs on the R's track, it calls at the R's stops and
+ *   shows up on that card without being configured. Pass it only where you
+ *   genuinely want one route and are willing to hide reroutes.
  * @returns Array of stop time data for the specified stop with route information
  */
-export async function extractDataByStop(
+export function extractDataByStop(
   feedMessage: FeedMessage,
   stopId: string,
   subwayLine?: string
-): Promise<EnrichedStopTimeUpdate[]> {
+): EnrichedStopTimeUpdate[] {
   const possibleTrainsOnStation: EnrichedStopTimeUpdate[] = [];
 
   feedMessage.entity.forEach((entity) => {
@@ -276,16 +271,16 @@ export function filterUpcomingTrains(
  * @param subwayLine - Optional subway line to filter by (e.g., "7", "A"). If not provided, shows all lines
  * @returns Filtered and sorted array of upcoming trains at the specified stop with route information
  */
-export async function getUpcomingTrainsAtStation(
+export function getUpcomingTrainsAtStation(
   feedMessage: FeedMessage,
   stopId: string,
   direction: "N" | "S",
   subwayLine?: string
-): Promise<EnrichedStopTimeUpdate[]> {
+): EnrichedStopTimeUpdate[] {
   const stopIdWithDirection = `${stopId}${direction}`;
 
   // Extract stop data for the specific stop with direction
-  const stopTimes = await extractDataByStop(
+  const stopTimes = extractDataByStop(
     feedMessage,
     stopIdWithDirection,
     subwayLine
