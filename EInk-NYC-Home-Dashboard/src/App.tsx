@@ -1,25 +1,17 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import {
-  fetchMultipleTrainLines,
-  getUpcomingTrainsAtStation,
+  isBoardable,
   type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate,
 } from "./utils/subway";
-import {
-  fetchMultipleRailroads,
-  getUpcomingTrainsAtStation as getRailroadTrainsAtStation,
-  type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate,
-} from "./utils/railroad";
-import {
-  getUpcomingBusesAtStop,
-  type EnrichedBusData,
-} from "./utils/bus";
-import { getUpcomingFerryDepartures, type FerryDeparture } from "./utils/ferry";
 import {
   getRailroadRouteShortName,
   isCityBound,
   badgeWidthForLabels,
+  type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate,
 } from "./utils/railroad";
+import { type EnrichedBusData } from "./utils/bus";
+import { type FerryDeparture } from "./utils/ferry";
 import {
   minutesUntil,
   formatClockTime,
@@ -28,15 +20,13 @@ import {
   reachableDepartures,
   type DepartureTime,
 } from "./utils/departures";
-import { isBoardable } from "./utils/subway";
+import { loadTransitData } from "./utils/loadTransitData";
 import displayConfig from "./displayConfig";
 import { TransitCard } from "./components/TransitCard";
 import { DepartureRow, EmptyRow } from "./components/DepartureRow";
 import { listStyle } from "./utils/cardCapacity";
 import { type TransitData, type TransitErrors } from "./types/transitData";
 import { getDestinationName } from "./utils/stationLookup";
-
-const railroadsToFetch = ["lirr", "mtn"]; // LIRR and Metro-North
 
 function App() {
   const [transitData, setTransitData] = useState<TransitData>({});
@@ -46,211 +36,35 @@ function App() {
   const [lastUpdate, setLastUpdate] = useState<string>("");
 
   useEffect(() => {
-    const loadTransitData = async () => {
-      // Declared outside the try so partial results survive an unexpected throw:
-      // whatever loaded before the failure still reaches the panel.
-      const newTransitData: TransitData = {
-        subway: {},
-        "railroad-lirr": {},
-        "railroad-mtn": {},
-        bus: {},
-        ferry: {},
-      };
+    let cancelled = false;
 
-      // Per-card failures, so one failing stop or feed degrades only its own card.
-      const newCardErrors: TransitErrors = {
-        subway: {},
-        "railroad-lirr": {},
-        "railroad-mtn": {},
-        bus: {},
-        ferry: {},
-      };
-
-      const toMessage = (err: unknown) =>
-        err instanceof Error ? err.message : "Failed to load";
-
-      // Fetch more than we display: departures inside the walk time are dropped
-      // after fetching, so an exact-size fetch leaves cards short.
-      const fetchLimit = displayConfig.fetchDepartures ?? 8;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      setCardErrors({});
 
       try {
-        setLoading(true);
-        setError(null);
-        setCardErrors({});
+        const result = await loadTransitData();
+        if (cancelled) return;
 
-        // Collect all stops from displayConfig
-        const subwayStops = new Set<string>();
-        const subwayLines = new Set<string>();
-        const lirrStops = new Set<string>();
-        const mtnStops = new Set<string>();
-        const busStops = new Set<string>();
-        const ferryStops = new Set<string>();
-
-        displayConfig.columnDisplay.forEach((column) => {
-          column.forEach((card) => {
-            // A card may list several stop IDs; every one is fetched.
-            for (const stopId of card.stopIds) {
-              if (card.transitType === "subway") {
-                subwayStops.add(stopId);
-              } else if (card.transitType === "railroad-lirr") {
-                lirrStops.add(stopId);
-              } else if (card.transitType === "railroad-mtn") {
-                mtnStops.add(stopId);
-              } else if (card.transitType === "bus") {
-                busStops.add(stopId);
-              } else if (card.transitType === "ferry") {
-                ferryStops.add(stopId);
-              }
-            }
-            if (card.transitType === "subway") {
-              card.lines?.forEach((line) => subwayLines.add(line));
-            }
-          });
-        });
-
-        // Fetch subway data. All subway cards share one feed fetch, so a feed
-        // failure is attributed to every subway card rather than the whole board.
-        if (subwayStops.size > 0) {
-          try {
-            const data = await fetchMultipleTrainLines(Array.from(subwayLines));
-
-            for (const stopId of subwayStops) {
-              const southbound = getUpcomingTrainsAtStation(
-                data.feedMessage,
-                stopId,
-                "S"
-              );
-              const northbound = getUpcomingTrainsAtStation(
-                data.feedMessage,
-                stopId,
-                "N"
-              );
-
-              newTransitData.subway![stopId] = {
-                southbound: southbound,
-                northbound: northbound,
-              };
-            }
-
-            setLastUpdate(data.metadata.timestamp);
-          } catch (err) {
-            console.error("Error fetching subway data:", err);
-            for (const stopId of subwayStops) {
-              newTransitData.subway![stopId] = {
-                southbound: [],
-                northbound: [],
-              };
-              newCardErrors.subway![stopId] = toMessage(err);
-            }
-          }
-        }
-
-        // Fetch railroad data. fetchMultipleRailroads settles per railroad, so a
-        // single railroad being down only errors that railroad's cards.
-        if (lirrStops.size > 0 || mtnStops.size > 0) {
-          const railroadCards = [
-            { key: "railroad-lirr" as const, railroad: "lirr", stops: lirrStops },
-            { key: "railroad-mtn" as const, railroad: "mtn", stops: mtnStops },
-          ];
-
-          try {
-            const railroadData = await fetchMultipleRailroads(railroadsToFetch);
-
-            for (const { key, railroad, stops } of railroadCards) {
-              const failure = railroadData.failures?.[railroad];
-
-              for (const stopId of stops) {
-                if (failure) {
-                  newTransitData[key]![stopId] = [];
-                  newCardErrors[key]![stopId] = failure;
-                  continue;
-                }
-
-                newTransitData[key]![stopId] = getRailroadTrainsAtStation(
-                  railroadData.feedMessage,
-                  stopId,
-                  undefined, // routeId
-                  railroad // Filter to this railroad only
-                );
-              }
-            }
-          } catch (err) {
-            console.error("Error fetching railroad data:", err);
-            for (const { key, stops } of railroadCards) {
-              for (const stopId of stops) {
-                newTransitData[key]![stopId] = [];
-                newCardErrors[key]![stopId] = toMessage(err);
-              }
-            }
-          }
-        }
-
-        // Fetch bus data. Each stop is caught individually: a retired stop ID
-        // should degrade its own card, not the whole dashboard.
-        if (busStops.size > 0) {
-          await Promise.all(
-            Array.from(busStops).map(async (stopId) => {
-              try {
-                newTransitData.bus![stopId] = await getUpcomingBusesAtStop(
-                  stopId,
-                  fetchLimit
-                );
-              } catch (err) {
-                console.error(`Error fetching bus stop ${stopId}:`, err);
-                newTransitData.bus![stopId] = [];
-                newCardErrors.bus![stopId] = toMessage(err);
-              }
-            })
-          );
-        }
-
-        // Fetch ferry data. Currently schedule-based with no API call, but the
-        // per-stop error handling matches the other transit types so switching
-        // to a live feed needs no changes here.
-        if (ferryStops.size > 0) {
-          await Promise.all(
-            Array.from(ferryStops).map(async (stopName) => {
-              try {
-                newTransitData.ferry![stopName] = {
-                  uptown: await getUpcomingFerryDepartures(
-                    "ER",
-                    stopName,
-                    "uptown",
-                    undefined,
-                    fetchLimit
-                  ),
-                  downTown: await getUpcomingFerryDepartures(
-                    "ER",
-                    stopName,
-                    "downTown",
-                    undefined,
-                    fetchLimit
-                  ),
-                };
-              } catch (err) {
-                console.error(`Error fetching ferry stop ${stopName}:`, err);
-                newTransitData.ferry![stopName] = { uptown: [], downTown: [] };
-                newCardErrors.ferry![stopName] = toMessage(err);
-              }
-            })
-          );
-        }
-
-        setTransitData(newTransitData);
-        setCardErrors(newCardErrors);
-      } catch (error) {
-        console.error("Error fetching transit data:", error);
-        setError(error instanceof Error ? error.message : "Unknown error");
-        // Commit whatever did load before the throw, so an unexpected failure
-        // costs only the cards it actually affected.
-        setTransitData(newTransitData);
-        setCardErrors(newCardErrors);
+        setTransitData(result.data);
+        setCardErrors(result.errors);
+        if (result.lastUpdate) setLastUpdate(result.lastUpdate);
+      } catch (err) {
+        // Per-type failures are already recorded per card; reaching here means
+        // something unexpected broke, which is worth a banner of its own.
+        console.error("Error fetching transit data:", err);
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    loadTransitData();
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const showLeaveIn = displayConfig.showLeaveIn ?? false;
