@@ -1,0 +1,13 @@
+{
+  "_comment": "Stop IDs of the Manhattan/Brooklyn/Queens terminals each railroad runs into. A train heading to one of these is city-bound; anything else is outbound. Derived from the LIRR and Metro-North stop tables, cross-checked against the termini actually appearing in the live feeds. GTFS directionId cannot do this job: it is absent on ~32% of LIRR trips and is 0 for every Metro-North trip regardless of direction.",
+  "lirr": {
+    "237": "Penn Station",
+    "349": "Grand Central",
+    "241": "Atlantic Terminal",
+    "118": "Long Island City",
+    "90": "Hunterspoint Avenue"
+  },
+  "mtn": {
+    "1": "Grand Central"
+  }
+}

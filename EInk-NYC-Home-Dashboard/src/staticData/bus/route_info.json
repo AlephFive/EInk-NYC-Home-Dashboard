@@ -1,0 +1,22 @@
+{
+  "stops": {
+    "505513": {
+      "stop_name": "BORDEN AV/5 ST"
+    },
+    "505507": {
+      "stop_name": "BORDEN AV/5 ST"
+    }
+  },
+  "routes": {
+    "Q103": {
+      "route_long_name": "Astoria - Hunters Point",
+      "route_desc": "Via Vernon Blvd / 21 St",
+      "route_color": "FAA61A"
+    },
+    "Q101": {
+      "route_long_name": "Steinway - Hunters Point",
+      "route_desc": "Via Steinway St / Jackson Av",
+      "route_color": "FAA61A"
+    }
+  }
+}
