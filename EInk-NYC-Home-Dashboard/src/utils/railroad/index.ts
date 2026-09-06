@@ -11,6 +11,8 @@ export {
 export {
   getRailroadRouteInfo,
   getRailroadRouteName,
+  getRailroadRouteShortName,
+  isCityBound,
   getRailroadRouteColor,
   getRailroadRouteTextColor,
 } from "./routeLookup";

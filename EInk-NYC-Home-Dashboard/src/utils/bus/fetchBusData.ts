@@ -15,7 +15,11 @@ export interface SiriResponse {
     ServiceDelivery: {
       ResponseTimestamp: string;
       StopMonitoringDelivery: Array<{
-        MonitoredStopVisit: MonitoredStopVisit[];
+        MonitoredStopVisit?: MonitoredStopVisit[];
+        ErrorCondition?: {
+          Description?: string;
+          OtherError?: { ErrorText?: string };
+        };
       }>;
     };
   };
@@ -104,6 +108,19 @@ export async function fetchBusData(
 
   // Parse the JSON response
   const data: SiriResponse = await response.json();
+
+  // The SIRI API reports bad stop IDs as HTTP 200 with an ErrorCondition in the
+  // body, so a failed lookup is otherwise indistinguishable from "no buses due".
+  const errorCondition =
+    data.Siri?.ServiceDelivery?.StopMonitoringDelivery?.[0]?.ErrorCondition;
+
+  if (errorCondition) {
+    const errorText =
+      errorCondition.OtherError?.ErrorText ||
+      errorCondition.Description ||
+      "Unknown error";
+    throw new Error(`Bus stop ${stopId}: ${errorText}`);
+  }
 
   // Return the data with metadata
   return {

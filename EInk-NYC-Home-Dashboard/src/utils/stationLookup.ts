@@ -144,6 +144,34 @@ export function getStationInfo(
 }
 
 /**
+ * Resolve a destination stop ID to a display name.
+ *
+ * Subway IDs from the realtime feed carry a direction suffix (`726N`) that the
+ * station table does not use, so it is stripped before lookup.
+ *
+ * @param stopId - Terminus stop ID, or undefined if the train terminates here
+ * @param transitType - Which lookup table to consult
+ * @returns Station name, or null when unknown or not applicable
+ */
+export function getDestinationName(
+  stopId: string | undefined,
+  transitType: "subway" | "railroad-lirr" | "railroad-mtn"
+): string | null {
+  if (!stopId) return null;
+
+  if (transitType === "subway") {
+    const bare = stopId.replace(/[NS]$/, "");
+    return subwayStationsByGtfsId[bare]?.stop_name ?? null;
+  }
+
+  const stop =
+    transitType === "railroad-lirr"
+      ? railroadStopsByIdLirr[stopId]
+      : railroadStopsByIdMtn[stopId];
+  return stop?.stop_name ?? null;
+}
+
+/**
  * Get direction labels for a subway station
  * @param stopId - The GTFS stop ID
  * @returns Object with northbound and southbound labels, or null if not found

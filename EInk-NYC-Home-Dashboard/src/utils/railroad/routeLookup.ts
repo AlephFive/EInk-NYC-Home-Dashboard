@@ -1,5 +1,6 @@
 import lirrData from "../../staticData/railroad/lirr/lirr_routes_stops.json";
 import mtnData from "../../staticData/railroad/mtn/mtn_routes_stops.json";
+import cityTerminals from "../../staticData/railroad/cityTerminals.json";
 
 interface RouteInfo {
   route_long_name: string;
@@ -41,6 +42,23 @@ export function getRailroadRouteName(
 }
 
 /**
+ * Route name trimmed for a compact badge: every LIRR route_long_name ends in
+ * "Branch" ("Babylon Branch"), which is redundant once it sits in a route
+ * badge and costs scarce horizontal space on a 257px card.
+ * @param routeId - The route ID
+ * @param railroad - The railroad type ("lirr" or "mtn")
+ * @returns Short route label, e.g. "Babylon"
+ */
+export function getRailroadRouteShortName(
+  routeId: string,
+  railroad: "lirr" | "mtn"
+): string {
+  return getRailroadRouteName(routeId, railroad)
+    .replace(/\s+Branch$/i, "")
+    .trim();
+}
+
+/**
  * Get the color for a railroad route (as hex without #)
  * @param routeId - The route ID
  * @param railroad - The railroad type ("lirr" or "mtn")
@@ -66,4 +84,25 @@ export function getRailroadRouteTextColor(
 ): string {
   const routeInfo = getRailroadRouteInfo(routeId, railroad);
   return routeInfo?.route_text_color || "FFFFFF";
+}
+
+/**
+ * Whether a train is heading into the city.
+ *
+ * GTFS `directionId` cannot answer this: it is absent on roughly a third of
+ * LIRR trips, and every Metro-North trip reports 0 regardless of which way it
+ * runs. The destination is the reliable signal, so this checks it against the
+ * terminals each railroad runs into (`cityTerminals.json`).
+ *
+ * @param destinationStopId - Terminus of the trip; undefined if it ends here
+ * @param railroad - "lirr" or "mtn"
+ * @returns true when city-bound, false when outbound, null when unknown
+ */
+export function isCityBound(
+  destinationStopId: string | undefined,
+  railroad: "lirr" | "mtn"
+): boolean | null {
+  if (!destinationStopId) return null;
+  const terminals = cityTerminals[railroad] as Record<string, string>;
+  return Object.prototype.hasOwnProperty.call(terminals, destinationStopId);
 }

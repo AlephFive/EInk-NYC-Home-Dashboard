@@ -1,6 +1,11 @@
 {
   "stops": {
-    "700748": { "stop_name": "BORDEN AV/CENTER BLVD" }
+    "505513": {
+      "stop_name": "BORDEN AV/5 ST"
+    },
+    "505507": {
+      "stop_name": "BORDEN AV/5 ST"
+    }
   },
   "routes": {
     "Q103": {

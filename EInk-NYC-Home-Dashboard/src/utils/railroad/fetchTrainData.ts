@@ -6,6 +6,8 @@ import apis from "../../staticData/railroad/apis.json";
 
 export interface TrainDataResponse {
   feedMessage: FeedMessage;
+  /** Per-railroad fetch failures, keyed by railroad id. Absent when all succeeded. */
+  failures?: Record<string, string>;
   metadata: {
     url: string;
     contentType: string | null;
@@ -19,6 +21,11 @@ export interface EnrichedStopTimeUpdate extends TripUpdate_StopTimeUpdate {
   routeId?: string;
   tripId?: string;
   railroad?: string; // "lirr" or "mtn"
+  /**
+   * Stop ID of the trip's last stop. Undefined when this stop *is* the last
+   * one, i.e. the train terminates here and has nowhere onward to show.
+   */
+  destinationStopId?: string;
 }
 
 /**
@@ -110,8 +117,29 @@ export async function fetchMultipleRailroads(
     return { ...feedMessage, entity: enrichedEntities };
   });
 
-  // Wait for all fetches to complete
-  const feedMessages = await Promise.all(fetchPromises);
+  // Settle rather than all: one railroad being down should not discard the
+  // other's data, since each railroad's stops are rendered on separate cards.
+  const results = await Promise.allSettled(fetchPromises);
+
+  const feedMessages = results.flatMap((r) =>
+    r.status === "fulfilled" ? [r.value] : []
+  );
+
+  // Record which railroads failed so callers can report it per card
+  const failures: Record<string, string> = {};
+  results.forEach((r, index) => {
+    if (r.status === "rejected") {
+      const reason = r.reason;
+      failures[railroads[index]] =
+        reason instanceof Error ? reason.message : String(reason);
+    }
+  });
+
+  if (feedMessages.length === 0) {
+    throw new Error(
+      `All railroad feeds failed: ${Object.values(failures).join("; ")}`
+    );
+  }
 
   // Merge all feed messages
   const mergedEntities = feedMessages.flatMap((feed) => feed.entity);
@@ -126,6 +154,7 @@ export async function fetchMultipleRailroads(
 
   return {
     feedMessage: mergedFeedMessage,
+    failures,
     metadata: {
       url: `Multiple railroads (${railroads.join(", ")})`,
       contentType: "application/x-protobuf",
@@ -169,13 +198,21 @@ export async function extractDataByStop(
     const tripId = entity.tripUpdate?.trip?.tripId;
     const entityRailroad = entity._railroad; // Get the railroad tag if present
 
-    entity.tripUpdate?.stopTimeUpdate.forEach((stopTime: TripUpdate_StopTimeUpdate) => {
+    // The trip's last stop is this train's destination.
+    const stopTimeUpdates: TripUpdate_StopTimeUpdate[] =
+      entity.tripUpdate?.stopTimeUpdate ?? [];
+    const terminusStopId = stopTimeUpdates[stopTimeUpdates.length - 1]?.stopId;
+
+    stopTimeUpdates.forEach((stopTime: TripUpdate_StopTimeUpdate) => {
       if (stopTime.stopId === stopId) {
         possibleTrainsOnStation.push({
           ...stopTime,
           routeId: trainRouteId,
           tripId,
           railroad: entityRailroad,
+          // Omit when the train terminates at this very stop.
+          destinationStopId:
+            terminusStopId === stopId ? undefined : terminusStopId,
         });
       }
     });
