@@ -20,7 +20,7 @@ import {
   reachableDepartures,
   type DepartureTime,
 } from "./utils/departures";
-import { loadTransitData } from "./utils/loadTransitData";
+import { loadTransitData, TransitLoadError } from "./utils/loadTransitData";
 import displayConfig from "./displayConfig";
 import { TransitCard } from "./components/TransitCard";
 import { DepartureRow, EmptyRow } from "./components/DepartureRow";
@@ -56,6 +56,15 @@ function App() {
         console.error("Error fetching transit data:", err);
         if (cancelled) return;
         setError(err instanceof Error ? err.message : "Unknown error");
+
+        // Commit whatever loaded before the fault: the banner sits above the
+        // cards rather than replacing them, so an unexpected failure costs
+        // only the cards it actually affected.
+        if (err instanceof TransitLoadError) {
+          setTransitData(err.partial.data);
+          setCardErrors(err.partial.errors);
+          if (err.partial.lastUpdate) setLastUpdate(err.partial.lastUpdate);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -69,16 +78,20 @@ function App() {
 
   const showLeaveIn = displayConfig.showLeaveIn ?? false;
 
-  /** Builds one card's list, or the empty-state line when nothing is reachable. */
+  /**
+   * Renders an already-filtered list, or the empty-state line.
+   *
+   * Takes the reachable departures rather than filtering them, so a caller
+   * that needs to inspect the list first — the train card sizes its badges
+   * from it — does not filter twice and cannot drift from what is drawn.
+   */
   const renderDepartures = <T,>(
-    items: T[],
+    reachable: T[],
     timeOf: (item: T) => DepartureTime,
     walkTime: number,
-    limit: number,
     emptyLabel: string,
     toRow: (item: T, leaveTime: number | null) => React.ReactNode
   ) => {
-    const reachable = reachableDepartures(items, timeOf, walkTime, limit);
     if (reachable.length === 0) return <EmptyRow label={emptyLabel} />;
 
     return (
@@ -104,10 +117,12 @@ function App() {
       stop: SubwayEnrichedStopTimeUpdate | RailroadEnrichedStopTimeUpdate
     ) => stop.departure?.time ?? stop.arrival?.time;
 
+    const reachable = reachableDepartures(boardable, timeOf, walkTime, limit);
+
     // Railroad badges share one width per card, set by the longest branch name,
     // so destinations line up instead of stepping in and out with each badge.
     const uniformBadgeWidth = badgeWidthForLabels(
-      reachableDepartures(boardable, timeOf, walkTime, limit).map((stop) =>
+      reachable.map((stop) =>
         "railroad" in stop && stop.railroad && stop.routeId
           ? getRailroadRouteShortName(
               stop.routeId,
@@ -118,10 +133,9 @@ function App() {
     );
 
     return renderDepartures(
-      boardable,
+      reachable,
       timeOf,
       walkTime,
-      limit,
       "No upcoming trains",
       (stop, leaveTime) => {
         const railroad =
@@ -170,10 +184,9 @@ function App() {
     limit: number = 3
   ) =>
     renderDepartures(
-      ferries,
+      reachableDepartures(ferries, (ferry) => ferry.departureTime, walkTime, limit),
       (ferry) => ferry.departureTime,
       walkTime,
-      limit,
       "No upcoming ferries",
       (ferry, leaveTime) => (
         <DepartureRow
@@ -196,10 +209,14 @@ function App() {
     limit: number = 3
   ) =>
     renderDepartures(
-      buses,
+      reachableDepartures(
+        buses,
+        (bus) => bus.expectedArrival ?? bus.expectedDeparture,
+        walkTime,
+        limit
+      ),
       (bus) => bus.expectedArrival ?? bus.expectedDeparture,
       walkTime,
-      limit,
       "No upcoming buses",
       (bus, leaveTime) => (
         <DepartureRow

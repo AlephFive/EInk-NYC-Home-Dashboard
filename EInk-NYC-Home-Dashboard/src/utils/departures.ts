@@ -11,14 +11,25 @@ import displayConfig from "../displayConfig";
  */
 
 /** A departure time as any of the shapes the feeds provide. */
-export type DepartureTime = number | Date | undefined;
+export type DepartureTime = number | Date | null | undefined;
 
 const MS_PER_MINUTE = 60_000;
 
-/** Normalise a feed's time to epoch milliseconds. GTFS-RT uses seconds. */
+/**
+ * Normalise a feed's time to epoch milliseconds. GTFS-RT gives Unix seconds.
+ *
+ * A zero timestamp is treated as absent rather than as 1970: protobuf encodes
+ * an unset int64 as 0, so a stop time missing its arrival can arrive as a
+ * literal zero, and rendering that as a 1970 clock time would be worse than
+ * showing nothing.
+ */
 function toEpochMs(time: DepartureTime): number | null {
-  if (time === undefined) return null;
-  return time instanceof Date ? time.getTime() : time * 1000;
+  if (time === undefined || time === null) return null;
+  if (time instanceof Date) {
+    const ms = time.getTime();
+    return Number.isNaN(ms) ? null : ms;
+  }
+  return time === 0 ? null : time * 1000;
 }
 
 /**

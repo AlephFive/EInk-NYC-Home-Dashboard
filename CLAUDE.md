@@ -25,9 +25,9 @@ This is an E-Ink display dashboard for NYC transit information, supporting subwa
 Not yet implemented — do not treat these as describing current behavior.
 
 1. **Move the ferry to a live API.** Currently schedule-based (`getFerrySchedule.ts`
-   reading `staticData/ferry/schedule.json`). The fetch path in `App.tsx` already
-   handles ferry stops per-stop with error capture, so the orchestration will not need
-   to change. The ferry schedule carries no destination, so its rows leave that column
+   reading `staticData/ferry/schedule.json`). `utils/loadTransitData.ts` already handles
+   ferry stops per-stop with error capture, so the orchestration will not need to
+   change. The ferry schedule carries no destination, so its rows leave that column
    empty; a live feed may supply one.
 
 2. **Reconsider how "go in N mins" is presented.** Currently disabled
@@ -69,22 +69,7 @@ Not yet implemented — do not treat these as describing current behavior.
    badge, or dropping the branch badge in favour of the destination, would recover that
    space.
 
-5. **Restructure `App.tsx` and extract shared helpers.** The file is ~800 lines doing
-   fetch orchestration, three render functions, the `DepartureRow`/`EmptyRow` components
-   and the board layout. Concretely:
-   - `DepartureRow` and `EmptyRow` are components living in `App.tsx`; they belong in
-     `components/`.
-   - `renderTrainList`, `renderBusList` and `renderFerryList` are ~80% the same shape —
-     filter by walk time, slice to the limit, map to rows, compute urgency. The filtering
-     and urgency logic should be one helper the three share.
-   - `mergeSorted`, `collectErrors`, `stopTimeOf` and `mostCommon` sit in
-     `TransitCard.tsx` but are not card-specific; they belong in `utils/`.
-   - The fetch orchestration in the `useEffect` is long enough to be its own module.
-
-   `utils/cardCapacity.ts` is the shape to aim for: one job, named constants, documented
-   reasoning.
-
-6. **Redesign the visuals.** The styling is functional but unpolished. The card header
+5. **Redesign the visuals.** The styling is functional but unpolished. The card header
    (type badge + station name) and the section headings still use the original ad-hoc
    styling, and nothing has been designed as a system.
 
@@ -116,8 +101,13 @@ All transit types follow a consistent architecture:
 
 1. **Configuration** (`displayConfig.ts`): Defines which stops to display using a 2D grid layout
 2. **API Fetching** (`utils/{transitType}/fetchTrainData.ts` or `fetchBusData.ts`): Fetches and decodes data
-3. **Data Processing** (`utils/{transitType}/index.ts`): Filters and enriches data for display
-4. **Rendering** (`App.tsx` → `TransitCard.tsx`): Displays data in a card-based layout
+3. **Orchestration** (`utils/loadTransitData.ts`): Collects the configured stops, fetches
+   each transit type, and records per-stop failures — all of it independent of React
+4. **Data Processing** (`utils/{transitType}/index.ts`): Filters and enriches data for display
+5. **Rendering** (`App.tsx` → `TransitCard.tsx` → `components/DepartureRow.tsx`): Displays
+   data in a card-based layout. Shared display logic lives in `utils/departures.ts`
+   (times, urgency, reachability), `utils/multiStop.ts` (merging a card's stop IDs) and
+   `utils/cardCapacity.ts` (how many rows fit)
 
 ### Transit Type Modules
 
@@ -143,9 +133,10 @@ Each transit type is isolated in `src/utils/{transitType}/`:
     handling" below.
 
 - **Ferry** (`utils/ferry/`):
-  - Schedule-based (no API calls) — **intended to move to a live feed**. The fetch
-    path in `App.tsx` already handles ferry stops per-stop with error capture, so
-    swapping the schedule lookup for an API call needs no orchestration changes.
+  - Schedule-based (no API calls) — **intended to move to a live feed**. `loadFerries()`
+    in `utils/loadTransitData.ts` already handles ferry stops per-stop with error
+    capture, so swapping the schedule lookup for an API call needs no orchestration
+    changes.
   - Static timetables in `getFerrySchedule.ts`
   - Direction-aware (uptown/downtown)
 
@@ -276,8 +267,9 @@ curl -s --get "https://data.ny.gov/resource/2ucp-7wg5.json" \
 
 ### Departure rows
 
-Every transit type renders departures through one shared `DepartureRow` component in
-`App.tsx`, so rows are identical in height and column positions across all cards:
+Every transit type renders departures through one shared `DepartureRow`
+(`components/DepartureRow.tsx`), so rows are identical in height and column positions
+across all cards:
 
 ```
 [badge] [destination — flexible, clipped] [time — right-aligned]
@@ -324,7 +316,8 @@ would blank the whole display.
 
 - `TransitErrors` (`types/transitData.ts`) mirrors `TransitData`'s shape, keyed by
   transit type then stop ID, with a message string per failing card.
-- `App.tsx` builds it during the fetch pass and passes it to each `TransitCard`.
+- `utils/loadTransitData.ts` builds it during the fetch pass; `App.tsx` passes it to each
+  `TransitCard`.
 - **Per-stop fetches** (bus, and ferry once live) catch individually, so one dead stop
   ID only affects its own card.
 - **Shared-feed fetches** (subway, railroad) have no per-stop request to isolate, so a
@@ -338,8 +331,9 @@ ferries" — the app does not guess whether that means no service today, service
 or everything is inside the walk time. Only an actual fetch failure shows the error box.
 
 **Nothing blanks the board.** A top-level failure renders as a banner *above* the cards,
-not instead of them, and `App.tsx` commits partial results from its `catch` — so an
-unexpected throw costs only the cards it actually affected. Error text in `CardError` is
+not instead of them. `loadTransitData()` throws `TransitLoadError`, which carries the
+partial result, and `App.tsx` commits that from its `catch` — so an unexpected throw
+costs only the cards it actually affected. Error text in `CardError` is
 line-clamped because the panel is a fixed 800x480 with no scrolling: upstream messages
 can be long (the MTA's "No such stop" text repeats the stop ID three times) and must not
 push a card past its height.

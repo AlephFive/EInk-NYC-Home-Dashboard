@@ -44,13 +44,14 @@ const railroadsToFetch = ["lirr", "mtn"];
 const toMessage = (err: unknown) =>
   err instanceof Error ? err.message : "Failed to load";
 
-function emptyBuckets<T>(make: () => T) {
+/** A fresh per-transit-type bucket set, for either data or errors. */
+function emptyBuckets() {
   return {
-    subway: make(),
-    "railroad-lirr": make(),
-    "railroad-mtn": make(),
-    bus: make(),
-    ferry: make(),
+    subway: {},
+    "railroad-lirr": {},
+    "railroad-mtn": {},
+    bus: {},
+    ferry: {},
   };
 }
 
@@ -229,27 +230,52 @@ async function loadFerries(
 }
 
 /**
+ * Thrown when something outside the per-type loaders fails, carrying whatever
+ * had already loaded so the caller can still show it.
+ *
+ * An unattended panel showing four good cards beside one error beats a blank
+ * board, so a partial result must survive an unexpected fault rather than
+ * being discarded with the exception.
+ */
+export class TransitLoadError extends Error {
+  constructor(
+    readonly cause: unknown,
+    readonly partial: TransitLoadResult
+  ) {
+    super(cause instanceof Error ? cause.message : "Unknown error");
+    this.name = "TransitLoadError";
+  }
+}
+
+/**
  * Fetch every stop the configured board displays.
  *
  * Never rejects for a per-type failure: those are recorded in `errors` against
- * the stops they affect, and `data` still carries whatever loaded. Only an
- * unexpected fault escapes, and even then the caller keeps the partial result.
+ * the stops they affect, and `data` still carries whatever loaded. An
+ * unexpected fault throws `TransitLoadError`, which carries the partial result.
  */
 export async function loadTransitData(): Promise<TransitLoadResult> {
   const stops = collectStops();
   const result: TransitLoadResult = {
-    data: emptyBuckets(() => ({})),
-    errors: emptyBuckets(() => ({})),
+    data: emptyBuckets(),
+    errors: emptyBuckets(),
   };
 
   // Fetch more than is displayed: departures inside the walk time are dropped
   // afterwards, so an exact-size fetch leaves cards short.
   const fetchLimit = displayConfig.fetchDepartures ?? 8;
 
-  await loadSubway(stops, result);
-  await loadRailroads(stops, result);
-  await loadBuses(stops, result, fetchLimit);
-  await loadFerries(stops, result, fetchLimit);
+  try {
+    // Independent of one another, so run together rather than in sequence.
+    await Promise.all([
+      loadSubway(stops, result),
+      loadRailroads(stops, result),
+      loadBuses(stops, result, fetchLimit),
+      loadFerries(stops, result, fetchLimit),
+    ]);
+  } catch (err) {
+    throw new TransitLoadError(err, result);
+  }
 
   return result;
 }
