@@ -28,6 +28,9 @@ export type PickerOption = Record<string, string>;
 /** Most options to return. A long list is unusable in a dropdown. */
 const MAX_OPTIONS = 25;
 
+/** The zone the transit network runs in; see `departures.ts` for why it is pinned. */
+const NETWORK_TIME_ZONE = "America/New_York";
+
 /** NY Open Data's bus stop dataset. */
 const BUS_STOPS_ENDPOINT = "https://data.ny.gov/resource/2ucp-7wg5.json";
 
@@ -69,17 +72,17 @@ function routeSuffix(routes: string | undefined): string {
  * by "Times Sq".
  */
 function searchSubway(query: string): PickerOption[] {
+  // Every record carries a `complex_id` — 461 of the 496 are their own
+  // single-stop "complex" — so grouping by it covers standalone stations too
+  // and needs no separate branch. A station without one would be dropped, so
+  // it falls back to its own stop ID.
   const complexes = new Map<string, SubwayStation[]>();
-  const standalone: SubwayStation[] = [];
 
   for (const station of Object.values(stations)) {
-    if (station.complex_id) {
-      const group = complexes.get(station.complex_id) ?? [];
-      group.push(station);
-      complexes.set(station.complex_id, group);
-    } else {
-      standalone.push(station);
-    }
+    const key = station.complex_id ?? station.gtfs_stop_id;
+    const group = complexes.get(key) ?? [];
+    group.push(station);
+    complexes.set(key, group);
   }
 
   const options: PickerOption[] = [];
@@ -113,7 +116,6 @@ function searchSubway(query: string): PickerOption[] {
   };
 
   for (const group of complexes.values()) addGroup(group);
-  for (const station of standalone) addGroup([station]);
 
   return options;
 }
@@ -153,8 +155,20 @@ interface BusStopRow {
  * one-column-per-direction layout.
  */
 async function searchBus(query: string): Promise<PickerOption[]> {
-  const escaped = query.replace(/'/g, "''").toUpperCase();
-  const today = new Date().toISOString().slice(0, 19) + ".000";
+  // Escape the quote that would break out of the literal, and the two LIKE
+  // wildcards. Without the latter, "100%" matches every stop whose name starts
+  // "100" and "a_b" matches any single character between a and b — surprising
+  // rather than dangerous, but a search box should match what was typed.
+  const escaped = query
+    .replace(/'/g, "''")
+    .replace(/[%_]/g, (char) => "\\" + char)
+    .toUpperCase();
+  // The cutoff is a local date, not a UTC one: a Worker runs in UTC, so for
+  // the four or five hours after midnight in New York `toISOString()` already
+  // reads as tomorrow and would exclude a stop a day before it retires.
+  const today = `${new Date().toLocaleDateString("en-CA", {
+    timeZone: NETWORK_TIME_ZONE,
+  })}T00:00:00.000`;
 
   const url = new URL(BUS_STOPS_ENDPOINT);
   url.searchParams.set(

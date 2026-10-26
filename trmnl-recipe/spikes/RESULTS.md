@@ -263,3 +263,123 @@ slot 2  bus  "BORDEN AV/5 ST"
 Settings -> Worker -> JSON -> Liquid -> readable text, end to end. The bus card
 shows both directions, urgency marks survive, and the picker's stop name heads
 the card.
+
+---
+
+# Review pass — bugs found and fixed
+
+A `/code-review high` pass over the branch, plus a manual audit, on
+2026-10-26. Eight real defects; all fixed and re-verified against `wrangler
+dev` and the live panel.
+
+## 1. Every departure time would have been wrong by 4 hours
+
+`formatClockTime` called `toLocaleTimeString([], ...)` with no `timeZone`, so
+times rendered in *the runtime's* zone. A deployed Cloudflare Worker runs in
+**UTC**, so 16:22 would have shown as 20:22 on the device.
+
+The trap is that `wrangler dev --local` inherits the developer's zone, so
+local testing shows correct times and the fault appears only once deployed.
+Verified: same instant, `TZ=UTC` renders `20:10`, `TZ=America/New_York`
+renders `16:10`.
+
+Fixed by pinning `timeZone` through `DisplaySettings`, defaulting to
+`America/New_York` — the network this board reports on is in one zone. The
+locale is pinned to `en-GB` at the same time, confirmed to produce identical
+output to the previous host default in both 12- and 24-hour modes, so the
+panel is unchanged.
+
+The same UTC assumption affected the picker's `valid_to` cutoff, which used
+`toISOString()`: for the hours after local midnight it read as tomorrow and
+would have excluded a stop a day before it retired. Now computed with
+`toLocaleDateString("en-CA", { timeZone })`.
+
+## 2. The station picker searched the wrong dataset
+
+The picker let the POST body override the path. TRMNL posts *every* slot's
+settings, and `pickTransitType` takes the first key ending `_type` — so
+editing card 4's bus picker while card 1 was subway searched **subway**
+stations. The path segment comes from the field's own `depends_on`
+interpolation and is the only source that identifies the right slot, so it now
+wins; the body is a fallback.
+
+## 3. One dead bus stop blanked both directions
+
+`Promise.all(...).catch(...)` attributed any stop's failure to the whole card.
+A corner is always two IDs and the MTA retires them one at a time, so a single
+re-IDed direction discarded the working one. The dashboard catches per stop
+(`loadTransitData.ts`) precisely for this. Now each stop is caught
+individually; the card errors only when every stop failed.
+
+Verified: `505506+700748` (one live, one retired) now returns the live
+direction's rows instead of an empty errored card.
+
+## 4. A running direction could vanish from a subway card
+
+The terminal collapse filtered on `column.r.length > 0` — rows *after*
+walk-time filtering. A direction whose trains were all inside the walk time was
+dropped entirely, telling the rider that direction does not exist. The
+dashboard tests `trains.some(isBoardable)`, which asks whether the direction
+*runs*, and that distinction is the "empty is not an error" rule: an empty
+column is a fact about now, a missing column is a claim about the service.
+
+Verified: a 600-minute walk time keeps both columns (empty); Flushing-Main St
+still collapses to one.
+
+## 5. "Off" did not hide a card
+
+Setting a slot to Off does not clear the station it already holds, and the
+polling URL wrote the station unconditionally — so an Off card kept rendering
+its last station. The URL now guards each parameter with
+`{% if cardN_type != 'off' %}`, verified through liquidjs.
+
+## 6. Each card fetched and decoded its own feed
+
+Two LIRR cards decoded the same 92KB feed twice; two subway cards on one feed
+decoded 215KB twice. On a runtime where CPU is the binding constraint (see the
+step 1 spike) that is the most expensive thing the Worker does. Feeds are now
+fetched once per request and shared across cards by a promise cache.
+
+## 7. No outer error handling on `/api/board`
+
+`buildBoard` catches per card and is not supposed to reject, but an unexpected
+throw returned a bare Worker exception — the Liquid template never runs, so the
+panel renders nothing. The whole design rule is that nothing blanks the board,
+so the invariant is now enforced rather than trusted.
+
+## 8. SoQL `like` wildcards passed through unescaped
+
+Quotes were doubled, so no injection — `x' OR '1'='1` correctly returns zero
+results. But `%` and `_` reached the `like` pattern, so "100%" matched every
+stop beginning "100". Now escaped.
+
+## Also addressed
+
+- A dead `failures` branch in `railroadCard` that could never fire, removed
+  with the feed-sharing rewrite.
+- `subwayLinesFor` computed twice per card; hoisted.
+- Subway direction order inverted relative to the dashboard; now south-first,
+  so the two surfaces render the same board.
+- A dead `standalone` branch in the picker: all 496 stations carry a
+  `complex_id`, so grouping by it already covers singletons.
+- Ferry rendered a silently empty card. It is disabled, so it now says so —
+  an empty card would read as "no boats due".
+
+## Regression suite
+
+| Case | Result |
+|---|---|
+| normal subway | 2 cols, 10 rows |
+| terminal | collapses to 1 col |
+| unreachable (600m walk) | both cols kept, 0 rows |
+| bus: 1 dead + 1 live stop | live direction survives |
+| bus: all stops dead | card errors |
+| two LIRR / two subway cards | shared feed, both render |
+| ferry | explicit error |
+| unknown stop | card errors alone |
+| all slots off | empty board, no error |
+| doubled `type:type:` form | parses |
+| no parameters | empty board, no error |
+
+Dashboard re-verified after the shared-code changes: lint and build clean, the
+panel renders all five cards with correct NY times and no console errors.

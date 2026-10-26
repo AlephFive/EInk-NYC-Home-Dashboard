@@ -48,11 +48,18 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
   if (request.method === "POST") {
     const body = await readBody(request);
     query = String(body.query ?? query ?? "");
-    kindValue = pickTransitType(body) ?? kindValue;
+    // The path wins. TRMNL posts *every* sibling setting, so the body carries
+    // all six slots' types — and picking "the first key ending _type" out of
+    // them returns card 1's type no matter which slot's picker is open. The
+    // path segment comes from this field's own `depends_on` interpolation, so
+    // it is the only one that identifies the right slot.
+    kindValue = kindValue ?? pickTransitType(body);
   }
 
-  // The bus endpoint is addressed directly by the form's bus slots, so it
-  // does not depend on the sibling field arriving.
+  // `/api/bus-stops` is an alias for `/api/stations/bus`, kept because the
+  // spec names it and because it needs no transit type to be passed at all.
+  // The form uses the path-interpolated form for every slot, so both routes
+  // reach the same search.
   const kind =
     url.pathname === "/api/bus-stops"
       ? ("bus" as const)
@@ -97,11 +104,11 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
 }
 
 /**
- * Find the sibling transit-type field in a picker payload.
+ * Find a transit-type field in a picker payload.
  *
- * TRMNL prefixes sibling settings with `settings_custom_fields_values_`, and
- * the slot number varies (`card1_type`..`card6_type`), so the field is matched
- * by suffix rather than by an exact name.
+ * Only a fallback for when the path carries no type — a hand-made request, or
+ * a form whose endpoint omits the interpolation. TRMNL posts every slot's
+ * settings, so this cannot tell which slot asked; the path can.
  */
 function pickTransitType(body: Record<string, unknown>): string | undefined {
   for (const [key, value] of Object.entries(body)) {
@@ -132,8 +139,27 @@ export default {
       return json({ error: "Not found" }, 404);
     }
 
-    const settings = parseBoardSettings(url);
-    const board = await buildBoard(settings, env);
+    // `buildBoard` catches per card and is not supposed to reject, but the
+    // whole design rule is that nothing blanks the board — and a Worker
+    // exception renders as nothing at all, since the Liquid template never
+    // runs. So the invariant is enforced here rather than trusted.
+    let board;
+    try {
+      board = await buildBoard(parseBoardSettings(url), env);
+    } catch (err) {
+      board = {
+        t: new Date().toISOString(),
+        c: [
+          {
+            s: 1,
+            y: "error",
+            n: "Transit board",
+            e: err instanceof Error ? err.message : "Unknown error",
+          },
+        ],
+      };
+    }
+
     const body = JSON.stringify(board);
     const bytes = new TextEncoder().encode(body).length;
 

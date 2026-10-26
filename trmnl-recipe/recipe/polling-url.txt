@@ -9,10 +9,15 @@ TRMNL runs the Liquid on the left before fetching, so each `cN` parameter
 becomes `type:stopIds:walkTime:title` — or an empty string for a slot left Off,
 which the Worker skips.
 
-The transit type is **not** written separately: the picker stores it on the
-front of the station value already (`subway:127+725`), so adding
+The transit type is **not** written as part of the value: the picker stores it
+on the front of the station already (`subway:127+725`), so adding
 `{{ cardN_type }}` would produce "subway:subway:127+725" and shift every field
 along by one. The Worker tolerates that doubled form, but the URL avoids it.
+
+It *is* used as a guard. Setting a card to **Off** does not clear the station
+it already holds, so without the `{% if %}` the slot keeps rendering the last
+station picked — the Off option would appear to do nothing. The guard writes
+an empty parameter instead, which the Worker skips.
 
 The `@` inside a station value carries the stop name the picker already
 resolved, so a bus card is headed by its street rather than "Bus Stop <id>".
@@ -20,12 +25,12 @@ It is part of the stored value and needs no handling here.
 
 ----------------------------------------------------------------------
 https://REPLACE_ME.workers.dev/api/board
-  ?c1={{ card1_station }}:{{ card1_walk }}:{{ card1_title }}
-  &c2={{ card2_station }}:{{ card2_walk }}:{{ card2_title }}
-  &c3={{ card3_station }}:{{ card3_walk }}:{{ card3_title }}
-  &c4={{ card4_station }}:{{ card4_walk }}:{{ card4_title }}
-  &c5={{ card5_station }}:{{ card5_walk }}:{{ card5_title }}
-  &c6={{ card6_station }}:{{ card6_walk }}:{{ card6_title }}
+  ?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}
+  &c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}
+  &c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}
+  &c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}
+  &c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}
+  &c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}
   &h24={{ use_24_hour }}
   &urgent={{ urgent_threshold }}
   &leavein={{ show_leave_in }}
@@ -33,7 +38,7 @@ https://REPLACE_ME.workers.dev/api/board
 
 As one line, ready to paste after replacing the hostname:
 
-https://REPLACE_ME.workers.dev/api/board?c1={{ card1_station }}:{{ card1_walk }}:{{ card1_title }}&c2={{ card2_station }}:{{ card2_walk }}:{{ card2_title }}&c3={{ card3_station }}:{{ card3_walk }}:{{ card3_title }}&c4={{ card4_station }}:{{ card4_walk }}:{{ card4_title }}&c5={{ card5_station }}:{{ card5_walk }}:{{ card5_title }}&c6={{ card6_station }}:{{ card6_walk }}:{{ card6_title }}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
+https://REPLACE_ME.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
 
 
 Refresh rate

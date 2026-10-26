@@ -31,6 +31,7 @@ import {
   type DepartureRowData,
   type RowOptions,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/departureRows";
+import { isBoardable } from "../../EInk-NYC-Home-Dashboard/src/utils/departures";
 import {
   getStationName,
   getSubwayRoutes,
@@ -85,6 +86,32 @@ export interface BuildEnv {
 /** Row options plus the per-stop fetch limit the feeds that take one need. */
 type SharedOptions = Omit<RowOptions, "walkTime"> & { fetchLimit: number };
 
+/**
+ * One decoded feed per family, shared across every card in a request.
+ *
+ * Decoding is the CPU cost that decides which Cloudflare plan this runs on —
+ * the `a_division` subway feed alone is ~4ms — so two subway cards must not
+ * decode the same 215KB twice. The dashboard avoids this by collecting every
+ * stop before fetching (`loadTransitData.ts`); a Worker builds cards
+ * concurrently, so the sharing is a promise each card awaits.
+ *
+ * Keyed by feed family rather than by card: the promise is created on first
+ * use and reused, so a board with no railroad card never fetches one.
+ */
+type FeedCache = Map<string, Promise<unknown>>;
+
+function sharedFeed<T>(
+  cache: FeedCache,
+  key: string,
+  load: () => Promise<T>
+): Promise<T> {
+  const existing = cache.get(key);
+  if (existing) return existing as Promise<T>;
+  const created = load();
+  cache.set(key, created);
+  return created;
+}
+
 const toMessage = (err: unknown) =>
   err instanceof Error ? err.message : "Failed to load";
 
@@ -108,6 +135,15 @@ const toBoardRow = (row: DepartureRowData): BoardRow => [
 const ROWS_PER_COLUMN = 5;
 
 /**
+ * Whether ferry cards may render.
+ *
+ * Off: the ferry is schedule-based, and this board reports what live feeds
+ * say. Flip it when `getFerrySchedule.ts` is replaced by a real feed — see
+ * the spec's open questions.
+ */
+const FERRY_ENABLED = false;
+
+/**
  * Which protobuf feeds a set of subway stops needs.
  *
  * The form deliberately does not ask: in `displayConfig.ts` the equivalent
@@ -127,20 +163,31 @@ function subwayLinesFor(stopIds: string[]): string[] {
 /** Build the two direction columns of a subway card. */
 async function subwayCard(
   card: CardSettings,
-  rowOptions: SharedOptions
+  rowOptions: SharedOptions,
+  feeds: FeedCache
 ): Promise<BoardCard> {
+  // Walks every stop's route list, so computed once and reused for both the
+  // card's bullets and its feed set.
+  const lines = subwayLinesFor(card.stopIds);
+
   const base: BoardCard = {
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getStationName(card.stopIds[0], "subway"),
-    b: subwayLinesFor(card.stopIds),
+    b: lines,
   };
 
   try {
-    const feed = await fetchMultipleTrainLines(subwayLinesFor(card.stopIds));
+    // Keyed by the feed set this card needs, so two cards on the same lines
+    // share one fetch and one decode while cards on different lines do not.
+    const feed = await sharedFeed(feeds, `subway:${[...lines].sort().join(",")}`, () =>
+      fetchMultipleTrainLines(lines)
+    );
     const labels = getDirectionLabels(card.stopIds[0]);
 
-    const columns: BoardColumn[] = (["N", "S"] as const).map((direction) => {
+    // South first, matching the dashboard's column order so the two surfaces
+    // render the same board side by side.
+    const directions = (["S", "N"] as const).map((direction) => {
       const trains = mergeSorted(
         card.stopIds.map((stopId) =>
           getUpcomingTrainsAtStation(feed.feedMessage, stopId, direction)
@@ -154,17 +201,30 @@ async function subwayCard(
           : (labels?.southbound ?? "Southbound");
 
       return {
-        h: heading,
-        r: trainRows(trains, { ...rowOptions, walkTime: card.walkTime }).map(
-          toBoardRow
-        ),
+        // Whether this direction runs at all, which is a different question
+        // from whether anything is currently reachable.
+        runs: trains.some(isBoardable),
+        column: {
+          h: heading,
+          r: trainRows(trains, { ...rowOptions, walkTime: card.walkTime }).map(
+            toBoardRow
+          ),
+        },
       };
     });
 
-    // At a terminal one direction has nothing boardable; drop it so the live
-    // one can run full width rather than half the card reading "No trains".
-    const live = columns.filter((column) => column.r.length > 0);
-    return { ...base, k: live.length > 0 ? live : columns };
+    // At a terminal every train in one direction terminates there, so that
+    // direction has nothing boardable and is dropped — letting the live one
+    // run full width instead of half the card reading "No upcoming trains".
+    //
+    // The test is boardability, *not* whether any rows survived: a direction
+    // whose trains are all inside the walk time still runs, and dropping it
+    // would tell the rider that direction does not exist. That is the
+    // "empty is not an error" rule — an empty column is a fact about now,
+    // a missing column is a claim about the service.
+    const live = directions.filter((d) => d.runs);
+    const shown = live.length > 0 ? live : directions;
+    return { ...base, k: shown.map((d) => d.column) };
   } catch (err) {
     return { ...base, e: toMessage(err) };
   }
@@ -173,7 +233,8 @@ async function subwayCard(
 /** Build a railroad card: one list, both railroads sharing a feed fetch. */
 async function railroadCard(
   card: CardSettings,
-  rowOptions: SharedOptions
+  rowOptions: SharedOptions,
+  feeds: FeedCache
 ): Promise<BoardCard> {
   const railroad = card.transitType === "railroad-lirr" ? "lirr" : "mtn";
   const base: BoardCard = {
@@ -183,9 +244,9 @@ async function railroadCard(
   };
 
   try {
-    const feed = await fetchMultipleRailroads([railroad]);
-    const failure = feed.failures?.[railroad];
-    if (failure) return { ...base, e: failure };
+    const feed = await sharedFeed(feeds, `railroad:${railroad}`, () =>
+      fetchMultipleRailroads([railroad])
+    );
 
     const trains = mergeSorted(
       card.stopIds.map((stopId) =>
@@ -218,7 +279,15 @@ async function railroadCard(
   }
 }
 
-/** Build a bus card: one column per stop ID, since a stop is one direction. */
+/**
+ * Build a bus card: one column per stop ID, since a stop is one direction.
+ *
+ * Each stop is fetched and caught **individually**. A corner is always two
+ * IDs, and the MTA retires them one at a time, so a shared `Promise.all`
+ * rejection would let one dead direction discard the live one's departures —
+ * the whole card failing when half of it works. The card only reports an error
+ * when every one of its stops failed.
+ */
 async function busCard(
   card: CardSettings,
   rowOptions: SharedOptions,
@@ -230,28 +299,52 @@ async function busCard(
     n: card.title ?? getStationName(card.stopIds[0], "bus"),
   };
 
-  const columns = await Promise.all(
+  const results = await Promise.all(
     card.stopIds.map(async (stopId) => {
-      const buses = await getUpcomingBusesAtStop(
-        stopId,
-        rowOptions.fetchLimit,
-        env.MTA_API_KEY
-      );
-      return {
-        h: "",
-        r: busRows(buses, { ...rowOptions, walkTime: card.walkTime }).map(
-          toBoardRow
-        ),
-      };
+      try {
+        const buses = await getUpcomingBusesAtStop(
+          stopId,
+          rowOptions.fetchLimit,
+          env.MTA_API_KEY
+        );
+        return {
+          column: {
+            h: "",
+            r: busRows(buses, { ...rowOptions, walkTime: card.walkTime }).map(
+              toBoardRow
+            ),
+          },
+        };
+      } catch (err) {
+        return { error: toMessage(err) };
+      }
     })
-  ).catch((err: unknown) => toMessage(err));
+  );
 
-  return typeof columns === "string"
-    ? { ...base, e: columns }
-    : { ...base, k: columns };
+  const columns = results
+    .map((result) => result.column)
+    .filter((column): column is BoardColumn => column !== undefined);
+
+  // Every stop failed: there is nothing to show, so the card reports why.
+  if (columns.length === 0) {
+    const firstError = results.find((result) => result.error)?.error;
+    return { ...base, e: firstError ?? "Failed to load" };
+  }
+
+  return { ...base, k: columns };
 }
 
-/** Build a ferry card: uptown and downtown columns. */
+/**
+ * Build a ferry card: uptown and downtown columns.
+ *
+ * **Not reachable from the form, deliberately.** The ferry is still
+ * schedule-based (`getFerrySchedule.ts`), which conflicts with the project's
+ * live-data-only rule, so the form offers no Ferry option and the picker
+ * returns nothing for it. The path is kept because the schedule lookup works
+ * and `loadFerries` in the dashboard already has the per-stop shape a live
+ * feed would need — but a hand-written ferry slot says so rather than
+ * rendering a silently empty card that looks like "no boats due".
+ */
 function ferryCard(
   card: CardSettings,
   rowOptions: SharedOptions
@@ -261,6 +354,13 @@ function ferryCard(
     y: card.transitType,
     n: card.title ?? card.stopIds[0],
   };
+
+  if (!FERRY_ENABLED) {
+    return {
+      ...base,
+      e: "Ferry is not available yet — it is still schedule-based, and this board shows live data only.",
+    };
+  }
 
   try {
     const columns: BoardColumn[] = (["uptown", "downTown"] as const).map(
@@ -304,15 +404,18 @@ export async function buildBoard(
     },
   };
 
+  // Shared per request, so concurrent cards reuse one decode per feed.
+  const feeds: FeedCache = new Map();
+
   const cards = await Promise.all(
     settings.cards.map(async (card): Promise<BoardCard> => {
       try {
         switch (card.transitType) {
           case "subway":
-            return await subwayCard(card, shared);
+            return await subwayCard(card, shared, feeds);
           case "railroad-lirr":
           case "railroad-mtn":
-            return await railroadCard(card, shared);
+            return await railroadCard(card, shared, feeds);
           case "bus":
             return await busCard(card, shared, env);
           case "ferry":

@@ -13,9 +13,22 @@ export interface DisplaySettings {
   use24HourTime?: boolean;
   /** Minutes below which a row is emphasised. */
   urgentThresholdMinutes?: number;
+  /**
+   * IANA zone the clock times are rendered in.
+   *
+   * Defaulted rather than optional-at-runtime because the browser's own zone
+   * is only correct by coincidence: a Cloudflare Worker runs in **UTC**, so
+   * leaving this to the host renders every departure four or five hours off
+   * — and a local `wrangler dev` inherits the developer's zone, so the fault
+   * appears only once deployed.
+   */
+  timeZone?: string;
 }
 
 const DEFAULT_URGENT_THRESHOLD_MINUTES = 10;
+
+/** The network this board reports on is in one zone; everything is local to it. */
+const DEFAULT_TIME_ZONE = "America/New_York";
 
 /**
  * Shared logic for turning a departure time into what a card shows.
@@ -69,10 +82,11 @@ export function formatClockTime(
 ): string {
   const ms = toEpochMs(time);
   if (ms === null) return "N/A";
-  return new Date(ms).toLocaleTimeString([], {
+  return new Date(ms).toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: !settings.use24HourTime,
+    timeZone: settings.timeZone ?? DEFAULT_TIME_ZONE,
   });
 }
 
