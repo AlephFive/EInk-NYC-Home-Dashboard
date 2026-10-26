@@ -5,7 +5,7 @@
 # Replace REPLACE_ME with the deployed Worker's hostname — or run
 # `npm run configure <host>` from trmnl-recipe/, which does it everywhere.
 name: NYC Transit Board
-description: Live subway, LIRR, Metro-North and bus departures, filtered by your walk to the stop.
+description: NYC departures you can still catch
 
 strategy: polling
 polling_verb: GET
@@ -22,6 +22,15 @@ dark_mode: false
 no_screen_padding: false
 
 custom_fields:
+  # Required for store submission: users need a way to reach the author. The
+  # repo link rather than an email, since this is a public listing.
+  - keyname: author_bio
+    field_type: author_bio
+    name: About
+    description: >-
+      Built by Shao-en Ma. Source, issues and setup notes:
+      <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">github.com/AlephFive/EInk-NYC-Home-Dashboard</a>
+
   - keyname: card1_type
     field_type: select
     name: Transit type
