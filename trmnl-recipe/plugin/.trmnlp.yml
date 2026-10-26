@@ -1,0 +1,249 @@
+---
+# Local-only. Never uploaded — `trmnlp push` sends src/settings.yml, not this.
+
+watch:
+  - src
+  - .trmnlp.yml
+
+# The zone the board is rendered in. The Worker pins America/New_York itself,
+# because a deployed Cloudflare Worker runs in UTC and would otherwise print
+# every departure four or five hours out. This sets what `{{ trmnl.user }}`
+# reports locally so the preview matches the device.
+time_zone: America/New_York
+
+# Test values for `trmnlp serve` — the same board the dashboard shows, so the
+# preview can be compared against the real panel.
+#
+# Station values are what the picker stores, including the type prefix and, for
+# the bus corner, the "@" stop name. Pick them by hand here; in the real form
+# they come from the search dropdown.
+custom_fields:
+  card1_type: subway
+  card1_station: "subway:721"
+  card1_walk: 10
+  card1_title: ""
+
+  card2_type: subway
+  card2_station: "subway:G24"
+  card2_walk: 15
+  card2_title: ""
+
+  card3_type: bus
+  card3_station: "bus:505506@CENTER BLVD/BORDEN AV"
+  card3_walk: 3
+  card3_title: ""
+
+  card4_type: lirr
+  card4_station: "lirr:118"
+  card4_walk: 5
+  card4_title: ""
+
+  card5_type: lirr
+  card5_station: "lirr:349"
+  card5_walk: 20
+  card5_title: ""
+
+  card6_type: "off"
+  card6_station: ""
+  card6_walk: 5
+  card6_title: ""
+
+  use_24_hour: true
+  urgent_threshold: 10
+  show_leave_in: false
+
+# ---------------------------------------------------------------------------
+# Offline fixture: a real /api/board response, captured 2026-10-26T20:34Z.
+#
+# trmnlp refuses to poll a private address - it simulates the hosted service,
+# which will not reach a localhost Worker - so these variables stand in for
+# the fetch. They are deep-merged over whatever polling returns, which lets
+# the markup be developed and linted with no Worker deployed at all.
+#
+# Delete this block (or comment it out) once a real polling URL is set, or the
+# board will keep rendering these frozen departures.
+variables:
+  t: "2026-10-26T20:34:04.385Z"
+  c:
+    - s: 1
+      y: "subway"
+      n: "Vernon Blvd-Jackson Av"
+      b:
+        - "7"
+      k:
+        - h: "Manhattan"
+          r:
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "16:47"
+              - 1
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "16:49"
+              - 1
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "16:51"
+              - 1
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "16:53"
+              - 1
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "16:56"
+              - 0
+        - h: "Outbound"
+          r:
+            - - "7"
+              - "Flushing-Main St"
+              - "16:46"
+              - 1
+            - - "7X"
+              - "Flushing-Main St"
+              - "16:49"
+              - 1
+            - - "7"
+              - "Flushing-Main St"
+              - "16:52"
+              - 1
+            - - "7X"
+              - "Flushing-Main St"
+              - "16:55"
+              - 0
+            - - "7"
+              - "Flushing-Main St"
+              - "16:59"
+              - 0
+    - s: 2
+      y: "subway"
+      n: "21 St"
+      b:
+        - "G"
+      k:
+        - h: "Brooklyn"
+          r:
+            - - "G"
+              - "Church Av"
+              - "16:50"
+              - 1
+            - - "G"
+              - "Church Av"
+              - "16:58"
+              - 1
+            - - "G"
+              - "Church Av"
+              - "17:06"
+              - 0
+            - - "G"
+              - "Church Av"
+              - "17:13"
+              - 0
+            - - "G"
+              - "Church Av"
+              - "17:25"
+              - 0
+        - h: "Court Square"
+          r:
+            - - "G"
+              - "Court Sq"
+              - "16:49"
+              - 1
+            - - "G"
+              - "Court Sq"
+              - "16:55"
+              - 1
+            - - "G"
+              - "Court Sq"
+              - "17:10"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "17:22"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "17:30"
+              - 0
+    - s: 3
+      y: "bus"
+      n: "CENTER BLVD/BORDEN AV"
+      k:
+        - h: ""
+          r:
+            - - "Q101"
+              - "STEINWAY via STEINWAY ST"
+              - "16:41"
+              - 1
+            - - "Q101"
+              - "STEINWAY via STEINWAY ST"
+              - "16:56"
+              - 0
+            - - "Q101"
+              - "STEINWAY via STEINWAY ST"
+              - "17:11"
+              - 0
+            - - "Q103"
+              - "ASTORIA"
+              - "17:11"
+              - 0
+    - s: 4
+      y: "railroad-lirr"
+      n: "Long Island City"
+      k:
+        - h: ""
+          r:
+            - - "Port Jefferson"
+              - "Port Jefferson"
+              - "16:58"
+              - 0
+            - - "Port Jefferson"
+              - "Port Jefferson"
+              - "17:43"
+              - 0
+    - s: 5
+      y: "railroad-lirr"
+      n: "Grand Central"
+      k:
+        - h: ""
+          r:
+            - - "Babylon"
+              - "Wantagh"
+              - "17:00"
+              - 1
+            - - "Port Jefferson"
+              - "Huntington"
+              - "17:06"
+              - 0
+            - - "Far Rockaway"
+              - "Far Rockaway"
+              - "17:12"
+              - 0
+            - - "Long Beach"
+              - "Long Beach"
+              - "17:18"
+              - 0
+            - - "Port Washington"
+              - "Port Washington"
+              - "17:21"
+              - 0
+            - - "Babylon"
+              - "Babylon"
+              - "17:25"
+              - 0
+            - - "Babylon"
+              - "Seaford"
+              - "17:30"
+              - 0
+            - - "Port Jefferson"
+              - "Huntington"
+              - "17:33"
+              - 0
+            - - "Far Rockaway"
+              - "Far Rockaway"
+              - "17:36"
+              - 0
+            - - "Ronkonkoma"
+              - "Ronkonkoma"
+              - "17:39"
+              - 0

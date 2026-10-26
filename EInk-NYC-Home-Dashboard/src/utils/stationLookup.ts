@@ -1,4 +1,7 @@
-import subwayStationsGeoJSON from "../staticData/subway/MTA_Subway_Stations_20251126.geojson";
+// Generated from the station GeoJSON by `npm run gen:stations`. Plain JSON
+// rather than the .geojson, because the TRMNL Worker has no Vite plugin to
+// read the latter — and because the pruned form is a quarter of the size.
+import subwayStations from "../staticData/subway/stations.json";
 import railroadStopsLookup from "../staticData/railroad/railroad_stops_lookup.json";
 import { getBusStopInfo } from "./bus/displayDataLookup";
 
@@ -29,27 +32,8 @@ interface RailroadStop {
   stop_id: string;
 }
 
-// Build subway station lookup by gtfs_stop_id (what the API uses)
-const subwayStationsByGtfsId: Record<string, SubwayStation> = {};
-
-if (subwayStationsGeoJSON && subwayStationsGeoJSON.features) {
-  subwayStationsGeoJSON.features.forEach((feature) => {
-    const props = feature.properties as Partial<SubwayStation> | undefined;
-    if (props && props.gtfs_stop_id) {
-      subwayStationsByGtfsId[props.gtfs_stop_id] = {
-        gtfs_stop_id: props.gtfs_stop_id,
-        station_id: props.station_id ?? "",
-        stop_name: props.stop_name ?? `Stop ${props.gtfs_stop_id}`,
-        daytime_routes: props.daytime_routes,
-        complex_id: props.complex_id,
-        north_direction_label: props.north_direction_label,
-        south_direction_label: props.south_direction_label,
-      };
-    }
-  });
-} else {
-  console.error("Failed to load subway stations GeoJSON");
-}
+// Subway station lookup, keyed by gtfs_stop_id — what the feeds use.
+const subwayStationsByGtfsId = subwayStations as Record<string, SubwayStation>;
 
 // Railroad station lookup (separate indexes for LIRR and Metro-North to handle ID conflicts)
 const railroadStopsByIdLirr = railroadStopsLookup.by_id_lirr as Record<

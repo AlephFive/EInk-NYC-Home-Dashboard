@@ -1,0 +1,18 @@
+{
+  "name": "trmnl-recipe",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "configure": "node scripts/configure.mjs",
+    "spike:cpu": "node --experimental-strip-types spikes/decodeCost.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261023.1",
+    "typescript": "~5.9.3",
+    "wrangler": "^4.45.0"
+  }
+}

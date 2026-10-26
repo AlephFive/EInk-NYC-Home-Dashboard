@@ -1,0 +1,97 @@
+# The Cloudflare Worker that serves /api/board and the station pickers.
+#
+# Separate from the TRMNL plugin pipeline on purpose: the two deploy to
+# different places and version independently. Changing a Liquid template needs
+# no Worker deploy; changing the row logic needs no plugin push.
+name: Worker
+
+on:
+  push:
+    paths:
+      - "trmnl-recipe/src/**"
+      - "trmnl-recipe/package*.json"
+      - "trmnl-recipe/tsconfig.json"
+      - "trmnl-recipe/wrangler.toml"
+      # The Worker imports the dashboard's transit modules directly, so a
+      # change there can break it without touching trmnl-recipe/ at all.
+      - "EInk-NYC-Home-Dashboard/src/utils/**"
+      - "EInk-NYC-Home-Dashboard/src/staticData/**"
+      - ".github/workflows/worker.yml"
+  pull_request:
+    paths:
+      - "trmnl-recipe/src/**"
+      - "EInk-NYC-Home-Dashboard/src/utils/**"
+      - "EInk-NYC-Home-Dashboard/src/staticData/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: trmnl-recipe/package-lock.json
+
+      # The Worker imports the dashboard's transit modules, and TypeScript
+      # resolves a module relative to the *importing* file — so the generated
+      # protobuf's `@bufbuild/protobuf/wire` import is looked up in the
+      # dashboard's node_modules, not the Worker's. Both installs are needed.
+      - run: npm ci
+        working-directory: EInk-NYC-Home-Dashboard
+
+      - run: npm ci
+        working-directory: trmnl-recipe
+
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: trmnl-recipe
+
+      # The Worker runs in UTC. Every departure time would be hours wrong if a
+      # timezone regression slipped in, and it is invisible when tested from a
+      # machine that happens to be in New York — so the check runs under UTC.
+      - name: Clock times stay local to the network, under a UTC runtime
+        run: TZ=UTC node .github/scripts/checkTimeZone.mjs
+
+      # Bundling can fail for reasons typechecking cannot see — an import the
+      # Workers runtime has no polyfill for, a JSON file that moved. Catching
+      # it on the PR beats catching it mid-deploy.
+      - name: Bundle (dry run)
+        run: npx wrangler deploy --dry-run --outdir /tmp/worker-bundle
+        working-directory: trmnl-recipe
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: trmnl-recipe/package-lock.json
+
+      - run: npm ci
+        working-directory: trmnl-recipe
+
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: trmnl-recipe
+          # MTA_API_KEY is set once with `wrangler secret put`, not here —
+          # deploys do not resend it.
+
+      # A deploy that succeeds but serves a broken board is worse than a
+      # failed one: the panel keeps showing stale pixels and nothing says why.
+      # WORKER_URL is a repository *variable*, not a secret — the hostname is
+      # public, and keeping it visible makes a failed run readable.
+      - name: Smoke test the deployment
+        if: vars.WORKER_URL != ''
+        run: node .github/scripts/smokeTest.mjs "${{ vars.WORKER_URL }}"

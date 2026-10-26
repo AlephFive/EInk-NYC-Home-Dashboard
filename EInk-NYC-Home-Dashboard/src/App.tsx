@@ -1,30 +1,21 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate } from "./utils/subway";
-import {
-  getRailroadRouteShortName,
-  isCityBound,
-  badgeWidthForLabels,
-  type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate,
-} from "./utils/railroad";
+import { type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate } from "./utils/railroad";
 import { type EnrichedBusData } from "./utils/bus";
 import { type FerryDeparture } from "./utils/ferry";
 import {
-  isBoardable,
-  minutesUntil,
-  formatClockTime,
-  leaveTimeFor,
-  isUrgent,
-  reachableDepartures,
-  type DepartureTime,
-} from "./utils/departures";
+  trainRows,
+  busRows,
+  ferryRows,
+  type DepartureRowData,
+} from "./utils/departureRows";
 import { loadTransitData, TransitLoadError } from "./utils/loadTransitData";
 import displayConfig from "./displayConfig";
 import { TransitCard } from "./components/TransitCard";
 import { DepartureRow, EmptyRow } from "./components/DepartureRow";
 import { listStyle } from "./utils/cardCapacity";
 import { type TransitData, type TransitErrors } from "./types/transitData";
-import { getDestinationName } from "./utils/stationLookup";
 
 function App() {
   const [transitData, setTransitData] = useState<TransitData>({});
@@ -76,27 +67,27 @@ function App() {
 
   const showLeaveIn = displayConfig.showLeaveIn ?? false;
 
+  /** Shared row options, so every list reads the same config. */
+  const rowOptions = (walkTime: number, limit: number) => ({
+    walkTime,
+    limit,
+    showLeaveIn,
+  });
+
   /**
-   * Renders an already-filtered list, or the empty-state line.
+   * Draws a list of already-computed rows, or the empty-state line.
    *
-   * Takes the reachable departures rather than filtering them, so a caller
-   * that needs to inspect the list first — the train card sizes its badges
-   * from it — does not filter twice and cannot drift from what is drawn.
+   * The rows arrive as data from `utils/departureRows.ts` — what to show is
+   * decided there, and this only turns it into elements.
    */
-  const renderDepartures = <T,>(
-    reachable: T[],
-    timeOf: (item: T) => DepartureTime,
-    walkTime: number,
-    emptyLabel: string,
-    toRow: (item: T, leaveTime: number | null) => React.ReactNode
-  ) => {
-    if (reachable.length === 0) return <EmptyRow label={emptyLabel} />;
+  const renderRows = (rows: DepartureRowData[], emptyLabel: string) => {
+    if (rows.length === 0) return <EmptyRow label={emptyLabel} />;
 
     return (
       <div style={listStyle}>
-        {reachable.map((item) =>
-          toRow(item, leaveTimeFor(minutesUntil(timeOf(item)), walkTime))
-        )}
+        {rows.map(({ key, ...row }) => (
+          <DepartureRow key={key} {...row} />
+        ))}
       </div>
     );
   };
@@ -106,74 +97,11 @@ function App() {
     _direction: string,
     walkTime: number,
     limit: number = 3
-  ) => {
-    // A card lists trains you can board, so the time that matters is when the
-    // train leaves. At a terminal the two are disjoint: trains ending their run
-    // carry only `arrival`, trains starting one carry only `departure`.
-    const boardable = trains.filter(isBoardable);
-    const timeOf = (
-      stop: SubwayEnrichedStopTimeUpdate | RailroadEnrichedStopTimeUpdate
-    ) => stop.departure?.time ?? stop.arrival?.time;
-
-    const reachable = reachableDepartures(boardable, timeOf, walkTime, limit);
-
-    // Railroad badges share one width per card, set by the longest branch name,
-    // so destinations line up instead of stepping in and out with each badge.
-    const uniformBadgeWidth = badgeWidthForLabels(
-      reachable.map((stop) =>
-        "railroad" in stop && stop.railroad && stop.routeId
-          ? getRailroadRouteShortName(
-              stop.routeId,
-              stop.railroad as "lirr" | "mtn"
-            )
-          : ""
-      )
+  ) =>
+    renderRows(
+      trainRows(trains, rowOptions(walkTime, limit)),
+      "No upcoming trains"
     );
-
-    return renderDepartures(
-      reachable,
-      timeOf,
-      walkTime,
-      "No upcoming trains",
-      (stop, leaveTime) => {
-        const railroad =
-          "railroad" in stop && stop.railroad
-            ? (stop.railroad as "lirr" | "mtn")
-            : undefined;
-
-        const cityBound = railroad
-          ? isCityBound(stop.destinationStopId, railroad)
-          : null;
-
-        return (
-          <DepartureRow
-            key={stop.tripId ?? `${stop.stopId}-${stop.departure?.time}`}
-            badge={
-              railroad && stop.routeId
-                ? getRailroadRouteShortName(stop.routeId, railroad)
-                : stop.routeId ?? ""
-            }
-            badgeShape={railroad ? "rect" : "bullet"}
-            badgeWidth={railroad ? uniformBadgeWidth : undefined}
-            point={
-              cityBound === true ? "left" : cityBound === false ? "right" : undefined
-            }
-            destination={getDestinationName(
-              stop.destinationStopId,
-              railroad === "lirr"
-                ? "railroad-lirr"
-                : railroad === "mtn"
-                  ? "railroad-mtn"
-                  : "subway"
-            )}
-            time={formatClockTime(timeOf(stop))}
-            urgent={isUrgent(leaveTime)}
-            leaveIn={showLeaveIn && leaveTime !== null ? leaveTime : undefined}
-          />
-        );
-      }
-    );
-  };
 
   const renderFerryList = (
     ferries: FerryDeparture[],
@@ -181,24 +109,9 @@ function App() {
     walkTime: number,
     limit: number = 3
   ) =>
-    renderDepartures(
-      reachableDepartures(ferries, (ferry) => ferry.departureTime, walkTime, limit),
-      (ferry) => ferry.departureTime,
-      walkTime,
-      "No upcoming ferries",
-      (ferry, leaveTime) => (
-        <DepartureRow
-          key={ferry.departureTime.getTime()}
-          badge={ferry.route}
-          badgeShape="rect"
-          // The ferry schedule carries no destination; the card's two columns
-          // already say uptown vs downtown.
-          destination={ferry.isNextDay ? "+1 day" : null}
-          time={formatClockTime(ferry.departureTime)}
-          urgent={isUrgent(leaveTime)}
-          leaveIn={showLeaveIn && leaveTime !== null ? leaveTime : undefined}
-        />
-      )
+    renderRows(
+      ferryRows(ferries, rowOptions(walkTime, limit)),
+      "No upcoming ferries"
     );
 
   const renderBusList = (
@@ -206,28 +119,7 @@ function App() {
     walkTime: number,
     limit: number = 3
   ) =>
-    renderDepartures(
-      reachableDepartures(
-        buses,
-        (bus) => bus.expectedArrival ?? bus.expectedDeparture,
-        walkTime,
-        limit
-      ),
-      (bus) => bus.expectedArrival ?? bus.expectedDeparture,
-      walkTime,
-      "No upcoming buses",
-      (bus, leaveTime) => (
-        <DepartureRow
-          key={`${bus.routeName}-${(bus.expectedArrival ?? bus.expectedDeparture)?.getTime()}`}
-          badge={bus.routeName}
-          badgeShape="rect"
-          destination={bus.destination ?? null}
-          time={formatClockTime(bus.expectedArrival ?? bus.expectedDeparture)}
-          urgent={isUrgent(leaveTime)}
-          leaveIn={showLeaveIn && leaveTime !== null ? leaveTime : undefined}
-        />
-      )
-    );
+    renderRows(busRows(buses, rowOptions(walkTime, limit)), "No upcoming buses");
 
   return (
     <div

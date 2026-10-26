@@ -1,0 +1,51 @@
+{% comment %}
+  Phase 1 debug markup — text only, deliberately.
+
+  This renders every field the endpoint sends, as plain lines, so an
+  end-to-end test has nothing to debug but the data: if a station is wrong,
+  a walk time is ignored, or a card fails, it is visible here without CSS
+  between you and it.
+
+  The real UI is phase 2 and will be built on the TRMNL design framework
+  (screen / view / layout / columns, with Item rows). See the spec's §3.2 —
+  the framework measures content height at runtime, which changes how many
+  rows a card should carry, so there is no point styling this first.
+
+  Row tuples are [badge, destination, time, urgent].
+{% endcomment %}
+
+<div class="view">
+  <div class="layout">
+    <pre style="font-size:12px; line-height:1.35; white-space:pre-wrap;">
+generated {{ t }}
+cards: {{ c | size }}
+{% for card in c %}
+--------------------------------------------------
+slot {{ card.s }}  {{ card.y }}  "{{ card.n }}"
+{%- if card.b %}  bullets: {{ card.b | join: "," }}{% endif %}
+{%- if card.e %}
+  !! ERROR: {{ card.e }}
+{%- else %}
+{%- for col in card.k %}
+  [{{ col.h | default: "(no heading)" }}]  {{ col.r | size }} rows
+{%- for r in col.r %}
+    {{ r[0] }} | {{ r[1] }} | {{ r[2] }}{% if r[3] == 1 %} *URGENT{% endif %}
+{%- endfor %}
+{%- if col.r == empty %}
+    (no upcoming departures)
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+{% endfor %}
+--------------------------------------------------
+{% if c == empty %}
+No cards configured. Set at least one card's transit type and station.
+{% endif %}
+    </pre>
+  </div>
+
+  <div class="title_bar">
+    <span class="title">NYC Transit</span>
+    <span class="instance">debug build</span>
+  </div>
+</div>

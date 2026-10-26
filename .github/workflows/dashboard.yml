@@ -1,0 +1,39 @@
+# The React panel that drives the e-ink display at home. No deploy step: it is
+# screenshotted by the sibling Lightweight-Eink-Server, not hosted.
+name: Dashboard
+
+on:
+  push:
+    paths:
+      - "EInk-NYC-Home-Dashboard/**"
+      - ".github/workflows/dashboard.yml"
+  pull_request:
+    paths:
+      - "EInk-NYC-Home-Dashboard/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: EInk-NYC-Home-Dashboard/package-lock.json
+
+      - run: npm ci
+        working-directory: EInk-NYC-Home-Dashboard
+
+      - run: npm run lint
+        working-directory: EInk-NYC-Home-Dashboard
+
+      # `build` runs gen:proto, which needs protoc on PATH.
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: npm run build
+        working-directory: EInk-NYC-Home-Dashboard

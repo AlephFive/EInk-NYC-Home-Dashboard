@@ -1,0 +1,332 @@
+---
+# Uploaded to TRMNL by `trmnlp push`. The local-only knobs (test values, time
+# zone) live in ../.trmnlp.yml instead.
+#
+# Replace REPLACE_ME with the deployed Worker's hostname — or run
+# `npm run configure <host>` from trmnl-recipe/, which does it everywhere.
+name: NYC Transit Board
+description: NYC departures you can still catch
+
+strategy: polling
+polling_verb: GET
+polling_url: >-
+  https://REPLACE_ME.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
+
+# TRMNL's store minimum, and the reason the board shows clock times rather than
+# a countdown: a "leave in 6 min" line is stale by up to the refresh interval,
+# while "16:12" never is.
+refresh_interval: 900
+
+# The panel is 1-bit; the board draws its own emphasis by inverting rows.
+dark_mode: false
+no_screen_padding: false
+
+custom_fields:
+  # Required for store submission: users need a way to reach the author. The
+  # repo link rather than an email, since this is a public listing.
+  - keyname: author_bio
+    field_type: author_bio
+    name: About
+    description: >-
+      Built by Shao-en Ma. Source, issues and setup notes:
+      <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">github.com/AlephFive/EInk-NYC-Home-Dashboard</a>
+
+  - keyname: card1_type
+    field_type: select
+    name: Transit type
+    description: Left column, top
+    group: Card 1
+    optional: true
+    default: 'off'
+    help_text: Leave off to hide this card. Its column-mate then fills the column.
+    options:
+      - 'Off': 'off'
+      - Subway: subway
+      - LIRR: lirr
+      - Metro-North: mtn
+      - Bus: bus
+
+  - keyname: card1_station
+    field_type: xhrSelectSearch
+    name: Station or stop
+    description: Type part of a name, then pick from the list
+    group: Card 1
+    optional: true
+    depends_on: card1_type
+    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card1_type}}
+    http_verb: POST
+    help_text: >
+      Stations that share a complex are listed once and show every platform.
+      A bus corner is listed once and shows both directions.
+
+  - keyname: card1_walk
+    field_type: number
+    name: Walk time (minutes)
+    group: Card 1
+    optional: true
+    default: 5
+    placeholder: 5
+    help_text: Departures you could not reach in this time are hidden.
+
+  - keyname: card1_title
+    field_type: string
+    name: Card heading
+    group: Card 1
+    optional: true
+    placeholder: Defaults to the station name
+    help_text: Leave blank to use the station name.
+
+  - keyname: card2_type
+    field_type: select
+    name: Transit type
+    description: Left column, bottom
+    group: Card 2
+    optional: true
+    default: 'off'
+    help_text: Leave off to hide this card. Its column-mate then fills the column.
+    options:
+      - 'Off': 'off'
+      - Subway: subway
+      - LIRR: lirr
+      - Metro-North: mtn
+      - Bus: bus
+
+  - keyname: card2_station
+    field_type: xhrSelectSearch
+    name: Station or stop
+    description: Type part of a name, then pick from the list
+    group: Card 2
+    optional: true
+    depends_on: card2_type
+    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card2_type}}
+    http_verb: POST
+    help_text: >
+      Stations that share a complex are listed once and show every platform.
+      A bus corner is listed once and shows both directions.
+
+  - keyname: card2_walk
+    field_type: number
+    name: Walk time (minutes)
+    group: Card 2
+    optional: true
+    default: 5
+    placeholder: 5
+    help_text: Departures you could not reach in this time are hidden.
+
+  - keyname: card2_title
+    field_type: string
+    name: Card heading
+    group: Card 2
+    optional: true
+    placeholder: Defaults to the station name
+    help_text: Leave blank to use the station name.
+
+  - keyname: card3_type
+    field_type: select
+    name: Transit type
+    description: Middle column, top
+    group: Card 3
+    optional: true
+    default: 'off'
+    help_text: Leave off to hide this card. Its column-mate then fills the column.
+    options:
+      - 'Off': 'off'
+      - Subway: subway
+      - LIRR: lirr
+      - Metro-North: mtn
+      - Bus: bus
+
+  - keyname: card3_station
+    field_type: xhrSelectSearch
+    name: Station or stop
+    description: Type part of a name, then pick from the list
+    group: Card 3
+    optional: true
+    depends_on: card3_type
+    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card3_type}}
+    http_verb: POST
+    help_text: >
+      Stations that share a complex are listed once and show every platform.
+      A bus corner is listed once and shows both directions.
+
+  - keyname: card3_walk
+    field_type: number
+    name: Walk time (minutes)
+    group: Card 3
+    optional: true
+    default: 5
+    placeholder: 5
+    help_text: Departures you could not reach in this time are hidden.
+
+  - keyname: card3_title
+    field_type: string
+    name: Card heading
+    group: Card 3
+    optional: true
+    placeholder: Defaults to the station name
+    help_text: Leave blank to use the station name.
+
+  - keyname: card4_type
+    field_type: select
+    name: Transit type
+    description: Middle column, bottom
+    group: Card 4
+    optional: true
+    default: 'off'
+    help_text: Leave off to hide this card. Its column-mate then fills the column.
+    options:
+      - 'Off': 'off'
+      - Subway: subway
+      - LIRR: lirr
+      - Metro-North: mtn
+      - Bus: bus
+
+  - keyname: card4_station
+    field_type: xhrSelectSearch
+    name: Station or stop
+    description: Type part of a name, then pick from the list
+    group: Card 4
+    optional: true
+    depends_on: card4_type
+    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card4_type}}
+    http_verb: POST
+    help_text: >
+      Stations that share a complex are listed once and show every platform.
+      A bus corner is listed once and shows both directions.
+
+  - keyname: card4_walk
+    field_type: number
+    name: Walk time (minutes)
+    group: Card 4
+    optional: true
+    default: 5
+    placeholder: 5
+    help_text: Departures you could not reach in this time are hidden.
+
+  - keyname: card4_title
+    field_type: string
+    name: Card heading
+    group: Card 4
+    optional: true
+    placeholder: Defaults to the station name
+    help_text: Leave blank to use the station name.
+
+  - keyname: card5_type
+    field_type: select
+    name: Transit type
+    description: Right column, top
+    group: Card 5
+    optional: true
+    default: 'off'
+    help_text: Leave off to hide this card. Its column-mate then fills the column.
+    options:
+      - 'Off': 'off'
+      - Subway: subway
+      - LIRR: lirr
+      - Metro-North: mtn
+      - Bus: bus
+
+  - keyname: card5_station
+    field_type: xhrSelectSearch
+    name: Station or stop
+    description: Type part of a name, then pick from the list
+    group: Card 5
+    optional: true
+    depends_on: card5_type
+    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card5_type}}
+    http_verb: POST
+    help_text: >
+      Stations that share a complex are listed once and show every platform.
+      A bus corner is listed once and shows both directions.
+
+  - keyname: card5_walk
+    field_type: number
+    name: Walk time (minutes)
+    group: Card 5
+    optional: true
+    default: 5
+    placeholder: 5
+    help_text: Departures you could not reach in this time are hidden.
+
+  - keyname: card5_title
+    field_type: string
+    name: Card heading
+    group: Card 5
+    optional: true
+    placeholder: Defaults to the station name
+    help_text: Leave blank to use the station name.
+
+  - keyname: card6_type
+    field_type: select
+    name: Transit type
+    description: Right column, bottom
+    group: Card 6
+    optional: true
+    default: 'off'
+    help_text: Leave off to hide this card. Its column-mate then fills the column.
+    options:
+      - 'Off': 'off'
+      - Subway: subway
+      - LIRR: lirr
+      - Metro-North: mtn
+      - Bus: bus
+
+  - keyname: card6_station
+    field_type: xhrSelectSearch
+    name: Station or stop
+    description: Type part of a name, then pick from the list
+    group: Card 6
+    optional: true
+    depends_on: card6_type
+    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card6_type}}
+    http_verb: POST
+    help_text: >
+      Stations that share a complex are listed once and show every platform.
+      A bus corner is listed once and shows both directions.
+
+  - keyname: card6_walk
+    field_type: number
+    name: Walk time (minutes)
+    group: Card 6
+    optional: true
+    default: 5
+    placeholder: 5
+    help_text: Departures you could not reach in this time are hidden.
+
+  - keyname: card6_title
+    field_type: string
+    name: Card heading
+    group: Card 6
+    optional: true
+    placeholder: Defaults to the station name
+    help_text: Leave blank to use the station name.
+
+  - keyname: use_24_hour
+    field_type: boolean
+    name: 24-hour clock
+    group: Display
+    optional: true
+    default: true
+
+  - keyname: urgent_threshold
+    field_type: number
+    name: Highlight departures within (minutes)
+    group: Display
+    optional: true
+    default: 10
+    placeholder: 10
+    help_text: >
+      Rows this close to your leave time are shown inverted. Counted after walk
+      time is subtracted, so it is how long you have before you must go.
+
+  - keyname: show_leave_in
+    field_type: boolean
+    name: Show "leave in N minutes"
+    group: Display
+    optional: true
+    default: false
+    help_text: >
+      Off by default. The panel refreshes on an interval, so a countdown can be
+      stale by up to that interval while a clock time never is. The walk-time
+      filter applies either way.
+

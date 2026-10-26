@@ -1,0 +1,63 @@
+TRMNL recipe — Polling URL
+==========================
+
+Paste this as the plugin's Polling URL, with REPLACE_ME swapped for the
+deployed Worker's hostname. It is one line; the breaks below are for reading
+and must be removed.
+
+TRMNL runs the Liquid on the left before fetching, so each `cN` parameter
+becomes `type:stopIds:walkTime:title` — or an empty string for a slot left Off,
+which the Worker skips.
+
+The transit type is **not** written as part of the value: the picker stores it
+on the front of the station already (`subway:127+725`), so adding
+`{{ cardN_type }}` would produce "subway:subway:127+725" and shift every field
+along by one. The Worker tolerates that doubled form, but the URL avoids it.
+
+It *is* used as a guard. Setting a card to **Off** does not clear the station
+it already holds, so without the `{% if %}` the slot keeps rendering the last
+station picked — the Off option would appear to do nothing. The guard writes
+an empty parameter instead, which the Worker skips.
+
+The `@` inside a station value carries the stop name the picker already
+resolved, so a bus card is headed by its street rather than "Bus Stop <id>".
+It is part of the stored value and needs no handling here.
+
+----------------------------------------------------------------------
+https://REPLACE_ME.workers.dev/api/board
+  ?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}
+  &c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}
+  &c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}
+  &c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}
+  &c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}
+  &c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}
+  &h24={{ use_24_hour }}
+  &urgent={{ urgent_threshold }}
+  &leavein={{ show_leave_in }}
+----------------------------------------------------------------------
+
+As one line, ready to paste after replacing the hostname:
+
+https://REPLACE_ME.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
+
+
+Refresh rate
+------------
+
+15 minutes or slower. That is TRMNL's store minimum, and it is also why the
+board shows clock times rather than a countdown: a "leave in 6 min" line is
+stale by up to the refresh interval, while "16:12" never is.
+
+
+A note on the station value
+---------------------------
+
+`cardN_station` holds what the picker stored, which already carries the
+transit type and, for a bus corner, the stop name:
+
+    subway:127+725+902+A27+R16
+    bus:505507+505513@BORDEN AV/5 ST
+
+`cardN_type` still drives the station picker (via `depends_on`) and decides
+whether the slot is on at all, so it stays in the form — it just does not need
+writing into the URL.

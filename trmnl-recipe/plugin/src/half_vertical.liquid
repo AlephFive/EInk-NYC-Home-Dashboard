@@ -1,0 +1,18 @@
+{% comment %}
+  Phase 1 ships the full layout only.
+
+  A transit board is a dense list — the debug markup alone prints several
+  lines per departure — and the smaller layouts would need their own row
+  budget and their own truncation rules rather than a scaled copy of this
+  one. That is a phase 2 design decision, so these say so instead of
+  rendering a cramped board that looks broken.
+{% endcomment %}
+
+<div class="view">
+  <div class="layout">
+    <div class="content">
+      <span class="title">NYC Transit</span>
+      <span class="description">Use the full-screen layout</span>
+    </div>
+  </div>
+</div>
