@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "spike:cpu": "node --experimental-strip-types spikes/decodeCost.ts"
+    "spike:cpu": "node --experimental-strip-types spikes/decodeCost.ts",
+    "configure": "node scripts/configure.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261023.1",
