@@ -26,9 +26,51 @@ Repository Settings → Secrets and variables → Actions.
 | `CLOUDFLARE_ACCOUNT_ID` | `worker.yml` deploy | Cloudflare dashboard sidebar, or `wrangler whoami` |
 | `TRMNL_API_KEY` | `plugin.yml` push | TRMNL account settings |
 
+And one repository **variable** (Variables tab, not Secrets):
+
+| Variable | Needed by | Value |
+|---|---|---|
+| `WORKER_URL` | the post-deploy smoke test | `https://<your-worker>.workers.dev` |
+
+It is a variable rather than a secret because the hostname is public anyway,
+and a failed smoke test is only readable if the URL it hit is visible. The
+smoke test is skipped if it is unset, so the pipeline works before you set it.
+
 `MTA_API_KEY` is **not** here. It is set once on the Worker with
 `wrangler secret put MTA_API_KEY` and persists across deploys — CI never
 resends it, so it never passes through GitHub.
+
+## Setting up the Cloudflare deploy
+
+1. **Create the API token.** Cloudflare dashboard → My Profile → API Tokens →
+   Create Token → **Edit Cloudflare Workers** template. That template already
+   carries the right permissions; do not hand-build a token unless you need to
+   narrow it further.
+2. **Find the account id** in the Cloudflare dashboard sidebar, or run
+   `npx wrangler whoami`.
+3. Add both as repository secrets, and the deployed URL as the `WORKER_URL`
+   variable.
+4. **Deploy once by hand first** — `npx wrangler deploy` from `trmnl-recipe/`,
+   and `npx wrangler secret put MTA_API_KEY`. The secret is set on the Worker
+   and persists across deploys; CI never sends it. Deploying by hand once also
+   means the first CI deploy is updating something that already works rather
+   than creating it blind.
+
+What the pipeline does on every push and PR, before any deploy:
+
+- **Typecheck** the Worker
+- **Timezone guard** under `TZ=UTC` (see below)
+- **Bundle dry run** — `wrangler deploy --dry-run`, which catches an import the
+  Workers runtime has no polyfill for, or a JSON file that moved. Typechecking
+  cannot see either.
+
+And after a deploy to `main`, a **smoke test against the live URL**: health,
+a two-card board across both feed families, station names resolving from the
+bundled lookups, no card erroring, departure times reading as New York local,
+the payload inside TRMNL's 5KB cap, and the station picker answering.
+
+It deliberately does **not** assert a departure count. A feed can legitimately
+be empty — service ends, a stop is peak-only — and empty is not an error here.
 
 ## Both deploy jobs are off until you deploy by hand once
 
