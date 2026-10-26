@@ -465,19 +465,24 @@ trains".**
 
 ## 7. Cost
 
-**$5/month — measured, not the $0 originally targeted.**
+**$0/month — verified against a real deployment, 2026-10-26.**
 
-The CPU spike (`trmnl-recipe/spikes/RESULTS.md`) rules out the Workers free
-tier. Protobuf decode exceeds its 10ms CPU budget on a cold isolate (14.90ms)
-and on any board spanning many feeds (13.52ms warm across all 8). Decode cost
-scales with feed size, so it is user-controlled: a user picking stations on
-unrelated lines forces more feeds and more CPU. The paid plan's 50ms budget
-takes the worst measured case to 31%.
+An earlier version of this section said $5/month was required, on a CPU spike
+that measured protobuf decode at 14.90ms cold against the free tier's 10ms
+budget. **That measurement was taken with Node on a Windows laptop, and did
+not survive contact with the real runtime.** Deployed on the free plan, a
+five-card board returns cleanly — warm, cold, and spanning six feeds — with no
+CPU-limit errors at any point. Full numbers in
+`trmnl-recipe/spikes/RESULTS.md`.
 
-The request-volume maths below still holds and was never the binding
-constraint — CPU is.
+The lesson is worth keeping: a performance budget measured off-platform is a
+hypothesis, not a result.
 
-Original target, retained for the volume reasoning: **$0/month.**
+CPU is still the constraint that would bind first if one did — decode cost
+scales with feed size, so a user picking stations across unrelated lines costs
+more than one picking a single line. Nothing measured approaches the limit,
+but the headroom is unknown rather than proven large. If a future board does
+hit it, the paid plan at $5/month is the answer.
 
 Cloudflare Workers free tier is 100,000 requests/day. At TRMNL's 15-minute store
 minimum, one installed device is 96 polls/day.

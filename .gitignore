@@ -1,0 +1,3 @@
+
+# Wrangler caches the logged-in account id and email here.
+.wrangler/

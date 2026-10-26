@@ -383,3 +383,56 @@ stop beginning "100". Now escaped.
 
 Dashboard re-verified after the shared-code changes: lint and build clean, the
 panel renders all five cards with correct NY times and no console errors.
+
+---
+
+# The free tier works — the step 1 spike was wrong
+
+Measured 2026-10-26 against a real deployment at
+`trmnl-nyc-transit.spo2-spire-club.workers.dev`, on the **Workers free plan**.
+
+| Test | Result |
+|---|---|
+| Smoke test, 9 checks | all pass |
+| 8 rapid warm requests | all 200, 0.17-0.40s |
+| Full 5-card board, 3x | 5 cards, 37 rows, no errors |
+| 5 requests spaced 90s (cold isolates) | all 200, 5 cards, no errors |
+| Board spanning 5 subway feeds + LIRR | 5 cards, 45 rows, no errors |
+
+No `Worker exceeded CPU time limit` at any point.
+
+## Why the spike was wrong
+
+The step 1 numbers were measured with **Node on a Windows laptop**, not
+workerd on Cloudflare's hardware. The conclusion — that cold decode at 14.90ms
+exceeded the 10ms budget — did not survive contact with the real runtime.
+
+Two things the local measurement could not see:
+
+- **Cloudflare's V8 build and CPU are not this machine's.** The deploy
+  reported `Worker Startup Time: 15 ms`, which is the whole module evaluating;
+  the per-request decode is evidently far cheaper there than locally.
+- **The "cold decode" penalty was largely JIT warmup in a fresh Node
+  process.** A Workers isolate is not a fresh process: the runtime keeps
+  compiled code around across isolate lifetimes in ways a `node script.js` run
+  cannot replicate.
+
+## What this changes
+
+**The $5/month Workers Paid plan is not required.** §7 of the spec and the
+step 1 conclusion both said it was; both were wrong, on a measurement that
+looked rigorous but was taken on the wrong machine.
+
+The lesson worth keeping: a performance budget measured off-platform is a
+hypothesis, not a result. It was right to treat the free tier as untestable
+without deploying — and wrong to conclude it would fail.
+
+## Still true
+
+- Decode cost scales with feed size, so a board spanning more feeds costs more
+  CPU. Nothing measured so far approaches the limit, but the headroom is
+  unknown rather than proven large.
+- The caching optimisation (decoded feeds shared ~30s) remains unbuilt and
+  unnecessary.
+- If a future board does hit the limit, the paid plan is still the answer —
+  it just is not needed now.
