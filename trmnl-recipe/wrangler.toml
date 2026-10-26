@@ -1,0 +1,6 @@
+name = "trmnl-nyc-transit"
+main = "src/index.ts"
+compatibility_date = "2026-10-26"
+
+# MTA_API_KEY is a secret, set with:  wrangler secret put MTA_API_KEY
+# Only the bus SIRI API needs it; the GTFS-RT feeds are unauthenticated.

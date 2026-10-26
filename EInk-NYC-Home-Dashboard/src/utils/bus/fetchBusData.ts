@@ -73,18 +73,37 @@ export interface EnrichedBusData {
 }
 
 /**
+ * The SIRI key, read from Vite's env when the caller does not supply one.
+ *
+ * Only the browser build has `import.meta.env`; the TRMNL Worker passes its
+ * key explicitly instead, so this is guarded rather than assumed.
+ */
+function ambientApiKey(): string | undefined {
+  // Vite replaces the *literal text* `import.meta.env.VITE_MTA_API_KEY` at
+  // build time, so the expression must appear intact — assigning
+  // `import.meta` to a local first defeats the substitution and the key comes
+  // back undefined in the browser. The cast satisfies tsc where Vite's types
+  // are absent (the Worker) without breaking that replacement, and the
+  // optional chain covers the runtimes where `env` genuinely does not exist.
+  return (
+    import.meta as ImportMeta & { env?: Record<string, string | undefined> }
+  ).env?.VITE_MTA_API_KEY;
+}
+
+/**
  * Fetches bus arrival data for a specific stop
  * @param stopId - The MTA Bus stop ID (MonitoringRef)
  * @param maxVisits - Maximum number of upcoming buses to return (default: 5)
+ * @param apiKey - SIRI key. Defaults to `VITE_MTA_API_KEY` for the browser
+ *   build; the Worker passes its own, since it has no Vite env.
  * @returns Bus arrival data in SIRI format with metadata
  * @throws Error if the fetch fails
  */
 export async function fetchBusData(
   stopId: string,
-  maxVisits: number = 5
+  maxVisits: number = 5,
+  apiKey: string | undefined = ambientApiKey()
 ): Promise<BusDataResponse> {
-  const apiKey = import.meta.env.VITE_MTA_API_KEY;
-
   if (!apiKey) {
     throw new Error(
       "MTA API key not found. Please set VITE_MTA_API_KEY in your .env file"
@@ -203,13 +222,15 @@ export function filterUpcomingBuses(
  * Convenience function to get upcoming buses at a specific stop
  * @param stopId - The MTA Bus stop ID
  * @param maxVisits - Maximum number of upcoming buses to return
+ * @param apiKey - SIRI key; defaults to the Vite env in the browser build
  * @returns Filtered and sorted array of upcoming bus arrivals
  */
 export async function getUpcomingBusesAtStop(
   stopId: string,
-  maxVisits: number = 5
+  maxVisits: number = 5,
+  apiKey?: string
 ): Promise<EnrichedBusData[]> {
-  const response = await fetchBusData(stopId, maxVisits);
+  const response = await fetchBusData(stopId, maxVisits, apiKey);
   const arrivals = extractBusArrivals(response);
   return filterUpcomingBuses(arrivals);
 }

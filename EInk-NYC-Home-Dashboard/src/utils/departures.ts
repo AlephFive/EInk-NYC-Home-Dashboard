@@ -1,6 +1,23 @@
 import displayConfig from "../displayConfig";
 
 /**
+ * The two display settings these helpers need.
+ *
+ * Taken as an argument rather than read from `displayConfig` directly, so the
+ * same functions serve the panel — which has one global config — and the TRMNL
+ * recipe, where every request carries a different user's settings. The panel
+ * passes nothing and gets `displayConfig`, so its behaviour is unchanged.
+ */
+export interface DisplaySettings {
+  /** 24-hour clock when true. */
+  use24HourTime?: boolean;
+  /** Minutes below which a row is emphasised. */
+  urgentThresholdMinutes?: number;
+}
+
+const DEFAULT_URGENT_THRESHOLD_MINUTES = 10;
+
+/**
  * Shared logic for turning a departure time into what a card shows.
  *
  * Every transit type answers the same three questions — when does it leave,
@@ -46,13 +63,16 @@ export function minutesUntil(time: DepartureTime): number | null {
  * Clock time as the board shows it, honouring `use24HourTime`.
  * @returns "N/A" when there is no time to format
  */
-export function formatClockTime(time: DepartureTime): string {
+export function formatClockTime(
+  time: DepartureTime,
+  settings: DisplaySettings = displayConfig
+): string {
   const ms = toEpochMs(time);
   if (ms === null) return "N/A";
   return new Date(ms).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: !displayConfig.use24HourTime,
+    hour12: !settings.use24HourTime,
   });
 }
 
@@ -68,9 +88,15 @@ export function leaveTimeFor(
 }
 
 /** Whether a departure is close enough that the row should be emphasised. */
-export function isUrgent(leaveTime: number | null): boolean {
+export function isUrgent(
+  leaveTime: number | null,
+  settings: DisplaySettings = displayConfig
+): boolean {
   if (leaveTime === null) return false;
-  return leaveTime < (displayConfig.urgentThresholdMinutes ?? 10);
+  return (
+    leaveTime <
+    (settings.urgentThresholdMinutes ?? DEFAULT_URGENT_THRESHOLD_MINUTES)
+  );
 }
 
 /**

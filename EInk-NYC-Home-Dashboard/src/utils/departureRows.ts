@@ -20,6 +20,7 @@ import {
   reachableDepartures,
   isBoardable,
   type DepartureTime,
+  type DisplaySettings,
 } from "./departures";
 import {
   getRailroadRouteShortName,
@@ -74,6 +75,12 @@ export interface RowOptions {
   limit: number;
   /** Whether to populate `leaveIn`. */
   showLeaveIn: boolean;
+  /**
+   * Clock format and urgency threshold. Omitted on the panel, which has one
+   * global config; supplied per request by the recipe, where each user has
+   * their own.
+   */
+  settings?: DisplaySettings;
 }
 
 /** When a train leaves, falling back to arrival. At a terminal only one exists. */
@@ -112,12 +119,12 @@ function lookupTypeOf(railroad: "lirr" | "mtn" | undefined) {
  */
 function timingFields(
   time: DepartureTime,
-  { walkTime, showLeaveIn }: RowOptions
+  { walkTime, showLeaveIn, settings }: RowOptions
 ): Pick<DepartureRowData, "time" | "urgent" | "leaveIn"> {
   const leaveTime = leaveTimeFor(minutesUntil(time), walkTime);
   return {
-    time: formatClockTime(time),
-    urgent: isUrgent(leaveTime),
+    time: formatClockTime(time, settings),
+    urgent: isUrgent(leaveTime, settings),
     leaveIn: showLeaveIn && leaveTime !== null ? leaveTime : undefined,
   };
 }
