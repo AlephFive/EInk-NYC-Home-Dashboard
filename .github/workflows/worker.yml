@@ -35,6 +35,13 @@ jobs:
           cache: npm
           cache-dependency-path: trmnl-recipe/package-lock.json
 
+      # The Worker imports the dashboard's transit modules, and TypeScript
+      # resolves a module relative to the *importing* file — so the generated
+      # protobuf's `@bufbuild/protobuf/wire` import is looked up in the
+      # dashboard's node_modules, not the Worker's. Both installs are needed.
+      - run: npm ci
+        working-directory: EInk-NYC-Home-Dashboard
+
       - run: npm ci
         working-directory: trmnl-recipe
 

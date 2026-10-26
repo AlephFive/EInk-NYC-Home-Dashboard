@@ -14,8 +14,5 @@
     "@cloudflare/workers-types": "^5.20261023.1",
     "typescript": "~5.9.3",
     "wrangler": "^4.45.0"
-  },
-  "dependencies": {
-    "@bufbuild/protobuf": "^2.16.0"
   }
 }
