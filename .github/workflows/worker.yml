@@ -1,0 +1,73 @@
+# The Cloudflare Worker that serves /api/board and the station pickers.
+#
+# Separate from the TRMNL plugin pipeline on purpose: the two deploy to
+# different places and version independently. Changing a Liquid template needs
+# no Worker deploy; changing the row logic needs no plugin push.
+name: Worker
+
+on:
+  push:
+    paths:
+      - "trmnl-recipe/src/**"
+      - "trmnl-recipe/package*.json"
+      - "trmnl-recipe/tsconfig.json"
+      - "trmnl-recipe/wrangler.toml"
+      # The Worker imports the dashboard's transit modules directly, so a
+      # change there can break it without touching trmnl-recipe/ at all.
+      - "EInk-NYC-Home-Dashboard/src/utils/**"
+      - "EInk-NYC-Home-Dashboard/src/staticData/**"
+      - ".github/workflows/worker.yml"
+  pull_request:
+    paths:
+      - "trmnl-recipe/src/**"
+      - "EInk-NYC-Home-Dashboard/src/utils/**"
+      - "EInk-NYC-Home-Dashboard/src/staticData/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: trmnl-recipe/package-lock.json
+
+      - run: npm ci
+        working-directory: trmnl-recipe
+
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: trmnl-recipe
+
+      # The Worker runs in UTC. Every departure time would be hours wrong if a
+      # timezone regression slipped in, and it is invisible when tested from a
+      # machine that happens to be in New York — so the check runs under UTC.
+      - name: Clock times stay local to the network, under a UTC runtime
+        run: TZ=UTC node .github/scripts/checkTimeZone.mjs
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: trmnl-recipe/package-lock.json
+
+      - run: npm ci
+        working-directory: trmnl-recipe
+
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: trmnl-recipe
+          # MTA_API_KEY is set once with `wrangler secret put`, not here —
+          # deploys do not resend it.

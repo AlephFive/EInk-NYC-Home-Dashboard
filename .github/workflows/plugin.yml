@@ -1,0 +1,52 @@
+# The TRMNL plugin: the form, the Liquid layouts, the polling URL.
+#
+# A different deploy target from the Worker — this goes to TRMNL's servers,
+# the Worker goes to Cloudflare — so the two pipelines are separate and fire
+# on their own paths.
+name: TRMNL plugin
+
+on:
+  push:
+    paths:
+      - "trmnl-recipe/plugin/**"
+      - ".github/workflows/plugin.yml"
+  pull_request:
+    paths:
+      - "trmnl-recipe/plugin/**"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # trmnlp needs Ruby 4.0, Firefox and ImageMagick; the published image
+      # carries all three, so the container is simpler than installing them.
+      - name: trmnlp lint
+        run: |
+          docker run --rm \
+            --volume "${{ github.workspace }}/trmnl-recipe/plugin:/plugin" \
+            trmnl/trmnlp lint
+
+  # Disabled until the plugin exists on TRMNL and src/settings.yml carries its
+  # `id`. Without an id, `push` creates a NEW plugin on every run rather than
+  # updating the one you have — so this must not be switched on early.
+  #
+  # To enable: create the plugin once (trmnlp push, or the web form), copy the
+  # id into src/settings.yml, add TRMNL_API_KEY as a repository secret, and
+  # delete the `if: false`.
+  push:
+    needs: lint
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: trmnlp push
+        env:
+          TRMNL_API_KEY: ${{ secrets.TRMNL_API_KEY }}
+        run: |
+          docker run --rm \
+            --env TRMNL_API_KEY \
+            --volume "${{ github.workspace }}/trmnl-recipe/plugin:/plugin" \
+            trmnl/trmnlp push --force
