@@ -10,6 +10,10 @@
  * `type:stopIds:walkTime:title`. A flat string rather than JSON because it has
  * to survive being written into a URL by a Liquid template, where quoting JSON
  * is a reliable source of breakage.
+ *
+ * The station picker stores its value with the type already on the front
+ * (`subway:127+725`), so a polling URL that also writes `{{ cardN_type }}`
+ * produces a doubled prefix. Both forms parse — see `parseCard`.
  */
 
 /** Transit types a slot may select, matching the dashboard's own union. */
@@ -98,8 +102,19 @@ function parseTransitType(value: string): TransitType | undefined {
 function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   if (isBlank(raw)) return undefined;
 
+  const parts = raw!.split(":");
+
+  // The picker's stored value already begins with the transit type, so a
+  // polling URL that writes `{{ cardN_type }}:{{ cardN_station }}` yields
+  // "subway:subway:127+725:10". Dropping the duplicate keeps both that and a
+  // hand-written "subway:127+725:10" working — and getting this wrong shifts
+  // every field, so it is handled rather than left to the template.
+  if (parts.length > 1 && parseTransitType(parts[0]) && parseTransitType(parts[1])) {
+    parts.shift();
+  }
+
   // Split into at most 4 so a title containing ":" survives intact.
-  const [type = "", ids = "", walk = "", ...titleParts] = raw!.split(":");
+  const [type = "", ids = "", walk = "", ...titleParts] = parts;
   const transitType = parseTransitType(type);
   if (!transitType) return undefined;
 

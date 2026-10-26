@@ -36,7 +36,11 @@ const json = (body: unknown, status = 200) =>
  */
 async function handlePicker(request: Request, url: URL): Promise<Response> {
   let query = url.searchParams.get("query") ?? "";
+  // The transit type can arrive three ways, because `depends_on` can
+  // interpolate the parent field into either the path or the query string,
+  // and TRMNL also posts sibling settings in the body.
   let kindValue =
+    pathKind(url.pathname) ??
     url.searchParams.get("kind") ??
     url.searchParams.get("transit_type") ??
     undefined;
@@ -68,6 +72,12 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
       502
     );
   }
+}
+
+/** `/api/stations/subway` -> "subway". Undefined when the path carries none. */
+function pathKind(pathname: string): string | undefined {
+  const match = /^\/api\/stations\/([^/]+)\/?$/.exec(pathname);
+  return match ? decodeURIComponent(match[1]) : undefined;
 }
 
 /** Read a picker request body, whether JSON or form-encoded. */
@@ -110,7 +120,11 @@ export default {
       return json({ ok: true });
     }
 
-    if (url.pathname === "/api/stations" || url.pathname === "/api/bus-stops") {
+    if (
+      url.pathname === "/api/stations" ||
+      url.pathname.startsWith("/api/stations/") ||
+      url.pathname === "/api/bus-stops"
+    ) {
       return handlePicker(request, url);
     }
 

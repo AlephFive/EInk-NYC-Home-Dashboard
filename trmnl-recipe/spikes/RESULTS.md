@@ -199,3 +199,67 @@ stops, which is the entire point of the recipe.
 Fixed by carrying the name in the stored value (`bus:<ids>@<name>`), since the
 picker already knows it. No table to maintain, and it cannot go stale. An
 explicit card title still overrides it.
+
+---
+
+# Phase 1, step 5 — the form
+
+Run 2026-10-26. Artefacts in `../recipe/`: `form.yaml`, `polling-url.txt`,
+`markup-debug.liquid`, `SETUP.md`.
+
+27 fields: six slots of four (type, station, walk time, title), plus three
+display settings. Validated as YAML, all keynames unique, every field carrying
+the required `keyname`/`field_type`/`name`.
+
+## Two bugs caught before the device
+
+**1. `Off:` is not a string in YAML.** The transit-type select read
+
+```yaml
+options:
+  - Off: 'off'
+```
+
+which YAML 1.1 parses as the *boolean* `false`, so the option's label would
+have rendered wrong. Quoted to `'Off'`. The same trap waits on `On`, `Yes` and
+`No`.
+
+**2. The polling URL duplicated the transit type.** The obvious template is
+
+```
+c1={{ card1_type }}:{{ card1_station }}:{{ card1_walk }}
+```
+
+but the picker already stores the type on the front of the station value, so
+that yields `subway:subway:127+725:10` — and every field shifts one place,
+making the stop IDs parse as the walk time. The URL now writes only
+`{{ cardN_station }}`, and `parseCard` tolerates the doubled form anyway, since
+getting it wrong silently produces a board that looks configured but is not.
+
+## Verified against the running Worker
+
+| Case | Result |
+|---|---|
+| De-duplicated slot (what the URL emits) | 3 cards, correct names |
+| Doubled `type:type:ids` form | parses, same cards |
+| Slots left Off (`c2=::`, `c3=off:::`, `c4=`) | skipped, no error |
+| Custom title | overrides the picked station name |
+
+## The whole pipeline rendered
+
+`markup-debug.liquid` run against a real endpoint response, via liquidjs:
+
+```
+slot 1  subway  "Vernon Blvd-Jackson Av"  bullets: 7
+  [Outbound]  5 rows
+    7 | Flushing-Main St | 16:15 *URGENT
+  [Manhattan]  5 rows
+    7 | 34 St-Hudson Yards | 16:14 *URGENT
+slot 2  bus  "BORDEN AV/5 ST"
+  [(no heading)]  5 rows
+    Q101 | STEINWAY via STEINWAY ST | 16:12 *URGENT
+```
+
+Settings -> Worker -> JSON -> Liquid -> readable text, end to end. The bus card
+shows both directions, urgency marks survive, and the picker's stop name heads
+the card.
