@@ -3,7 +3,6 @@ export {
   fetchMultipleTrainLines,
   extractDataByStop,
   filterUpcomingTrains,
-  isBoardable,
   getUpcomingTrainsAtStation,
   type TrainDataResponse,
   type StopTimeData,

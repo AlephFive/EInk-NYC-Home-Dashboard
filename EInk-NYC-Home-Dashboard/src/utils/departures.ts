@@ -97,3 +97,29 @@ export function reachableDepartures<T>(
     })
     .slice(0, limit);
 }
+
+/**
+ * Whether a stop time is a departure a rider can actually take.
+ *
+ * Shared by subway and railroad because both GTFS-RT feeds reach this through
+ * the same `EnrichedStopTimeUpdate` shape, and the two disagree about trains
+ * ending their run:
+ *  - Railroad terminals omit `departure` on a terminating train.
+ *  - Subway terminals do *not* — at Coney Island all 51 southbound trains carry
+ *    both `arrival` and `departure` despite every one of them terminating.
+ *
+ * So `departure.time` alone would pass 51 dead trains at a subway terminal.
+ * `destinationStopId` is the signal that works for both: `extractDataByStop`
+ * leaves it undefined when this stop is the last of the trip, whichever feed
+ * it came from. Both are required — a boardable train has somewhere to go and
+ * a time at which it goes there.
+ */
+export function isBoardable(stopTime: {
+  departure?: { time?: number };
+  destinationStopId?: string;
+}): boolean {
+  return (
+    stopTime.departure?.time !== undefined &&
+    stopTime.destinationStopId !== undefined
+  );
+}

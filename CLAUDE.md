@@ -117,7 +117,10 @@ Each transit type is isolated in `src/utils/{transitType}/`:
   - Uses GTFS-realtime protobuf feeds (multiple feeds per line group)
   - `fetchMultipleTrainLines()` batches API calls by feed to minimize requests
   - Filters by direction (N/S) and stop ID
-  - Station lookups in `stations.ts`, colors in `subwayColors.ts`
+  - Colors in `subwayColors.ts`. Station lookups are **not** in this module —
+    they live in the shared `utils/stationLookup.ts` (`getStationName()`,
+    `getSubwayRoutes()`, `getDestinationName()`, `getDirectionLabels()`), which
+    reads `staticData/subway/MTA_Subway_Stations_20251126.geojson`
 
 - **Railroad** (`utils/railroad/`):
   - Supports both LIRR and Metro-North
@@ -290,9 +293,11 @@ across all cards:
   **The two feed families disagree about terminating trains:** LIRR omits `departure` on
   a train ending its run, but the subway does not — at Coney Island all 51 southbound
   trains carry both `arrival` and `departure` while every one of them terminates. So
-  `isBoardable()` tests `destinationStopId`, which `extractDataByStop` leaves undefined
-  when this stop ends the trip, and that works for both feeds. Testing `departure` alone
-  silently passes 51 dead trains at a subway terminal.
+  `isBoardable()` requires **both** `departure.time` and `destinationStopId` — the
+  latter is the signal that works for both feeds, since `extractDataByStop` leaves it
+  undefined when this stop ends the trip. Testing `departure` alone silently passes 51
+  dead trains at a subway terminal. It lives in `utils/departures.ts` with the other
+  cross-type departure logic, not in either feed's module.
 - **Terminals collapse to one column.** A subway card normally shows two direction
   columns, but at a terminal every train in one direction terminates there and nothing
   is boardable — Flushing-Main St has 8 northbound stop times and 0 boardable. The card

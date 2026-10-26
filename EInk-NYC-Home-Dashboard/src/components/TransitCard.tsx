@@ -4,10 +4,8 @@ import displayConfig, {
 import { type TransitData, type TransitErrors } from "../types/transitData";
 import { departuresForCard } from "../utils/cardCapacity";
 import { collectErrors, mergeSorted, stopTimeOf } from "../utils/multiStop";
-import {
-  isBoardable,
-  type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate,
-} from "../utils/subway";
+import { type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate } from "../utils/subway";
+import { isBoardable } from "../utils/departures";
 import { type EnrichedStopTimeUpdate as RailroadEnrichedStopTimeUpdate } from "../utils/railroad";
 import { type EnrichedBusData } from "../utils/bus";
 import { type FerryDeparture } from "../utils/ferry";

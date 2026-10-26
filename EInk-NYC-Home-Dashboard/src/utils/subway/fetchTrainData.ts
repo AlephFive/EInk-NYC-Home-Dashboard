@@ -215,27 +215,6 @@ export function extractDataByStop(
 }
 
 /**
- * Whether a stop time is a departure a rider can actually take.
- *
- * Two different signals matter, because the feeds are inconsistent:
- *  - Railroad terminals omit `departure` on trains ending their run.
- *  - Subway terminals do *not* — at Coney Island all 51 southbound trains carry
- *    both `arrival` and `departure` despite every one of them terminating.
- *
- * `destinationStopId` is the reliable test: `extractDataByStop` leaves it
- * undefined when this stop is the last of the trip, whichever feed it came from.
- */
-export function isBoardable(stopTime: {
-  departure?: { time?: number };
-  destinationStopId?: string;
-}): boolean {
-  return (
-    stopTime.departure?.time !== undefined &&
-    stopTime.destinationStopId !== undefined
-  );
-}
-
-/**
  * Filters stop time updates to only include trains arriving after the current time
  * @param stopTimes - Array of stop time updates
  * @returns Filtered array containing only future arrivals, sorted by arrival time

@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import {
-  isBoardable,
-  type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate,
-} from "./utils/subway";
+import { type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate } from "./utils/subway";
 import {
   getRailroadRouteShortName,
   isCityBound,
@@ -13,6 +10,7 @@ import {
 import { type EnrichedBusData } from "./utils/bus";
 import { type FerryDeparture } from "./utils/ferry";
 import {
+  isBoardable,
   minutesUntil,
   formatClockTime,
   leaveTimeFor,
