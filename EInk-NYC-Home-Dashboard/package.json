@@ -1,0 +1,35 @@
+{
+  "name": "eink-nyc-home-dashboard",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && npm run gen:proto && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "gen:proto": "protoc --ts_proto_out=src/protocol/proto/generated --ts_proto_opt=esModuleInterop=true,env=browser --proto_path=src/protocol/proto src/protocol/proto/*.proto"
+  },
+  "dependencies": {
+    "geojson": "^0.5.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "ts-proto": "^2.8.3",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "^7.2.4"
+  }
+}

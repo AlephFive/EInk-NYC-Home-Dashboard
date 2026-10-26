@@ -1,0 +1,2538 @@
+[
+  {
+    "railroad": "lirr",
+    "routes": {
+      "1": {
+        "route_long_name": "Babylon Branch",
+        "route_type": "2",
+        "route_color": "00985F",
+        "route_text_color": "FFFFFF"
+      },
+      "2": {
+        "route_long_name": "Hempstead Branch",
+        "route_type": "2",
+        "route_color": "CE8E00",
+        "route_text_color": "121212"
+      },
+      "3": {
+        "route_long_name": "Oyster Bay Branch",
+        "route_type": "2",
+        "route_color": "00AF3F",
+        "route_text_color": "FFFFFF"
+      },
+      "4": {
+        "route_long_name": "Ronkonkoma Branch",
+        "route_type": "2",
+        "route_color": "A626AA",
+        "route_text_color": "FFFFFF"
+      },
+      "5": {
+        "route_long_name": "Montauk Branch",
+        "route_type": "2",
+        "route_color": "00B2A9",
+        "route_text_color": "121212"
+      },
+      "6": {
+        "route_long_name": "Long Beach Branch",
+        "route_type": "2",
+        "route_color": "FF6319",
+        "route_text_color": "FFFFFF"
+      },
+      "7": {
+        "route_long_name": "Far Rockaway Branch",
+        "route_type": "2",
+        "route_color": "6E3219",
+        "route_text_color": "FFFFFF"
+      },
+      "8": {
+        "route_long_name": "West Hempstead Branch",
+        "route_type": "2",
+        "route_color": "00A1DE",
+        "route_text_color": "121212"
+      },
+      "9": {
+        "route_long_name": "Port Washington Branch",
+        "route_type": "2",
+        "route_color": "C60C30",
+        "route_text_color": "FFFFFF"
+      },
+      "10": {
+        "route_long_name": "Port Jefferson Branch",
+        "route_type": "2",
+        "route_color": "006EC7",
+        "route_text_color": "FFFFFF"
+      },
+      "11": {
+        "route_long_name": "Belmont Park",
+        "route_type": "2",
+        "route_color": "60269E",
+        "route_text_color": "FFFFFF"
+      },
+      "12": {
+        "route_long_name": "City Terminal Zone",
+        "route_type": "2",
+        "route_color": "4D5357",
+        "route_text_color": "FFFFFF"
+      },
+      "13": {
+        "route_long_name": "Greenport Service",
+        "route_type": "2",
+        "route_color": "A626AA",
+        "route_text_color": "FFFFFF"
+      }
+    },
+    "stops": {
+      "1": {
+        "stop_code": "ABT",
+        "stop_name": "Albertson",
+        "stop_lat": "40.77206317",
+        "stop_lon": "-73.64169095",
+        "stop_url": "https://new.mta.info/mta-stations/albertson",
+        "wheelchair_boarding": "1"
+      },
+      "100": {
+        "stop_code": "ISP",
+        "stop_name": "Islip",
+        "stop_lat": "40.73583449",
+        "stop_lon": "-73.20932145",
+        "stop_url": "https://new.mta.info/mta-stations/islip",
+        "wheelchair_boarding": "1"
+      },
+      "101": {
+        "stop_code": "IWD",
+        "stop_name": "Inwood",
+        "stop_lat": "40.61228773",
+        "stop_lon": "-73.74418354",
+        "stop_url": "https://new.mta.info/mta-stations/inwood",
+        "wheelchair_boarding": "1"
+      },
+      "102": {
+        "stop_code": "JAM",
+        "stop_name": "Jamaica",
+        "stop_lat": "40.69960817",
+        "stop_lon": "-73.80852987",
+        "stop_url": "https://new.mta.info/mta-stations/jamaica",
+        "wheelchair_boarding": "1"
+      },
+      "107": {
+        "stop_code": "KGN",
+        "stop_name": "Kew Gardens",
+        "stop_lat": "40.70964917",
+        "stop_lon": "-73.83088807",
+        "stop_url": "https://new.mta.info/mta-stations/kew-gardens",
+        "wheelchair_boarding": "1"
+      },
+      "11": {
+        "stop_code": "BDY",
+        "stop_name": "Broadway",
+        "stop_lat": "40.76165318",
+        "stop_lon": "-73.80176612",
+        "stop_url": "https://new.mta.info/mta-stations/broadway",
+        "wheelchair_boarding": "1"
+      },
+      "111": {
+        "stop_code": "KPK",
+        "stop_name": "Kings Park",
+        "stop_lat": "40.88366659",
+        "stop_lon": "-73.25624757",
+        "stop_url": "https://new.mta.info/mta-stations/kings-park",
+        "wheelchair_boarding": "1"
+      },
+      "113": {
+        "stop_code": "LBH",
+        "stop_name": "Long Beach",
+        "stop_lat": "40.5901817",
+        "stop_lon": "-73.66481822",
+        "stop_url": "https://new.mta.info/mta-stations/long-beach",
+        "wheelchair_boarding": "1"
+      },
+      "114": {
+        "stop_code": "LCE",
+        "stop_name": "Lawrence",
+        "stop_lat": "40.6157347",
+        "stop_lon": "-73.73589955",
+        "stop_url": "https://new.mta.info/mta-stations/lawrence",
+        "wheelchair_boarding": "1"
+      },
+      "117": {
+        "stop_code": "LHT",
+        "stop_name": "Lindenhurst",
+        "stop_lat": "40.68826504",
+        "stop_lon": "-73.36921149",
+        "stop_url": "https://new.mta.info/mta-stations/lindenhurst",
+        "wheelchair_boarding": "1"
+      },
+      "118": {
+        "stop_code": "LIC",
+        "stop_name": "Long Island City",
+        "stop_lat": "40.74134343",
+        "stop_lon": "-73.95763922",
+        "stop_url": "https://new.mta.info/mta-stations/long-island-city",
+        "wheelchair_boarding": "1"
+      },
+      "119": {
+        "stop_code": "LMR",
+        "stop_name": "Locust Manor",
+        "stop_lat": "40.67513907",
+        "stop_lon": "-73.76504303",
+        "stop_url": "https://new.mta.info/mta-stations/locust-manor",
+        "wheelchair_boarding": "2"
+      },
+      "120": {
+        "stop_code": "LNK",
+        "stop_name": "Little Neck",
+        "stop_lat": "40.77504393",
+        "stop_lon": "-73.74064662",
+        "stop_url": "https://new.mta.info/mta-stations/little-neck",
+        "wheelchair_boarding": "1"
+      },
+      "122": {
+        "stop_code": "LTN",
+        "stop_name": "Laurelton",
+        "stop_lat": "40.66848304",
+        "stop_lon": "-73.75174687",
+        "stop_url": "https://new.mta.info/mta-stations/laurelton",
+        "wheelchair_boarding": "2"
+      },
+      "123": {
+        "stop_code": "LVL",
+        "stop_name": "Locust Valley",
+        "stop_lat": "40.87446697",
+        "stop_lon": "-73.59830284",
+        "stop_url": "https://new.mta.info/mta-stations/locust-valley",
+        "wheelchair_boarding": "1"
+      },
+      "124": {
+        "stop_code": "LVW",
+        "stop_name": "Lakeview",
+        "stop_lat": "40.68585582",
+        "stop_lon": "-73.65213777",
+        "stop_url": "https://new.mta.info/mta-stations/lakeview",
+        "wheelchair_boarding": "1"
+      },
+      "125": {
+        "stop_code": "LYN",
+        "stop_name": "Lynbrook",
+        "stop_lat": "40.65605814",
+        "stop_lon": "-73.67607083",
+        "stop_url": "https://new.mta.info/mta-stations/lynbrook",
+        "wheelchair_boarding": "1"
+      },
+      "126": {
+        "stop_code": "MAK",
+        "stop_name": "Mattituck",
+        "stop_lat": "40.99179354",
+        "stop_lon": "-72.53606243",
+        "stop_url": "https://new.mta.info/mta-stations/mattituck",
+        "wheelchair_boarding": "1"
+      },
+      "127": {
+        "stop_code": "MAV",
+        "stop_name": "Merillon Avenue",
+        "stop_lat": "40.73516903",
+        "stop_lon": "-73.66252148",
+        "stop_url": "https://new.mta.info/mta-stations/merillon-avenue",
+        "wheelchair_boarding": "1"
+      },
+      "129": {
+        "stop_code": "MFD",
+        "stop_name": "Medford",
+        "stop_lat": "40.81739665",
+        "stop_lon": "-72.99890946",
+        "stop_url": "https://new.mta.info/mta-stations/medford",
+        "wheelchair_boarding": "1"
+      },
+      "13": {
+        "stop_code": "BHN",
+        "stop_name": "Bridgehampton",
+        "stop_lat": "40.93898378",
+        "stop_lon": "-72.31004593",
+        "stop_url": "https://new.mta.info/mta-stations/bridgehampton",
+        "wheelchair_boarding": "1"
+      },
+      "130": {
+        "stop_code": "MHL",
+        "stop_name": "Murray Hill",
+        "stop_lat": "40.76270926",
+        "stop_lon": "-73.81453928",
+        "stop_url": "https://new.mta.info/mta-stations/murray-hill",
+        "wheelchair_boarding": "1"
+      },
+      "131": {
+        "stop_code": "MHT",
+        "stop_name": "Manhasset",
+        "stop_lat": "40.7967241",
+        "stop_lon": "-73.69989909",
+        "stop_url": "https://new.mta.info/mta-stations/manhasset",
+        "wheelchair_boarding": "1"
+      },
+      "132": {
+        "stop_code": "MIN",
+        "stop_name": "Mineola",
+        "stop_lat": "40.74034743",
+        "stop_lon": "-73.64086293",
+        "stop_url": "https://new.mta.info/mta-stations/mineola",
+        "wheelchair_boarding": "1"
+      },
+      "135": {
+        "stop_code": "MPK",
+        "stop_name": "Massapequa Park",
+        "stop_lat": "40.6778591",
+        "stop_lon": "-73.45473724",
+        "stop_url": "https://new.mta.info/mta-stations/massapequa-park",
+        "wheelchair_boarding": "1"
+      },
+      "136": {
+        "stop_code": "MQA",
+        "stop_name": "Massapequa",
+        "stop_lat": "40.67693014",
+        "stop_lon": "-73.46905552",
+        "stop_url": "https://new.mta.info/mta-stations/massapequa",
+        "wheelchair_boarding": "1"
+      },
+      "14": {
+        "stop_code": "BK",
+        "stop_name": "Stony Brook",
+        "stop_lat": "40.92032252",
+        "stop_lon": "-73.12854943",
+        "stop_url": "https://new.mta.info/mta-stations/stony-brook",
+        "wheelchair_boarding": "1"
+      },
+      "140": {
+        "stop_code": "MSY",
+        "stop_name": "Mastic-Shirley",
+        "stop_lat": "40.79898815",
+        "stop_lon": "-72.86442272",
+        "stop_url": "https://new.mta.info/mta-stations/mastic-shirley",
+        "wheelchair_boarding": "1"
+      },
+      "141": {
+        "stop_code": "MTK",
+        "stop_name": "Montauk",
+        "stop_lat": "41.04710896",
+        "stop_lon": "-71.95388103",
+        "stop_url": "https://new.mta.info/mta-stations/montauk",
+        "wheelchair_boarding": "1"
+      },
+      "142": {
+        "stop_code": "MVN",
+        "stop_name": "Malverne",
+        "stop_lat": "40.67547844",
+        "stop_lon": "-73.66886364",
+        "stop_url": "https://new.mta.info/mta-stations/malverne",
+        "wheelchair_boarding": "1"
+      },
+      "148": {
+        "stop_code": "NAV",
+        "stop_name": "Nostrand Avenue",
+        "stop_lat": "40.67838785",
+        "stop_lon": "-73.94822108",
+        "stop_url": "https://new.mta.info/mta-stations/nostrand-avenue",
+        "wheelchair_boarding": "1"
+      },
+      "149": {
+        "stop_code": "NBD",
+        "stop_name": "Nassau Boulevard",
+        "stop_lat": "40.72296245",
+        "stop_lon": "-73.66269823",
+        "stop_url": "https://new.mta.info/mta-stations/nassau-boulevard",
+        "wheelchair_boarding": "1"
+      },
+      "152": {
+        "stop_code": "NHP",
+        "stop_name": "New Hyde Park",
+        "stop_lat": "40.73075708",
+        "stop_lon": "-73.68095886",
+        "stop_url": "https://new.mta.info/mta-stations/new-hyde-park",
+        "wheelchair_boarding": "1"
+      },
+      "153": {
+        "stop_code": "NPT",
+        "stop_name": "Northport",
+        "stop_lat": "40.88064972",
+        "stop_lon": "-73.32848513",
+        "stop_url": "https://new.mta.info/mta-stations/northport",
+        "wheelchair_boarding": "1"
+      },
+      "154": {
+        "stop_code": "OBY",
+        "stop_name": "Oyster Bay",
+        "stop_lat": "40.87533774",
+        "stop_lon": "-73.53403366",
+        "stop_url": "https://new.mta.info/mta-stations/oyster-bay",
+        "wheelchair_boarding": "1"
+      },
+      "155": {
+        "stop_code": "ODE",
+        "stop_name": "Oceanside",
+        "stop_lat": "40.63472102",
+        "stop_lon": "-73.65466582",
+        "stop_url": "https://new.mta.info/mta-stations/oceanside",
+        "wheelchair_boarding": "1"
+      },
+      "157": {
+        "stop_code": "ODL",
+        "stop_name": "Oakdale",
+        "stop_lat": "40.74343275",
+        "stop_lon": "-73.13243549",
+        "stop_url": "https://new.mta.info/mta-stations/oakdale",
+        "wheelchair_boarding": "1"
+      },
+      "16": {
+        "stop_code": "BMR",
+        "stop_name": "Bellmore",
+        "stop_lat": "40.66880043",
+        "stop_lon": "-73.52886016",
+        "stop_url": "https://new.mta.info/mta-stations/bellmore",
+        "wheelchair_boarding": "1"
+      },
+      "162": {
+        "stop_code": "PDM",
+        "stop_name": "Plandome",
+        "stop_lat": "40.81069853",
+        "stop_lon": "-73.69521438",
+        "stop_url": "https://new.mta.info/mta-stations/plandome",
+        "wheelchair_boarding": "1"
+      },
+      "163": {
+        "stop_code": "PGE",
+        "stop_name": "Patchogue",
+        "stop_lat": "40.76187901",
+        "stop_lon": "-73.01574451",
+        "stop_url": "https://new.mta.info/mta-stations/patchogue",
+        "wheelchair_boarding": "1"
+      },
+      "164": {
+        "stop_code": "PJN",
+        "stop_name": "Port Jefferson",
+        "stop_lat": "40.9345531",
+        "stop_lon": "-73.05250164",
+        "stop_url": "https://new.mta.info/mta-stations/port-jefferson",
+        "wheelchair_boarding": "1"
+      },
+      "165": {
+        "stop_code": "PLN",
+        "stop_name": "Pinelawn",
+        "stop_lat": "40.74535851",
+        "stop_lon": "-73.39960092",
+        "stop_url": "https://new.mta.info/mta-stations/pinelawn",
+        "wheelchair_boarding": "1"
+      },
+      "171": {
+        "stop_code": "PWS",
+        "stop_name": "Port Washington",
+        "stop_lat": "40.82903533",
+        "stop_lon": "-73.687401",
+        "stop_url": "https://new.mta.info/mta-stations/port-washington",
+        "wheelchair_boarding": "1"
+      },
+      "175": {
+        "stop_code": "QVG",
+        "stop_name": "Queens Village",
+        "stop_lat": "40.71745785",
+        "stop_lon": "-73.73645989",
+        "stop_url": "https://new.mta.info/mta-stations/queens-village",
+        "wheelchair_boarding": "1"
+      },
+      "176": {
+        "stop_code": "RHD",
+        "stop_name": "Riverhead",
+        "stop_lat": "40.91983928",
+        "stop_lon": "-72.66691054",
+        "stop_url": "https://new.mta.info/mta-stations/riverhead",
+        "wheelchair_boarding": "1"
+      },
+      "179": {
+        "stop_code": "RON",
+        "stop_name": "Ronkonkoma",
+        "stop_lat": "40.80808613",
+        "stop_lon": "-73.10594023",
+        "stop_url": "https://new.mta.info/mta-stations/ronkonkoma",
+        "wheelchair_boarding": "1"
+      },
+      "180": {
+        "stop_code": "ROS",
+        "stop_name": "Rosedale",
+        "stop_lat": "40.66594933",
+        "stop_lon": "-73.73554816",
+        "stop_url": "https://new.mta.info/mta-stations/rosedale",
+        "wheelchair_boarding": "1"
+      },
+      "182": {
+        "stop_code": "RSN",
+        "stop_name": "Roslyn",
+        "stop_lat": "40.7904781",
+        "stop_lon": "-73.64326175",
+        "stop_url": "https://new.mta.info/mta-stations/roslyn",
+        "wheelchair_boarding": "1"
+      },
+      "183": {
+        "stop_code": "RVC",
+        "stop_name": "Rockville Centre",
+        "stop_lat": "40.65831811",
+        "stop_lon": "-73.64654935",
+        "stop_url": "https://new.mta.info/mta-stations/rockville-centre",
+        "wheelchair_boarding": "1"
+      },
+      "184": {
+        "stop_code": "SAB",
+        "stop_name": "St. Albans",
+        "stop_lat": "40.69118348",
+        "stop_lon": "-73.76550937",
+        "stop_url": "https://new.mta.info/mta-stations/st-albans",
+        "wheelchair_boarding": "1"
+      },
+      "185": {
+        "stop_code": "SCF",
+        "stop_name": "Sea Cliff",
+        "stop_lat": "40.85236805",
+        "stop_lon": "-73.62541695",
+        "stop_url": "https://new.mta.info/mta-stations/sea-cliff",
+        "wheelchair_boarding": "1"
+      },
+      "187": {
+        "stop_code": "SFD",
+        "stop_name": "Seaford",
+        "stop_lat": "40.67572393",
+        "stop_lon": "-73.48656847",
+        "stop_url": "https://new.mta.info/mta-stations/seaford",
+        "wheelchair_boarding": "1"
+      },
+      "190": {
+        "stop_code": "SHD",
+        "stop_name": "Southold",
+        "stop_lat": "41.06632089",
+        "stop_lon": "-72.4278803",
+        "stop_url": "https://new.mta.info/mta-stations/southold",
+        "wheelchair_boarding": "1"
+      },
+      "191": {
+        "stop_code": "SHN",
+        "stop_name": "Southampton",
+        "stop_lat": "40.89471874",
+        "stop_lon": "-72.39012376",
+        "stop_url": "https://new.mta.info/mta-stations/southampton",
+        "wheelchair_boarding": "1"
+      },
+      "193": {
+        "stop_code": "SJM",
+        "stop_name": "St. James",
+        "stop_lat": "40.88216931",
+        "stop_lon": "-73.15950725",
+        "stop_url": "https://new.mta.info/mta-stations/st-james",
+        "wheelchair_boarding": "1"
+      },
+      "195": {
+        "stop_code": "SMR",
+        "stop_name": "Stewart Manor",
+        "stop_lat": "40.72302771",
+        "stop_lon": "-73.68102041",
+        "stop_url": "https://new.mta.info/mta-stations/stewart-manor",
+        "wheelchair_boarding": "1"
+      },
+      "198": {
+        "stop_code": "SPK",
+        "stop_name": "Speonk",
+        "stop_lat": "40.82131516",
+        "stop_lon": "-72.70526225",
+        "stop_url": "https://new.mta.info/mta-stations/speonk",
+        "wheelchair_boarding": "1"
+      },
+      "199": {
+        "stop_code": "SSM",
+        "stop_name": "Mets-Willets Point",
+        "stop_lat": "40.75239835",
+        "stop_lon": "-73.84370059",
+        "stop_url": "https://new.mta.info/mta-stations/mets-willets-point",
+        "wheelchair_boarding": "2"
+      },
+      "2": {
+        "stop_code": "ADL",
+        "stop_name": "Auburndale",
+        "stop_lat": "40.76144288",
+        "stop_lon": "-73.78995927",
+        "stop_url": "https://new.mta.info/mta-stations/auburndale",
+        "wheelchair_boarding": "1"
+      },
+      "20": {
+        "stop_code": "BPG",
+        "stop_name": "Bethpage",
+        "stop_lat": "40.74303924",
+        "stop_lon": "-73.48343821",
+        "stop_url": "https://new.mta.info/mta-stations/bethpage",
+        "wheelchair_boarding": "1"
+      },
+      "202": {
+        "stop_code": "STN",
+        "stop_name": "Smithtown",
+        "stop_lat": "40.85654755",
+        "stop_lon": "-73.19803235",
+        "stop_url": "https://new.mta.info/mta-stations/smithtown",
+        "wheelchair_boarding": "1"
+      },
+      "204": {
+        "stop_code": "SVL",
+        "stop_name": "Sayville",
+        "stop_lat": "40.74035373",
+        "stop_lon": "-73.08645531",
+        "stop_url": "https://new.mta.info/mta-stations/sayville",
+        "wheelchair_boarding": "1"
+      },
+      "205": {
+        "stop_code": "SYT",
+        "stop_name": "Syosset",
+        "stop_lat": "40.82485746",
+        "stop_lon": "-73.5004456",
+        "stop_url": "https://new.mta.info/mta-stations/syosset",
+        "wheelchair_boarding": "1"
+      },
+      "21": {
+        "stop_code": "BPT",
+        "stop_name": "Bellport",
+        "stop_lat": "40.7737389",
+        "stop_lon": "-72.94396574",
+        "stop_url": "https://new.mta.info/mta-stations/bellport",
+        "wheelchair_boarding": "1"
+      },
+      "211": {
+        "stop_code": "VSM",
+        "stop_name": "Valley Stream",
+        "stop_lat": "40.66151762",
+        "stop_lon": "-73.70475875",
+        "stop_url": "https://new.mta.info/mta-stations/valley-stream",
+        "wheelchair_boarding": "1"
+      },
+      "213": {
+        "stop_code": "WBY",
+        "stop_name": "Westbury",
+        "stop_lat": "40.75345386",
+        "stop_lon": "-73.5858661",
+        "stop_url": "https://new.mta.info/mta-stations/westbury",
+        "wheelchair_boarding": "1"
+      },
+      "214": {
+        "stop_code": "WDD",
+        "stop_name": "Woodside",
+        "stop_lat": "40.74585067",
+        "stop_lon": "-73.90297516",
+        "stop_url": "https://new.mta.info/mta-stations/woodside",
+        "wheelchair_boarding": "1"
+      },
+      "215": {
+        "stop_code": "WGH",
+        "stop_name": "Wantagh",
+        "stop_lat": "40.67299016",
+        "stop_lon": "-73.50896484",
+        "stop_url": "https://new.mta.info/mta-stations/wantagh",
+        "wheelchair_boarding": "1"
+      },
+      "216": {
+        "stop_code": "WHD",
+        "stop_name": "West Hempstead",
+        "stop_lat": "40.70196099",
+        "stop_lon": "-73.64164361",
+        "stop_url": "https://new.mta.info/mta-stations/west-hempstead",
+        "wheelchair_boarding": "1"
+      },
+      "217": {
+        "stop_code": "WMR",
+        "stop_name": "Woodmere",
+        "stop_lat": "40.63133646",
+        "stop_lon": "-73.71371544",
+        "stop_url": "https://new.mta.info/mta-stations/woodmere",
+        "wheelchair_boarding": "1"
+      },
+      "219": {
+        "stop_code": "WWD",
+        "stop_name": "Westwood",
+        "stop_lat": "40.66837227",
+        "stop_lon": "-73.68120878",
+        "stop_url": "https://new.mta.info/mta-stations/westwood",
+        "wheelchair_boarding": "1"
+      },
+      "220": {
+        "stop_code": "WYD",
+        "stop_name": "Wyandanch",
+        "stop_lat": "40.75480101",
+        "stop_lon": "-73.35806588",
+        "stop_url": "https://new.mta.info/mta-stations/wyandanch",
+        "wheelchair_boarding": "1"
+      },
+      "223": {
+        "stop_code": "YPK",
+        "stop_name": "Yaphank",
+        "stop_lat": "40.82561319",
+        "stop_lon": "-72.91587848",
+        "stop_url": "https://new.mta.info/mta-stations/yaphank",
+        "wheelchair_boarding": "1"
+      },
+      "225": {
+        "stop_code": "BWN",
+        "stop_name": "Baldwin",
+        "stop_lat": "40.65673224",
+        "stop_lon": "-73.60716245",
+        "stop_url": "https://new.mta.info/mta-stations/baldwin",
+        "wheelchair_boarding": "1"
+      },
+      "226": {
+        "stop_code": "MRK",
+        "stop_name": "Merrick",
+        "stop_lat": "40.6638004",
+        "stop_lon": "-73.55062102",
+        "stop_url": "https://new.mta.info/mta-stations/merrick",
+        "wheelchair_boarding": "1"
+      },
+      "23": {
+        "stop_code": "BRS",
+        "stop_name": "Bellerose",
+        "stop_lat": "40.72220443",
+        "stop_lon": "-73.71665289",
+        "stop_url": "https://new.mta.info/mta-stations/bellerose",
+        "wheelchair_boarding": "2"
+      },
+      "233": {
+        "stop_code": "WHN",
+        "stop_name": "Westhampton",
+        "stop_lat": "40.83030532",
+        "stop_lon": "-72.65032454",
+        "stop_url": "https://new.mta.info/mta-stations/westhampton",
+        "wheelchair_boarding": "1"
+      },
+      "237": {
+        "stop_code": "NYK",
+        "stop_name": "Penn Station",
+        "stop_lat": "40.75058844",
+        "stop_lon": "-73.99358408",
+        "stop_url": "https://new.mta.info/mta-stations/penn-station",
+        "wheelchair_boarding": "1"
+      },
+      "24": {
+        "stop_code": "BRT",
+        "stop_name": "Belmont Park",
+        "stop_lat": "40.71368754",
+        "stop_lon": "-73.72829722",
+        "stop_url": "https://new.mta.info/mta-stations/belmont-park",
+        "wheelchair_boarding": "1"
+      },
+      "241": {
+        "stop_code": "ATL",
+        "stop_name": "Atlantic Terminal",
+        "stop_lat": "40.68359596",
+        "stop_lon": "-73.97567112",
+        "stop_url": "https://new.mta.info/mta-stations/atlantic-terminal",
+        "wheelchair_boarding": "1"
+      },
+      "25": {
+        "stop_code": "BSD",
+        "stop_name": "Bayside",
+        "stop_lat": "40.76315241",
+        "stop_lon": "-73.77124986",
+        "stop_url": "https://new.mta.info/mta-stations/bayside",
+        "wheelchair_boarding": "1"
+      },
+      "26": {
+        "stop_code": "BSR",
+        "stop_name": "Bay Shore",
+        "stop_lat": "40.72443344",
+        "stop_lon": "-73.25408295",
+        "stop_url": "https://new.mta.info/mta-stations/bay-shore",
+        "wheelchair_boarding": "1"
+      },
+      "27": {
+        "stop_code": "BTA",
+        "stop_name": "Babylon",
+        "stop_lat": "40.70068942",
+        "stop_lon": "-73.32405561",
+        "stop_url": "https://new.mta.info/mta-stations/babylon",
+        "wheelchair_boarding": "1"
+      },
+      "29": {
+        "stop_code": "BWD",
+        "stop_name": "Brentwood",
+        "stop_lat": "40.78083474",
+        "stop_lon": "-73.24361074",
+        "stop_url": "https://new.mta.info/mta-stations/brentwood",
+        "wheelchair_boarding": "1"
+      },
+      "31": {
+        "stop_code": "CAV",
+        "stop_name": "Centre Avenue",
+        "stop_lat": "40.64831835",
+        "stop_lon": "-73.6639675",
+        "stop_url": "https://new.mta.info/mta-stations/centre-avenue",
+        "wheelchair_boarding": "1"
+      },
+      "32": {
+        "stop_code": "CHT",
+        "stop_name": "Cedarhurst",
+        "stop_lat": "40.62217451",
+        "stop_lon": "-73.72618275",
+        "stop_url": "https://new.mta.info/mta-stations/cedarhurst",
+        "wheelchair_boarding": "1"
+      },
+      "33": {
+        "stop_code": "CI",
+        "stop_name": "Central Islip",
+        "stop_lat": "40.79185312",
+        "stop_lon": "-73.19486082",
+        "stop_url": "https://new.mta.info/mta-stations/central-islip",
+        "wheelchair_boarding": "1"
+      },
+      "349": {
+        "stop_code": "GCT",
+        "stop_name": "Grand Central",
+        "stop_lat": "40.755162",
+        "stop_lon": "-73.975455",
+        "stop_url": "https://new.mta.info/mta-stations/grand-central-madison",
+        "wheelchair_boarding": "1"
+      },
+      "359": {
+        "stop_code": "EMT",
+        "stop_name": "Elmont-UBS Arena",
+        "stop_lat": "40.720074",
+        "stop_lon": "-73.725549",
+        "stop_url": "https://new.mta.info/mta-stations/elmont-ubs-arena",
+        "wheelchair_boarding": "1"
+      },
+      "36": {
+        "stop_code": "CLP",
+        "stop_name": "Country Life Press",
+        "stop_lat": "40.72145656",
+        "stop_lon": "-73.62967386",
+        "stop_url": "https://new.mta.info/mta-stations/country-life-press",
+        "wheelchair_boarding": "1"
+      },
+      "38": {
+        "stop_code": "CPG",
+        "stop_name": "Copiague",
+        "stop_lat": "40.68101528",
+        "stop_lon": "-73.39834027",
+        "stop_url": "https://new.mta.info/mta-stations/copiague",
+        "wheelchair_boarding": "1"
+      },
+      "39": {
+        "stop_code": "CPL",
+        "stop_name": "Carle Place",
+        "stop_lat": "40.74920704",
+        "stop_lon": "-73.60365242",
+        "stop_url": "https://new.mta.info/mta-stations/carle-place",
+        "wheelchair_boarding": "1"
+      },
+      "4": {
+        "stop_code": "AGT",
+        "stop_name": "Amagansett",
+        "stop_lat": "40.98003964",
+        "stop_lon": "-72.13233416",
+        "stop_url": "https://new.mta.info/mta-stations/amagansett",
+        "wheelchair_boarding": "1"
+      },
+      "40": {
+        "stop_code": "CSH",
+        "stop_name": "Cold Spring Harbor",
+        "stop_lat": "40.83563832",
+        "stop_lon": "-73.45108591",
+        "stop_url": "https://new.mta.info/mta-stations/cold-spring-harbor",
+        "wheelchair_boarding": "1"
+      },
+      "42": {
+        "stop_code": "DGL",
+        "stop_name": "Douglaston",
+        "stop_lat": "40.76806862",
+        "stop_lon": "-73.74941265",
+        "stop_url": "https://new.mta.info/mta-stations/douglaston",
+        "wheelchair_boarding": "1"
+      },
+      "44": {
+        "stop_code": "DPK",
+        "stop_name": "Deer Park",
+        "stop_lat": "40.76948364",
+        "stop_lon": "-73.29356494",
+        "stop_url": "https://new.mta.info/mta-stations/deer-park",
+        "wheelchair_boarding": "1"
+      },
+      "48": {
+        "stop_code": "EHN",
+        "stop_name": "East Hampton",
+        "stop_lat": "40.96508629",
+        "stop_lon": "-72.19324238",
+        "stop_url": "https://new.mta.info/mta-stations/east-hampton",
+        "wheelchair_boarding": "1"
+      },
+      "50": {
+        "stop_code": "ENY",
+        "stop_name": "East New York",
+        "stop_lat": "40.67581191",
+        "stop_lon": "-73.90280882",
+        "stop_url": "https://new.mta.info/mta-stations/east-new-york",
+        "wheelchair_boarding": "2"
+      },
+      "51": {
+        "stop_code": "ERY",
+        "stop_name": "East Rockaway",
+        "stop_lat": "40.64221085",
+        "stop_lon": "-73.65821626",
+        "stop_url": "https://new.mta.info/mta-stations/east-rockaway",
+        "wheelchair_boarding": "1"
+      },
+      "52": {
+        "stop_code": "EWN",
+        "stop_name": "East Williston",
+        "stop_lat": "40.7560191",
+        "stop_lon": "-73.63940764",
+        "stop_url": "https://new.mta.info/mta-stations/east-williston",
+        "wheelchair_boarding": "1"
+      },
+      "55": {
+        "stop_code": "FHL",
+        "stop_name": "Forest Hills",
+        "stop_lat": "40.71957556",
+        "stop_lon": "-73.84481402",
+        "stop_url": "https://new.mta.info/mta-stations/forest-hills",
+        "wheelchair_boarding": "1"
+      },
+      "56": {
+        "stop_code": "FLS",
+        "stop_name": "Flushing Main Street",
+        "stop_lat": "40.75789494",
+        "stop_lon": "-73.83134684",
+        "stop_url": "https://new.mta.info/mta-stations/flushing-main-street",
+        "wheelchair_boarding": "1"
+      },
+      "59": {
+        "stop_code": "FMD",
+        "stop_name": "Farmingdale",
+        "stop_lat": "40.73591503",
+        "stop_lon": "-73.44123878",
+        "stop_url": "https://new.mta.info/mta-stations/farmingdale",
+        "wheelchair_boarding": "1"
+      },
+      "63": {
+        "stop_code": "FPK",
+        "stop_name": "Floral Park",
+        "stop_lat": "40.72463725",
+        "stop_lon": "-73.70639714",
+        "stop_url": "https://new.mta.info/mta-stations/floral-park",
+        "wheelchair_boarding": "1"
+      },
+      "64": {
+        "stop_code": "FPT",
+        "stop_name": "Freeport",
+        "stop_lat": "40.65745799",
+        "stop_lon": "-73.58232401",
+        "stop_url": "https://new.mta.info/mta-stations/freeport",
+        "wheelchair_boarding": "1"
+      },
+      "65": {
+        "stop_code": "FRY",
+        "stop_name": "Far Rockaway",
+        "stop_lat": "40.60914311",
+        "stop_lon": "-73.75054135",
+        "stop_url": "https://new.mta.info/mta-stations/far-rockaway",
+        "wheelchair_boarding": "1"
+      },
+      "66": {
+        "stop_code": "GBN",
+        "stop_name": "Gibson",
+        "stop_lat": "40.64925173",
+        "stop_lon": "-73.70183483",
+        "stop_url": "https://new.mta.info/mta-stations/gibson",
+        "wheelchair_boarding": "1"
+      },
+      "67": {
+        "stop_code": "GCV",
+        "stop_name": "Glen Cove",
+        "stop_lat": "40.86583421",
+        "stop_lon": "-73.61616614",
+        "stop_url": "https://new.mta.info/mta-stations/glen-cove",
+        "wheelchair_boarding": "1"
+      },
+      "68": {
+        "stop_code": "GCY",
+        "stop_name": "Garden City",
+        "stop_lat": "40.72310156",
+        "stop_lon": "-73.64036107",
+        "stop_url": "https://new.mta.info/mta-stations/garden-city",
+        "wheelchair_boarding": "1"
+      },
+      "71": {
+        "stop_code": "GHD",
+        "stop_name": "Glen Head",
+        "stop_lat": "40.83222531",
+        "stop_lon": "-73.62611822",
+        "stop_url": "https://new.mta.info/mta-stations/glen-head",
+        "wheelchair_boarding": "1"
+      },
+      "72": {
+        "stop_code": "GNK",
+        "stop_name": "Great Neck",
+        "stop_lat": "40.78721647",
+        "stop_lon": "-73.72610046",
+        "stop_url": "https://new.mta.info/mta-stations/great-neck",
+        "wheelchair_boarding": "1"
+      },
+      "73": {
+        "stop_code": "GPT",
+        "stop_name": "Greenport",
+        "stop_lat": "41.09970991",
+        "stop_lon": "-72.36310396",
+        "stop_url": "https://new.mta.info/mta-stations/greenport",
+        "wheelchair_boarding": "1"
+      },
+      "74": {
+        "stop_code": "GRV",
+        "stop_name": "Great River",
+        "stop_lat": "40.74044444",
+        "stop_lon": "-73.17019585",
+        "stop_url": "https://new.mta.info/mta-stations/great-river",
+        "wheelchair_boarding": "1"
+      },
+      "76": {
+        "stop_code": "GST",
+        "stop_name": "Glen Street",
+        "stop_lat": "40.85798112",
+        "stop_lon": "-73.62121715",
+        "stop_url": "https://new.mta.info/mta-stations/glen-street",
+        "wheelchair_boarding": "1"
+      },
+      "77": {
+        "stop_code": "GVL",
+        "stop_name": "Greenvale",
+        "stop_lat": "40.81571566",
+        "stop_lon": "-73.62687152",
+        "stop_url": "https://new.mta.info/mta-stations/greenvale",
+        "wheelchair_boarding": "1"
+      },
+      "78": {
+        "stop_code": "GWN",
+        "stop_name": "Greenlawn",
+        "stop_lat": "40.86866524",
+        "stop_lon": "-73.36284977",
+        "stop_url": "https://new.mta.info/mta-stations/greenlawn",
+        "wheelchair_boarding": "1"
+      },
+      "8": {
+        "stop_code": "AVL",
+        "stop_name": "Amityville",
+        "stop_lat": "40.68024859",
+        "stop_lon": "-73.42031192",
+        "stop_url": "https://new.mta.info/mta-stations/amityville",
+        "wheelchair_boarding": "1"
+      },
+      "83": {
+        "stop_code": "HBY",
+        "stop_name": "Hampton Bays",
+        "stop_lat": "40.87660916",
+        "stop_lon": "-72.52394936",
+        "stop_url": "https://new.mta.info/mta-stations/hampton-bays",
+        "wheelchair_boarding": "1"
+      },
+      "84": {
+        "stop_code": "HEM",
+        "stop_name": "Hempstead",
+        "stop_lat": "40.71329663",
+        "stop_lon": "-73.62503239",
+        "stop_url": "https://new.mta.info/mta-stations/hempstead",
+        "wheelchair_boarding": "1"
+      },
+      "85": {
+        "stop_code": "HGN",
+        "stop_name": "Hempstead Gardens",
+        "stop_lat": "40.69491356",
+        "stop_lon": "-73.64620888",
+        "stop_url": "https://new.mta.info/mta-stations/hempstead-gardens",
+        "wheelchair_boarding": "1"
+      },
+      "86": {
+        "stop_code": "HIL",
+        "stop_name": "Hillside Facility",
+        "stop_lat": "40.70773582",
+        "stop_lon": "-73.77695851",
+        "stop_url": "",
+        "wheelchair_boarding": "1"
+      },
+      "89": {
+        "stop_code": "HOL",
+        "stop_name": "Hollis",
+        "stop_lat": "40.71018151",
+        "stop_lon": "-73.76675252",
+        "stop_url": "https://new.mta.info/mta-stations/hollis",
+        "wheelchair_boarding": "2"
+      },
+      "90": {
+        "stop_code": "HPA",
+        "stop_name": "Hunterspoint Avenue",
+        "stop_lat": "40.74239046",
+        "stop_lon": "-73.94678997",
+        "stop_url": "https://new.mta.info/mta-stations/hunterspoint-avenue",
+        "wheelchair_boarding": "2"
+      },
+      "91": {
+        "stop_code": "HUN",
+        "stop_name": "Huntington",
+        "stop_lat": "40.85300971",
+        "stop_lon": "-73.40952576",
+        "stop_url": "https://new.mta.info/mta-stations/huntington",
+        "wheelchair_boarding": "1"
+      },
+      "92": {
+        "stop_code": "HVL",
+        "stop_name": "Hicksville",
+        "stop_lat": "40.76717491",
+        "stop_lon": "-73.52853322",
+        "stop_url": "https://new.mta.info/mta-stations/hicksville",
+        "wheelchair_boarding": "1"
+      },
+      "94": {
+        "stop_code": "HWT",
+        "stop_name": "Hewlett",
+        "stop_lat": "40.63676432",
+        "stop_lon": "-73.70513866",
+        "stop_url": "https://new.mta.info/mta-stations/hewlett",
+        "wheelchair_boarding": "1"
+      },
+      "99": {
+        "stop_code": "IPK",
+        "stop_name": "Island Park",
+        "stop_lat": "40.60129906",
+        "stop_lon": "-73.65474248",
+        "stop_url": "https://new.mta.info/mta-stations/island-park",
+        "wheelchair_boarding": "1"
+      }
+    }
+  },
+  {
+    "railroad": "mtn",
+    "routes": {
+      "3": {
+        "agency_id": "1",
+        "route_short_name": "",
+        "route_long_name": "New Haven",
+        "route_desc": "",
+        "route_type": "2",
+        "route_url": "",
+        "route_color": "EE0034",
+        "route_text_color": "FFFFFF"
+      },
+      "4": {
+        "agency_id": "1",
+        "route_short_name": "",
+        "route_long_name": "New Canaan",
+        "route_desc": "",
+        "route_type": "2",
+        "route_url": "",
+        "route_color": "EE0034",
+        "route_text_color": "FFFFFF"
+      },
+      "5": {
+        "agency_id": "1",
+        "route_short_name": "",
+        "route_long_name": "Danbury",
+        "route_desc": "",
+        "route_type": "2",
+        "route_url": "",
+        "route_color": "EE0034",
+        "route_text_color": "FFFFFF"
+      },
+      "6": {
+        "agency_id": "1",
+        "route_short_name": "",
+        "route_long_name": "Waterbury",
+        "route_desc": "",
+        "route_type": "2",
+        "route_url": "",
+        "route_color": "EE0034",
+        "route_text_color": "FFFFFF"
+      },
+      "1": {
+        "agency_id": "1",
+        "route_short_name": "",
+        "route_long_name": "Hudson",
+        "route_desc": "",
+        "route_type": "2",
+        "route_url": "",
+        "route_color": "009B3A",
+        "route_text_color": "FFFFFF"
+      },
+      "2": {
+        "agency_id": "1",
+        "route_short_name": "",
+        "route_long_name": "Harlem",
+        "route_desc": "",
+        "route_type": "2",
+        "route_url": "",
+        "route_color": "0039A6",
+        "route_text_color": "FFFFFF"
+      }
+    },
+    "stops": {
+      "1": {
+        "stop_code": "0NY",
+        "stop_name": "Grand Central",
+        "stop_desc": "",
+        "stop_lat": "40.752998",
+        "stop_lon": "-73.977056",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/grand-central-terminal",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "4": {
+        "stop_code": "0HL",
+        "stop_name": "Harlem-125 St",
+        "stop_desc": "",
+        "stop_lat": "40.805157",
+        "stop_lon": "-73.939149",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/harlem-125-street",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "622": {
+        "stop_code": "0YS",
+        "stop_name": "Yankees-E 153 St",
+        "stop_desc": "",
+        "stop_lat": "40.8253",
+        "stop_lon": "-73.9299",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/yankees-e-153-st",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "184": {
+        "stop_code": "0HI",
+        "stop_name": "Highbridge Yard",
+        "stop_desc": "",
+        "stop_lat": "40.8359",
+        "stop_lon": "-73.9315",
+        "zone_id": "",
+        "stop_url": "",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "0"
+      },
+      "9": {
+        "stop_code": "0MH",
+        "stop_name": "Morris Heights",
+        "stop_desc": "",
+        "stop_lat": "40.854252",
+        "stop_lon": "-73.919583",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/morris-heights",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "10": {
+        "stop_code": "0UH",
+        "stop_name": "University Heights",
+        "stop_desc": "",
+        "stop_lat": "40.862248",
+        "stop_lon": "-73.91312",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/university-heights",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "11": {
+        "stop_code": "0MB",
+        "stop_name": "Marble Hill",
+        "stop_desc": "",
+        "stop_lat": "40.874333",
+        "stop_lon": "-73.910941",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/marble-hill",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "14": {
+        "stop_code": "0DV",
+        "stop_name": "Spuyten Duyvil",
+        "stop_desc": "",
+        "stop_lat": "40.878245",
+        "stop_lon": "-73.921455",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/spuyten-duyvil",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "16": {
+        "stop_code": "0RV",
+        "stop_name": "Riverdale",
+        "stop_desc": "",
+        "stop_lat": "40.903981",
+        "stop_lon": "-73.914126",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/riverdale",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "17": {
+        "stop_code": "0LU",
+        "stop_name": "Ludlow",
+        "stop_desc": "",
+        "stop_lat": "40.924972",
+        "stop_lon": "-73.904612",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/ludlow",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "18": {
+        "stop_code": "0YK",
+        "stop_name": "Yonkers",
+        "stop_desc": "",
+        "stop_lat": "40.935795",
+        "stop_lon": "-73.902668",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/yonkers",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "19": {
+        "stop_code": "0GD",
+        "stop_name": "Glenwood",
+        "stop_desc": "",
+        "stop_lat": "40.950496",
+        "stop_lon": "-73.899062",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/glenwood",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "20": {
+        "stop_code": "0GY",
+        "stop_name": "Greystone",
+        "stop_desc": "",
+        "stop_lat": "40.972705",
+        "stop_lon": "-73.889069",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/greystone",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "22": {
+        "stop_code": "0HS",
+        "stop_name": "Hastings-on-Hudson",
+        "stop_desc": "",
+        "stop_lat": "40.994109",
+        "stop_lon": "-73.884512",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/hastings-hudson",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "23": {
+        "stop_code": "0DF",
+        "stop_name": "Dobbs Ferry",
+        "stop_desc": "",
+        "stop_lat": "41.012459",
+        "stop_lon": "-73.87949",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/dobbs-ferry",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "24": {
+        "stop_code": "0AR",
+        "stop_name": "Ardsley-on-Hudson",
+        "stop_desc": "",
+        "stop_lat": "41.026198",
+        "stop_lon": "-73.876543",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/ardsley-hudson",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "25": {
+        "stop_code": "0IV",
+        "stop_name": "Irvington",
+        "stop_desc": "",
+        "stop_lat": "41.039993",
+        "stop_lon": "-73.873083",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/irvington",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "27": {
+        "stop_code": "0TT",
+        "stop_name": "Tarrytown",
+        "stop_desc": "",
+        "stop_lat": "41.076473",
+        "stop_lon": "-73.864563",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/tarrytown",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "29": {
+        "stop_code": "0PM",
+        "stop_name": "Philipse Manor",
+        "stop_desc": "",
+        "stop_lat": "41.09492",
+        "stop_lon": "-73.869755",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/philipse-manor",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "30": {
+        "stop_code": "0SB",
+        "stop_name": "Scarborough",
+        "stop_desc": "",
+        "stop_lat": "41.135763",
+        "stop_lon": "-73.866163",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/scarborough",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "31": {
+        "stop_code": "0OS",
+        "stop_name": "Ossining",
+        "stop_desc": "",
+        "stop_lat": "41.157663",
+        "stop_lon": "-73.869281",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/ossining",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "33": {
+        "stop_code": "0HM",
+        "stop_name": "Croton-Harmon",
+        "stop_desc": "",
+        "stop_lat": "41.189903",
+        "stop_lon": "-73.882394",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/croton-harmon",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "37": {
+        "stop_code": "0CT",
+        "stop_name": "Cortlandt",
+        "stop_desc": "",
+        "stop_lat": "41.246259",
+        "stop_lon": "-73.921884",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/cortlandt",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "39": {
+        "stop_code": "0PE",
+        "stop_name": "Peekskill",
+        "stop_desc": "",
+        "stop_lat": "41.285962",
+        "stop_lon": "-73.93042",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/peekskill",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "40": {
+        "stop_code": "0MN",
+        "stop_name": "Manitou",
+        "stop_desc": "",
+        "stop_lat": "41.332601",
+        "stop_lon": "-73.970426",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/manitou",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "42": {
+        "stop_code": "0GA",
+        "stop_name": "Garrison",
+        "stop_desc": "",
+        "stop_lat": "41.38178",
+        "stop_lon": "-73.947202",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/garrison",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "43": {
+        "stop_code": "0CS",
+        "stop_name": "Cold Spring",
+        "stop_desc": "",
+        "stop_lat": "41.415283",
+        "stop_lon": "-73.95809",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/cold-spring",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "44": {
+        "stop_code": "0BK",
+        "stop_name": "Breakneck Ridge",
+        "stop_desc": "",
+        "stop_lat": "41.450181",
+        "stop_lon": "-73.982449",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/breakneck-ridge",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "46": {
+        "stop_code": "0BC",
+        "stop_name": "Beacon",
+        "stop_desc": "",
+        "stop_lat": "41.504007",
+        "stop_lon": "-73.984528",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/beacon",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "49": {
+        "stop_code": "0NM",
+        "stop_name": "New Hamburg",
+        "stop_desc": "",
+        "stop_lat": "41.587448",
+        "stop_lon": "-73.947226",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/new-hamburg",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "51": {
+        "stop_code": "0PO",
+        "stop_name": "Poughkeepsie",
+        "stop_desc": "",
+        "stop_lat": "41.705839",
+        "stop_lon": "-73.937946",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/poughkeepsie",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "54": {
+        "stop_code": "1ML",
+        "stop_name": "Melrose",
+        "stop_desc": "",
+        "stop_lat": "40.825761",
+        "stop_lon": "-73.915231",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/melrose",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "55": {
+        "stop_code": "1TR",
+        "stop_name": "Tremont",
+        "stop_desc": "",
+        "stop_lat": "40.847301",
+        "stop_lon": "-73.89955",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/tremont",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "56": {
+        "stop_code": "1FO",
+        "stop_name": "Fordham",
+        "stop_desc": "",
+        "stop_lat": "40.8615",
+        "stop_lon": "-73.89058",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/fordham",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "57": {
+        "stop_code": "1BG",
+        "stop_name": "Botanical Garden",
+        "stop_desc": "",
+        "stop_lat": "40.866555",
+        "stop_lon": "-73.883109",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/botanical-garden",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "58": {
+        "stop_code": "1WG",
+        "stop_name": "Williams Bridge",
+        "stop_desc": "",
+        "stop_lat": "40.878569",
+        "stop_lon": "-73.871064",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/williams-bridge",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "59": {
+        "stop_code": "1WN",
+        "stop_name": "Woodlawn",
+        "stop_desc": "",
+        "stop_lat": "40.895361",
+        "stop_lon": "-73.862916",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/woodlawn-mnr",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "61": {
+        "stop_code": "1WF",
+        "stop_name": "Wakefield",
+        "stop_desc": "",
+        "stop_lat": "40.905936",
+        "stop_lon": "-73.85568",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/wakefield",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "62": {
+        "stop_code": "1MW",
+        "stop_name": "Mt Vernon West",
+        "stop_desc": "",
+        "stop_lat": "40.912142",
+        "stop_lon": "-73.851129",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/mt-vernon-west",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "64": {
+        "stop_code": "1FW",
+        "stop_name": "Fleetwood",
+        "stop_desc": "",
+        "stop_lat": "40.92699",
+        "stop_lon": "-73.83948",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/fleetwood",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "65": {
+        "stop_code": "1BX",
+        "stop_name": "Bronxville",
+        "stop_desc": "",
+        "stop_lat": "40.93978",
+        "stop_lon": "-73.835208",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/bronxville",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "66": {
+        "stop_code": "1TK",
+        "stop_name": "Tuckahoe",
+        "stop_desc": "",
+        "stop_lat": "40.949393",
+        "stop_lon": "-73.830166",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/tuckahoe",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "68": {
+        "stop_code": "1CW",
+        "stop_name": "Crestwood",
+        "stop_desc": "",
+        "stop_lat": "40.958997",
+        "stop_lon": "-73.820564",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/crestwood",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "71": {
+        "stop_code": "1SC",
+        "stop_name": "Scarsdale",
+        "stop_desc": "",
+        "stop_lat": "40.989168",
+        "stop_lon": "-73.808634",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/scarsdale",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "72": {
+        "stop_code": "1HA",
+        "stop_name": "Hartsdale",
+        "stop_desc": "",
+        "stop_lat": "41.010333",
+        "stop_lon": "-73.796407",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/hartsdale",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "74": {
+        "stop_code": "1WP",
+        "stop_name": "White Plains",
+        "stop_desc": "",
+        "stop_lat": "41.032589",
+        "stop_lon": "-73.775208",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/white-plains",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "76": {
+        "stop_code": "1NW",
+        "stop_name": "North White Plains",
+        "stop_desc": "",
+        "stop_lat": "41.049806",
+        "stop_lon": "-73.773142",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/north-white-plains",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "78": {
+        "stop_code": "1VA",
+        "stop_name": "Valhalla",
+        "stop_desc": "",
+        "stop_lat": "41.072819",
+        "stop_lon": "-73.772599",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/valhalla",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "79": {
+        "stop_code": "1MP",
+        "stop_name": "Mt Pleasant",
+        "stop_desc": "",
+        "stop_lat": "41.095877",
+        "stop_lon": "-73.793822",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/mt-pleasant",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "80": {
+        "stop_code": "1HN",
+        "stop_name": "Hawthorne",
+        "stop_desc": "",
+        "stop_lat": "41.108581",
+        "stop_lon": "-73.79625",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/hawthorne",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "81": {
+        "stop_code": "1PV",
+        "stop_name": "Pleasantville",
+        "stop_desc": "",
+        "stop_lat": "41.135222",
+        "stop_lon": "-73.792661",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/pleasantville",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "83": {
+        "stop_code": "1CQ",
+        "stop_name": "Chappaqua",
+        "stop_desc": "",
+        "stop_lat": "41.158015",
+        "stop_lon": "-73.774885",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/chappaqua",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "84": {
+        "stop_code": "1MK",
+        "stop_name": "Mt Kisco",
+        "stop_desc": "",
+        "stop_lat": "41.208242",
+        "stop_lon": "-73.729778",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/mount-kisco",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "85": {
+        "stop_code": "1BH",
+        "stop_name": "Bedford Hills",
+        "stop_desc": "",
+        "stop_lat": "41.237316",
+        "stop_lon": "-73.699936",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/bedford-hills",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "86": {
+        "stop_code": "1KA",
+        "stop_name": "Katonah",
+        "stop_desc": "",
+        "stop_lat": "41.259552",
+        "stop_lon": "-73.684155",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/katonah",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "88": {
+        "stop_code": "1GO",
+        "stop_name": "Goldens Bridge",
+        "stop_desc": "",
+        "stop_lat": "41.294338",
+        "stop_lon": "-73.677655",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/goldens-bridge",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "89": {
+        "stop_code": "1PY",
+        "stop_name": "Purdy's",
+        "stop_desc": "",
+        "stop_lat": "41.325775",
+        "stop_lon": "-73.659061",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/purdys",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "90": {
+        "stop_code": "1CF",
+        "stop_name": "Croton Falls",
+        "stop_desc": "",
+        "stop_lat": "41.347722",
+        "stop_lon": "-73.662269",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/croton-falls",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "91": {
+        "stop_code": "1BW",
+        "stop_name": "Brewster",
+        "stop_desc": "",
+        "stop_lat": "41.39447",
+        "stop_lon": "-73.619802",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/brewster",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "94": {
+        "stop_code": "1BR",
+        "stop_name": "Southeast",
+        "stop_desc": "",
+        "stop_lat": "41.413203",
+        "stop_lon": "-73.623787",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/southeast",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "97": {
+        "stop_code": "1PA",
+        "stop_name": "Patterson",
+        "stop_desc": "",
+        "stop_lat": "41.511827",
+        "stop_lon": "-73.604584",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/patterson",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "98": {
+        "stop_code": "1PW",
+        "stop_name": "Pawling",
+        "stop_desc": "",
+        "stop_lat": "41.564205",
+        "stop_lon": "-73.600524",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/pawling",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "99": {
+        "stop_code": "1AT",
+        "stop_name": "Appalachian Trail",
+        "stop_desc": "",
+        "stop_lat": "41.592871",
+        "stop_lon": "-73.588032",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/appalachian-trail",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "100": {
+        "stop_code": "1WI",
+        "stop_name": "Harlem Valley-Wingdale",
+        "stop_desc": "",
+        "stop_lat": "41.637525",
+        "stop_lon": "-73.57145",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/harlem-valley-wingdale",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "101": {
+        "stop_code": "1DO",
+        "stop_name": "Dover Plains",
+        "stop_desc": "",
+        "stop_lat": "41.740401",
+        "stop_lon": "-73.576502",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/dover-plains",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "176": {
+        "stop_code": "1TM",
+        "stop_name": "Tenmile River",
+        "stop_desc": "",
+        "stop_lat": "41.779938",
+        "stop_lon": "-73.558204",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/tenmile-river",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "177": {
+        "stop_code": "1WA",
+        "stop_name": "Wassaic",
+        "stop_desc": "",
+        "stop_lat": "41.814722",
+        "stop_lon": "-73.562197",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/wassaic",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "105": {
+        "stop_code": "2ME",
+        "stop_name": "Mt Vernon East ",
+        "stop_desc": "",
+        "stop_lat": "40.912161",
+        "stop_lon": "-73.832185",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/mt-vernon-east",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "106": {
+        "stop_code": "2PH",
+        "stop_name": "Pelham",
+        "stop_desc": "",
+        "stop_lat": "40.910321",
+        "stop_lon": "-73.810242",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/pelham",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "108": {
+        "stop_code": "2NR",
+        "stop_name": "New Rochelle",
+        "stop_desc": "",
+        "stop_lat": "40.911605",
+        "stop_lon": "-73.783807",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/new-rochelle",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "110": {
+        "stop_code": "2LA",
+        "stop_name": "Larchmont",
+        "stop_desc": "",
+        "stop_lat": "40.933394",
+        "stop_lon": "-73.759792",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/larchmont",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "111": {
+        "stop_code": "2MA",
+        "stop_name": "Mamaroneck",
+        "stop_desc": "",
+        "stop_lat": "40.954061",
+        "stop_lon": "-73.736125",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/mamaroneck",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "112": {
+        "stop_code": "2HS",
+        "stop_name": "Harrison",
+        "stop_desc": "",
+        "stop_lat": "40.969432",
+        "stop_lon": "-73.712964",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/harrison",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "114": {
+        "stop_code": "2RY",
+        "stop_name": "Rye",
+        "stop_desc": "",
+        "stop_lat": "40.985922",
+        "stop_lon": "-73.682553",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/rye",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "115": {
+        "stop_code": "2PC",
+        "stop_name": "Port Chester",
+        "stop_desc": "",
+        "stop_lat": "41.000732",
+        "stop_lon": "-73.6647",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/port-chester",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "116": {
+        "stop_code": "2GN",
+        "stop_name": "Greenwich",
+        "stop_desc": "",
+        "stop_lat": "41.021277",
+        "stop_lon": "-73.624621",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/greenwich",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "118": {
+        "stop_code": "2CC",
+        "stop_name": "Cos Cob",
+        "stop_desc": "",
+        "stop_lat": "41.030171",
+        "stop_lon": "-73.598306",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/cos-cob",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "120": {
+        "stop_code": "2RS",
+        "stop_name": "Riverside",
+        "stop_desc": "",
+        "stop_lat": "41.031682",
+        "stop_lon": "-73.588173",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/riverside",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "121": {
+        "stop_code": "2OG",
+        "stop_name": "Old Greenwich",
+        "stop_desc": "",
+        "stop_lat": "41.033817",
+        "stop_lon": "-73.565859",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/old-greenwich",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "124": {
+        "stop_code": "2SM",
+        "stop_name": "Stamford",
+        "stop_desc": "",
+        "stop_lat": "41.046611",
+        "stop_lon": "-73.542846",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/stamford",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "153": {
+        "stop_code": "3GB",
+        "stop_name": "Glenbrook",
+        "stop_desc": "",
+        "stop_lat": "41.070547",
+        "stop_lon": "-73.520021",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/glenbrook",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "651": {
+        "stop_code": "3SP",
+        "stop_name": "Springdale MW Facility",
+        "stop_desc": "",
+        "stop_lat": "41.082147",
+        "stop_lon": "-73.519675",
+        "zone_id": "",
+        "stop_url": "",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "0"
+      },
+      "154": {
+        "stop_code": "3SD",
+        "stop_name": "Springdale",
+        "stop_desc": "",
+        "stop_lat": "41.08876",
+        "stop_lon": "-73.517828",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/springdale",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "155": {
+        "stop_code": "3TH",
+        "stop_name": "Talmadge Hill",
+        "stop_desc": "",
+        "stop_lat": "41.116012",
+        "stop_lon": "-73.498149",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/talmadge-hill",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "157": {
+        "stop_code": "3NC",
+        "stop_name": "New Canaan",
+        "stop_desc": "",
+        "stop_lat": "41.146305",
+        "stop_lon": "-73.495626",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/new-canaan",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "127": {
+        "stop_code": "2NO",
+        "stop_name": "Noroton Heights",
+        "stop_desc": "",
+        "stop_lat": "41.069041",
+        "stop_lon": "-73.49788",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/noroton-heights",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "128": {
+        "stop_code": "2DA",
+        "stop_name": "Darien",
+        "stop_desc": "",
+        "stop_lat": "41.076913",
+        "stop_lon": "-73.472966",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/darien",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "129": {
+        "stop_code": "2RO",
+        "stop_name": "Rowayton",
+        "stop_desc": "",
+        "stop_lat": "41.077456",
+        "stop_lon": "-73.445527",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/rowayton",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "131": {
+        "stop_code": "2SN",
+        "stop_name": "South Norwalk",
+        "stop_desc": "",
+        "stop_lat": "41.09673",
+        "stop_lon": "-73.421132",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/south-norwalk",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "158": {
+        "stop_code": "4M7",
+        "stop_name": "Merritt 7",
+        "stop_desc": "",
+        "stop_lat": "41.146618",
+        "stop_lon": "-73.427859",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/merritt-7",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "160": {
+        "stop_code": "4WI",
+        "stop_name": "Wilton",
+        "stop_desc": "",
+        "stop_lat": "41.196202",
+        "stop_lon": "-73.432434",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/wilton",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "161": {
+        "stop_code": "4CA",
+        "stop_name": "Cannondale",
+        "stop_desc": "",
+        "stop_lat": "41.21662",
+        "stop_lon": "-73.426703",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/cannondale",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "162": {
+        "stop_code": "4BV",
+        "stop_name": "Branchville",
+        "stop_desc": "",
+        "stop_lat": "41.26763",
+        "stop_lon": "-73.441421",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/branchville",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "163": {
+        "stop_code": "4RD",
+        "stop_name": "Redding",
+        "stop_desc": "",
+        "stop_lat": "41.325684",
+        "stop_lon": "-73.4338",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/redding",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "164": {
+        "stop_code": "4BE",
+        "stop_name": "Bethel",
+        "stop_desc": "",
+        "stop_lat": "41.376225",
+        "stop_lon": "-73.418171",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/bethel",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "165": {
+        "stop_code": "4DN",
+        "stop_name": "Danbury",
+        "stop_desc": "",
+        "stop_lat": "41.396146",
+        "stop_lon": "-73.44879",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/danbury",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "133": {
+        "stop_code": "2EN",
+        "stop_name": "East Norwalk",
+        "stop_desc": "",
+        "stop_lat": "41.103996",
+        "stop_lon": "-73.404588",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/east-norwalk",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "134": {
+        "stop_code": "2WP",
+        "stop_name": "Westport",
+        "stop_desc": "",
+        "stop_lat": "41.118928",
+        "stop_lon": "-73.371413",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/westport",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "136": {
+        "stop_code": "2GF",
+        "stop_name": "Green's Farms",
+        "stop_desc": "",
+        "stop_lat": "41.122265",
+        "stop_lon": "-73.315408",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/greens-farms",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "137": {
+        "stop_code": "2SP",
+        "stop_name": "Southport",
+        "stop_desc": "",
+        "stop_lat": "41.134844",
+        "stop_lon": "-73.28897",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/southport",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "138": {
+        "stop_code": "2FF",
+        "stop_name": "Fairfield",
+        "stop_desc": "",
+        "stop_lat": "41.143077",
+        "stop_lon": "-73.257742",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/fairfield",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "188": {
+        "stop_code": "2FM",
+        "stop_name": "Fairfield-Black Rock",
+        "stop_desc": "",
+        "stop_lat": "41.161",
+        "stop_lon": "-73.234336",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/fairfield-black-rock",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "140": {
+        "stop_code": "2BP",
+        "stop_name": "Bridgeport",
+        "stop_desc": "",
+        "stop_lat": "41.178677",
+        "stop_lon": "-73.187076",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/bridgeport",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "143": {
+        "stop_code": "2SR",
+        "stop_name": "Stratford",
+        "stop_desc": "",
+        "stop_lat": "41.194255",
+        "stop_lon": "-73.131532",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/stratford",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "167": {
+        "stop_code": "5DB",
+        "stop_name": "Derby-Shelton",
+        "stop_desc": "",
+        "stop_lat": "41.319718",
+        "stop_lon": "-73.083548",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/derby-shelton",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "168": {
+        "stop_code": "5AN",
+        "stop_name": "Ansonia",
+        "stop_desc": "",
+        "stop_lat": "41.344156",
+        "stop_lon": "-73.079892",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/ansonia",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "169": {
+        "stop_code": "5SY",
+        "stop_name": "Seymour",
+        "stop_desc": "",
+        "stop_lat": "41.395139",
+        "stop_lon": "-73.072499",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/seymour",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "170": {
+        "stop_code": "5BF",
+        "stop_name": "Beacon Falls",
+        "stop_desc": "",
+        "stop_lat": "41.441752",
+        "stop_lon": "-73.06359",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/beacon-falls",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "171": {
+        "stop_code": "5NG",
+        "stop_name": "Naugatuck",
+        "stop_desc": "",
+        "stop_lat": "41.494204",
+        "stop_lon": "-73.052655",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/naugatuck",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "2"
+      },
+      "172": {
+        "stop_code": "5WB",
+        "stop_name": "Waterbury",
+        "stop_desc": "",
+        "stop_lat": "41.552728",
+        "stop_lon": "-73.046126",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/waterbury",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "145": {
+        "stop_code": "2MI",
+        "stop_name": "Milford",
+        "stop_desc": "",
+        "stop_lat": "41.223231",
+        "stop_lon": "-73.057647",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/milford",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "190": {
+        "stop_code": "2WH",
+        "stop_name": "West Haven",
+        "stop_desc": "",
+        "stop_lat": "41.27142",
+        "stop_lon": "-72.963488",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/west-haven",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "149": {
+        "stop_code": "2NH",
+        "stop_name": "New Haven",
+        "stop_desc": "",
+        "stop_lat": "41.296501",
+        "stop_lon": "-72.92829",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/new-haven",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      },
+      "151": {
+        "stop_code": "2SS",
+        "stop_name": "New Haven-State St",
+        "stop_desc": "",
+        "stop_lat": "41.304979",
+        "stop_lon": "-72.921747",
+        "zone_id": "",
+        "stop_url": "https://new.mta.info/stations/new-haven-state-street",
+        "location_type": "0",
+        "parent_station": "",
+        "wheelchair_boarding": "1"
+      }
+    }
+  }
+]

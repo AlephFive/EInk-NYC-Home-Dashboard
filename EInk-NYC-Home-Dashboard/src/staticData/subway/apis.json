@@ -1,0 +1,46 @@
+{
+  "apiUrl": {
+    "ace": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace",
+    "bdfm": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm",
+    "g": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-g",
+    "jz": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz",
+    "nqrw": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw",
+    "l": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l",
+    "a_division": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs",
+    "si": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si"
+  },
+  "lineMappings": {
+    "A": "ace",
+    "C": "ace",
+    "E": "ace",
+    "SR": "ace",
+
+    "B": "bdfm",
+    "D": "bdfm",
+    "F": "bdfm",
+    "M": "bdfm",
+    "SF": "bdfm",
+
+    "J": "jz",
+    "Z": "jz",
+
+    "N": "nqrw",
+    "Q": "nqrw",
+    "R": "nqrw",
+    "W": "nqrw",
+
+    "L": "l",
+    "G": "g",
+
+    "1": "a_division",
+    "2": "a_division",
+    "3": "a_division",
+    "4": "a_division",
+    "5": "a_division",
+    "6": "a_division",
+    "7": "a_division",
+    "S": "a_division",
+
+    "SIR": "si"
+  }
+}
