@@ -103,14 +103,19 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   const transitType = parseTransitType(type);
   if (!transitType) return undefined;
 
+  // The picker may append "@<name>" to the ID list, carrying a display name
+  // the server has no table for — bus stops, where `route_info.json` covers
+  // only hand-added entries. An explicit title still wins over it.
+  const [idList = "", pickedName = ""] = ids.split("@");
+
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
-  const stopIds = ids
+  const stopIds = idList
     .split("+")
     .map((id) => id.trim())
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
 
-  const title = titleParts.join(":").trim();
+  const title = titleParts.join(":").trim() || pickedName.trim();
 
   return {
     slot,

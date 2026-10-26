@@ -126,3 +126,76 @@ run off-Vite. All three are improvements in their own right:
 The last one also shrank the dashboard bundle from **709KB to 450KB**
 (gzip 132KB to 108KB), because the pruned station table is a quarter the size
 of the GeoJSON it replaced. The 500KB chunk warning is gone.
+
+---
+
+# Phase 1, step 4 — picker endpoints
+
+Run 2026-10-26, verified both off-Worker (`spikes/pickerHarness.ts`) and in
+`wrangler dev`, which is the first time this code ran in workerd rather than
+Node.
+
+## Station search
+
+| Query | Result |
+|---|---|
+| subway "times sq" | `Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E)` -> `subway:127+725+902+A27+R16` |
+| subway "port authority" | the same single option |
+| subway "coney" | `Coney Island-Stillwell Av (D/F/N/Q)` -> `subway:D43` |
+| lirr "grand central" | `lirr:349` |
+| mtn "grand central" | `mtn:1` |
+| bus "borden" | 8 corners, each carrying every direction's ID |
+
+- **Complexes collapse to one option.** All 35 multi-stop complexes are offered
+  as a single entry carrying every platform group, so picking "Times Sq" shows
+  the 3 *and* the A rather than silently showing only the 1/2/3. Searching
+  "port authority" finds it even though only `A27` carries that name.
+- **LIRR and Metro-North stay separate.** Both railroads have a "Grand Central"
+  at different IDs (349 and 1); the two tables are never merged.
+- **Bus corners group by name**, so one option yields both direction IDs — the
+  two-column bus card, without the user knowing stop IDs exist.
+
+## The `valid_to` filter, proven
+
+```
+# unfiltered — the stop that silently broke the real board is offered
+$where=stop_id='700748'
+  -> [{"stop_id":"700748","stop_name":"BORDEN AV/CENTER BLVD",
+       "valid_from":"2025-10-22...","valid_to":"2025-12-15..."}]
+
+# filtered
+$where=stop_id='700748' AND valid_to > '2026-10-26...'
+  -> []
+```
+
+Without the filter a user searching "borden" would be offered `700748` — the
+exact retired ID that broke this board — and get a permanently failing card.
+
+## Verified in workerd
+
+`wrangler dev` served every endpoint against live feeds:
+
+| Endpoint | Result |
+|---|---|
+| `/health` | `{"ok":true}` |
+| `/api/board` (5 cards) | 1,810 bytes, **35.4% of cap** |
+| `/api/stations` GET | works |
+| `/api/stations` POST, JSON | works, reads TRMNL's sibling `*_type` field |
+| `/api/stations` POST, form-encoded | works |
+| `/api/bus-stops` | works, live |
+| no transit type chosen | `[]` — an empty dropdown, not an error |
+
+**Round-trip verified**: a picker's own output pasted into a board slot builds
+that card. The Times Sq complex returns both the 3 and the A; a bus corner
+returns two direction columns.
+
+## Bug found by the round-trip
+
+A user-picked bus stop headed its card **"Bus Stop 505507"**. `getBusStopInfo()`
+reads `staticData/bus/route_info.json`, a hand-maintained map holding exactly
+one entry — fine for a fixed personal board, useless when users pick their own
+stops, which is the entire point of the recipe.
+
+Fixed by carrying the name in the stored value (`bus:<ids>@<name>`), since the
+picker already knows it. No table to maintain, and it cannot go stale. An
+explicit card title still overrides it.

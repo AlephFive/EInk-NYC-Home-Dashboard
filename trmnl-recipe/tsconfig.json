@@ -12,5 +12,7 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*.ts", "spikes/**/*.ts"]
+  // Spikes are run with `node --experimental-strip-types`, which needs the
+  // .ts extensions tsc rejects here; they are checked by running them.
+  "include": ["src/**/*.ts"]
 }
