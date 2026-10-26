@@ -1,0 +1,53 @@
+---
+# Local-only. Never uploaded — `trmnlp push` sends src/settings.yml, not this.
+
+watch:
+  - src
+  - .trmnlp.yml
+
+# The zone the board is rendered in. The Worker pins America/New_York itself,
+# because a deployed Cloudflare Worker runs in UTC and would otherwise print
+# every departure four or five hours out. This sets what `{{ trmnl.user }}`
+# reports locally so the preview matches the device.
+time_zone: America/New_York
+
+# Test values for `trmnlp serve` — the same board the dashboard shows, so the
+# preview can be compared against the real panel.
+#
+# Station values are what the picker stores, including the type prefix and, for
+# the bus corner, the "@" stop name. Pick them by hand here; in the real form
+# they come from the search dropdown.
+custom_fields:
+  card1_type: subway
+  card1_station: "subway:721"
+  card1_walk: 10
+  card1_title: ""
+
+  card2_type: subway
+  card2_station: "subway:G24"
+  card2_walk: 15
+  card2_title: ""
+
+  card3_type: bus
+  card3_station: "bus:505506@CENTER BLVD/BORDEN AV"
+  card3_walk: 3
+  card3_title: ""
+
+  card4_type: lirr
+  card4_station: "lirr:118"
+  card4_walk: 5
+  card4_title: ""
+
+  card5_type: lirr
+  card5_station: "lirr:349"
+  card5_walk: 20
+  card5_title: ""
+
+  card6_type: "off"
+  card6_station: ""
+  card6_walk: 5
+  card6_title: ""
+
+  use_24_hour: true
+  urgent_threshold: 10
+  show_leave_in: false
