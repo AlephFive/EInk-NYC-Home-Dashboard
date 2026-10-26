@@ -3,6 +3,32 @@
 The plugin as TRMNL's own dev server expects it. `trmnlp push` uploads
 `src/settings.yml` and the `.liquid` layouts; `.trmnlp.yml` is local only.
 
+## Developing with no Worker deployed
+
+`.trmnlp.yml` carries a `variables:` block holding a real `/api/board`
+response. trmnlp deep-merges it over whatever polling returns, so the markup
+renders from it when no Worker is reachable — which is the normal state while
+building the layout.
+
+This matters because **trmnlp refuses to poll a private address**: it
+simulates the hosted service, which cannot reach a localhost Worker. The
+fixture is the way round that, not a workaround for a missing deploy.
+
+```bash
+docker run --rm --volume "$(pwd):/plugin" trmnl/trmnlp build --png
+```
+
+writes `_build/full.png` at the device's own 800x480, which is what the panel
+will show. Refresh the fixture by capturing a new response:
+
+```bash
+curl "http://127.0.0.1:8787/api/board?<slots>" -o fixture.json
+```
+
+and replacing the `variables:` block. **Delete or comment out that block once
+a real polling URL is configured**, or the board keeps rendering frozen
+departures.
+
 ## Run the preview
 
 Docker Desktop must be running.
