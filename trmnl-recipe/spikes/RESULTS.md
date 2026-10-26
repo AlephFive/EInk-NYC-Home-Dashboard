@@ -388,8 +388,9 @@ panel renders all five cards with correct NY times and no console errors.
 
 # The free tier works — the step 1 spike was wrong
 
-Measured 2026-10-26 against a real deployment at
-`trmnl-nyc-transit.spo2-spire-club.workers.dev`, on the **Workers free plan**.
+Measured 2026-10-26 against a real deployment on the **Workers free plan**.
+The hostname is deliberately not recorded here: a workers.dev subdomain is
+derived from the account, and this repo is headed for public release.
 
 | Test | Result |
 |---|---|
