@@ -53,7 +53,7 @@ custom_fields:
   show_leave_in: false
 
 # ---------------------------------------------------------------------------
-# Offline fixture: a real /api/board response, captured 2026-10-26.
+# Offline fixture: a real /api/board response, captured 2026-10-26T20:34Z.
 #
 # trmnlp refuses to poll a private address - it simulates the hosted service,
 # which will not reach a localhost Worker - so these variables stand in for
@@ -63,7 +63,7 @@ custom_fields:
 # Delete this block (or comment it out) once a real polling URL is set, or the
 # board will keep rendering these frozen departures.
 variables:
-  t: "2026-10-26T20:30:01.875Z"
+  t: "2026-10-26T20:34:04.385Z"
   c:
     - s: 1
       y: "subway"
@@ -75,30 +75,26 @@ variables:
           r:
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:43"
+              - "16:47"
               - 1
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:46"
+              - "16:49"
               - 1
-            - - "7"
-              - "34 St-Hudson Yards"
-              - "16:50"
-              - 0
             - - "7"
               - "34 St-Hudson Yards"
               - "16:51"
-              - 0
+              - 1
             - - "7"
               - "34 St-Hudson Yards"
               - "16:53"
+              - 1
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "16:56"
               - 0
         - h: "Outbound"
           r:
-            - - "7X"
-              - "Flushing-Main St"
-              - "16:43"
-              - 1
             - - "7"
               - "Flushing-Main St"
               - "16:46"
@@ -110,10 +106,14 @@ variables:
             - - "7"
               - "Flushing-Main St"
               - "16:52"
-              - 0
+              - 1
             - - "7X"
               - "Flushing-Main St"
               - "16:55"
+              - 0
+            - - "7"
+              - "Flushing-Main St"
+              - "16:59"
               - 0
     - s: 2
       y: "subway"
@@ -130,7 +130,7 @@ variables:
             - - "G"
               - "Church Av"
               - "16:58"
-              - 0
+              - 1
             - - "G"
               - "Church Av"
               - "17:06"
@@ -147,12 +147,12 @@ variables:
           r:
             - - "G"
               - "Court Sq"
-              - "16:50"
+              - "16:49"
               - 1
             - - "G"
               - "Court Sq"
-              - "16:56"
-              - 0
+              - "16:55"
+              - 1
             - - "G"
               - "Court Sq"
               - "17:10"
@@ -208,14 +208,6 @@ variables:
         - h: ""
           r:
             - - "Babylon"
-              - "Babylon"
-              - "16:51"
-              - 1
-            - - "Ronkonkoma"
-              - "Ronkonkoma"
-              - "16:54"
-              - 1
-            - - "Babylon"
               - "Wantagh"
               - "17:00"
               - 1
@@ -246,4 +238,12 @@ variables:
             - - "Port Jefferson"
               - "Huntington"
               - "17:33"
+              - 0
+            - - "Far Rockaway"
+              - "Far Rockaway"
+              - "17:36"
+              - 0
+            - - "Ronkonkoma"
+              - "Ronkonkoma"
+              - "17:39"
               - 0
