@@ -7,6 +7,41 @@
 name: NYC Transit Board
 description: NYC departures you can still catch
 
+recipe_overview: >-
+  A live departure board for New York City transit, filtered by how long it
+  takes you to walk to the stop.
+
+  Pick up to six stations across subway, Long Island Rail Road, Metro-North and
+  MTA bus, and set a walk time for each. Departures you could not physically
+  reach are hidden, so every row on the panel is a train or bus you can still
+  catch if you leave now. That filter is the point: the MTA's own apps show you
+  everything, including the train pulling out as you read about it.
+
+  Stations are searched by name rather than by stop ID. Subway complexes that
+  span several platforms are offered as one choice, so picking Times Square
+  shows every line that serves it instead of silently showing one platform
+  group. Bus stops are checked against the MTA's current stop list, because
+  retired stop IDs stay in the published data and would otherwise produce a
+  card that never loads.
+
+  The board shows arrival clock times rather than a countdown. A panel refreshes
+  on an interval, so "leaves in 6 minutes" is stale the moment it is drawn,
+  while "16:42" stays true. Departures close enough that you should already be
+  leaving are outlined.
+
+  Data comes from the MTA's own realtime feeds and nothing else. There is no
+  fallback to a printed timetable: if a feed says nothing is coming, the card
+  says so rather than guessing. A station whose feed fails shows that in its own
+  card while the rest of the board keeps working.
+
+  Layouts are provided for the full screen and for half and quarter mashup
+  cells, each designed for the space it gets rather than scaled down.
+
+# Up to three, for the plugin directory.
+categories:
+  - transit
+  - productivity
+
 strategy: polling
 polling_verb: GET
 polling_url: >-

@@ -43,6 +43,8 @@ export interface CardSettings {
 /** A whole board, as one poll describes it. */
 export interface BoardSettings {
   cards: CardSettings[];
+  /** True when nothing was configured and the demo board stood in. */
+  isDemo: boolean;
   use24HourTime: boolean;
   urgentThresholdMinutes: number;
   showLeaveIn: boolean;
@@ -142,6 +144,46 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
 }
 
 /**
+ * The board a plugin shows before anyone has configured it.
+ *
+ * Two problems, one answer. A new installer would otherwise see a blank panel
+ * and have to guess that the fault is their own empty form. And the public
+ * recipe page renders a preview from whatever the author's own instance holds,
+ * which would publish the author's home stations to everyone browsing the
+ * directory.
+ *
+ * So an unconfigured board shows a demonstration instead: three well-known
+ * Manhattan stations nobody lives at, exercising all three transit types, with
+ * walk times that make the filtering visible. It is real live data — the
+ * stations exist and the feeds are current — so the preview shows what the
+ * plugin genuinely does rather than a mock-up of it.
+ */
+const DEMO_CARDS: CardSettings[] = [
+  {
+    slot: 1,
+    transitType: "subway",
+    // Times Square, all five platform groups, as the picker would supply them.
+    stopIds: ["127", "725", "902", "A27", "R16"],
+    walkTime: 5,
+    title: "Times Sq-42 St",
+  },
+  {
+    slot: 3,
+    transitType: "railroad-lirr",
+    stopIds: ["237"], // Penn Station
+    walkTime: 10,
+    title: "Penn Station",
+  },
+  {
+    slot: 5,
+    transitType: "railroad-mtn",
+    stopIds: ["1"], // Grand Central
+    walkTime: 10,
+    title: "Grand Central",
+  },
+];
+
+/**
  * Read a board out of a polling request's query string.
  *
  * Never throws: an empty or malformed request yields a board with no cards,
@@ -158,7 +200,9 @@ export function parseBoardSettings(url: URL): BoardSettings {
   }
 
   return {
-    cards,
+    // An unconfigured board demonstrates itself rather than rendering blank.
+    cards: cards.length > 0 ? cards : DEMO_CARDS,
+    isDemo: cards.length === 0,
     use24HourTime: parseBoolean(params.get("h24"), true),
     urgentThresholdMinutes: parseNumber(
       params.get("urgent") ?? undefined,

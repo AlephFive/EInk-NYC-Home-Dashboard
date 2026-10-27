@@ -75,6 +75,8 @@ export interface Board {
   /** Generation time, ISO 8601. */
   t: string;
   c: BoardCard[];
+  /** Present and true when this is the demo board, not a configured one. */
+  d?: true;
 }
 
 /** Environment the Worker supplies. */
@@ -439,5 +441,11 @@ export async function buildBoard(
     })
   );
 
-  return { t: new Date().toISOString(), c: cards.sort((a, b) => a.s - b.s) };
+  const board: Board = {
+    t: new Date().toISOString(),
+    c: cards.sort((a, b) => a.s - b.s),
+  };
+  // The panel says so, so a new installer knows these are not their stations.
+  if (settings.isDemo) board.d = true;
+  return board;
 }

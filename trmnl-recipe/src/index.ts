@@ -9,11 +9,49 @@
  */
 
 import { parseBoardSettings } from "./settings";
-import { buildBoard, type BuildEnv } from "./buildBoard";
+import {
+  buildBoard,
+  type BuildEnv,
+  type Board,
+  type BoardColumn,
+} from "./buildBoard";
 import { searchStations, parsePickerKind } from "./pickers";
 
 /** TRMNL's payload ceiling; 10KB with TRMNL+. */
 const PAYLOAD_CAP_BYTES = 5 * 1024;
+
+/** Bytes a board serialises to. */
+function payloadBytes(board: Board): number {
+  return new TextEncoder().encode(JSON.stringify(board)).length;
+}
+
+/**
+ * Drop rows until the board fits, longest column first.
+ *
+ * Keeping a safety margin under the real cap: the measurement here is of our
+ * own JSON, while TRMNL measures what it stores after merging, which is not
+ * guaranteed to be identical.
+ */
+function trimToPayloadCap(board: Board, cap: number): void {
+  const margin = cap - 256;
+  // Bounded rather than `while (true)`: a pathological board should degrade,
+  // not spin.
+  for (let pass = 0; pass < 200; pass++) {
+    if (payloadBytes(board) <= margin) return;
+
+    let longest: BoardColumn | undefined;
+    for (const card of board.c) {
+      for (const column of card.k ?? []) {
+        if (!longest || column.r.length > longest.r.length) longest = column;
+      }
+    }
+
+    // Nothing left to drop — the chrome alone exceeds the cap, which the
+    // caller can see in the reported byte count.
+    if (!longest || longest.r.length === 0) return;
+    longest.r.pop();
+  }
+}
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -143,7 +181,7 @@ export default {
     // whole design rule is that nothing blanks the board — and a Worker
     // exception renders as nothing at all, since the Liquid template never
     // runs. So the invariant is enforced here rather than trusted.
-    let board;
+    let board: Board;
     try {
       board = await buildBoard(parseBoardSettings(url), env);
     } catch (err) {
@@ -159,6 +197,17 @@ export default {
         ],
       };
     }
+
+    // Trim before serialising if the board would exceed what TRMNL stores.
+    // Raising the per-card row count so the panel can decide what fits made
+    // this reachable: six busy subway cards measured at 90% of the cap, and
+    // going over does not fail loudly — TRMNL truncates, so the panel would
+    // simply render a board missing its last cards.
+    //
+    // Rows are dropped from the end of the longest column first, so the trim
+    // costs the departures furthest in the future and every card keeps its
+    // soonest ones.
+    trimToPayloadCap(board, PAYLOAD_CAP_BYTES);
 
     const body = JSON.stringify(board);
     const bytes = new TextEncoder().encode(body).length;
