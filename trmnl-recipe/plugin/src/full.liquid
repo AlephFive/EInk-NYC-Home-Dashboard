@@ -35,6 +35,21 @@
   otherwise, doubling the row height and pushing the card over its budget. A
   one-line clamp keeps every row identical.
 
+  **A badge must not be squeezed either.** The clamp alone let a long
+  destination crush the badge — the bus card rendered a four-character "Q101"
+  as "Q1…" while fifteen-character railroad badges beside it were fine, because
+  "STEINWAY via STEINWAY ST" was taking the width.
+
+  The fix is simply to leave the badge alone: no clamp, no width. `data-clamp`
+  was what broke it — the clamp engine measures a badge the flex row has
+  already squeezed and truncates to fit that squeezed box, so a long
+  destination two elements away decided how much of "Q101" survived.
+
+  Without it the badge sizes to its own text and the destination gives way
+  instead, which is the right priority: the route is what a rider scans for.
+  A fixed width was also tried and is wrong in both directions — far too wide
+  for a one-character subway bullet, too narrow for "Port Washington".
+
   **The time must not be squeezed off the edge.** The fix was not a width
   utility but removing what was wasting the width: a railroad row repeated its
   branch name as both badge and destination, so suppressing the duplicate gave
@@ -141,21 +156,21 @@
                             of solid black rows has no emphasis left.
                           {% endcomment %}
                           <div class="flex flex--row flex--between items--center gap--small b--black bw--1">
-                            <span class="label label--small label--outline" data-clamp="1">{{ r[0] }}</span>
+                            <span class="label label--small label--outline">{{ r[0] }}</span>
                             {% if destination == blank %}
                               <span class="flex--1"></span>
                             {% else %}
-                              <span class="title title--small flex--1 overflow--hidden" data-clamp="1">{{ destination }}</span>
+                              <span class="title title--small flex--1" data-clamp="1">{{ destination }}</span>
                             {% endif %}
                             <span class="value value--xsmall">{{ r[2] }}</span>
                           </div>
                         {% else %}
                           <div class="flex flex--row flex--between items--center gap--small">
-                            <span class="label label--small label--filled" data-clamp="1">{{ r[0] }}</span>
+                            <span class="label label--small label--filled">{{ r[0] }}</span>
                             {% if destination == blank %}
                               <span class="flex--1"></span>
                             {% else %}
-                              <span class="title title--small flex--1 overflow--hidden" data-clamp="1">{{ destination }}</span>
+                              <span class="title title--small flex--1" data-clamp="1">{{ destination }}</span>
                             {% endif %}
                             <span class="value value--xsmall">{{ r[2] }}</span>
                           </div>
