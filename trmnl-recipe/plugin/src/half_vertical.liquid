@@ -1,18 +1,72 @@
 {% comment %}
-  Phase 1 ships the full layout only.
+  Half the panel, narrow and tall — 400x480 on a TRMNL OG.
 
-  A transit board is a dense list — the debug markup alone prints several
-  lines per departure — and the smaller layouts would need their own row
-  budget and their own truncation rules rather than a scaled copy of this
-  one. That is a phase 2 design decision, so these say so instead of
-  rendering a cramped board that looks broken.
+  Three columns would leave about 130px each, well under the width at which a
+  destination stops reading: the full board already clips "STEINWAY via
+  STEINWAY ST" at 257px. So this shows **one column of cards stacked**, taking
+  the slots in order and letting the Content Limiter stop wherever the height
+  runs out.
+
+  Cards keep their headings so it stays clear which station a row belongs to,
+  which matters more here than in the full board where position says it.
+
+  Each card is capped to a few rows rather than letting the limiter spend the
+  whole budget on the first one. Without the cap the top card's sixteen
+  departures fill the column and the rest of the board never appears — a
+  stacked list has to ration, not just truncate.
 {% endcomment %}
+
+{% assign device_height = trmnl.device.height | default: 480 %}
+{% assign stack_height = device_height | times: 80 | divided_by: 100 %}
 
 <div class="view">
   <div class="layout">
-    <div class="content">
-      <span class="title">NYC Transit</span>
-      <span class="description">Use the full-screen layout</span>
+    <div class="content w--full h--full"
+         data-content-limiter="true"
+         data-content-max-height="{{ stack_height }}">
+      {% for card in c %}
+        {% unless forloop.first %}
+          <div class="border--h-40 w--full"></div>
+        {% endunless %}
+
+        <div class="flex flex--row items--center gap--small">
+          {% if card.b %}
+            {% for route in card.b %}
+              <span class="label label--small label--filled">{{ route }}</span>
+            {% endfor %}
+          {% endif %}
+          <span class="title title--small flex--1" data-clamp="1">{{ card.n }}</span>
+        </div>
+
+        {% if card.e %}
+          <span class="label label--small label--outline">Unavailable</span>
+        {% else %}
+          {% assign total = 0 %}
+          {% for col in card.k %}{% assign total = total | plus: col.r.size %}{% endfor %}
+          {% if total == 0 %}
+            <span class="description">No upcoming departures</span>
+          {% else %}
+            {% assign shown = 0 %}
+            {% for col in card.k %}
+              {% for r in col.r %}
+                {% if shown >= 4 %}{% break %}{% endif %}
+                {% assign shown = shown | plus: 1 %}
+                {% if r[1] == r[0] %}{% assign destination = "" %}{% else %}{% assign destination = r[1] %}{% endif %}
+                <div class="flex flex--row flex--between items--center gap--small">
+                  <span class="label label--small label--filled">{{ r[0] }}</span>
+                  {% if destination == blank %}
+                    <span class="flex--1"></span>
+                  {% else %}
+                    <span class="title title--small flex--1" data-clamp="1">{{ destination }}</span>
+                  {% endif %}
+                  <span class="value value--xsmall">{{ r[2] }}</span>
+                </div>
+              {% endfor %}
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
     </div>
   </div>
+  <div class="title_bar"><span class="title">NYC Transit</span></div>
 </div>
