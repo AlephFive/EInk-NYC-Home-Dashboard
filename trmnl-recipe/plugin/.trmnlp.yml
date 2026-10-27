@@ -53,17 +53,15 @@ custom_fields:
   show_leave_in: false
 
 # ---------------------------------------------------------------------------
-# Offline fixture: a real /api/board response, captured 2026-10-26T20:34Z.
+# Offline fixture: a real /api/board response.
 #
-# trmnlp refuses to poll a private address - it simulates the hosted service,
-# which will not reach a localhost Worker - so these variables stand in for
-# the fetch. They are deep-merged over whatever polling returns, which lets
-# the markup be developed and linted with no Worker deployed at all.
+# trmnlp refuses to poll a private address, so these stand in for the fetch
+# while the layout is built. Deep-merged over whatever polling returns.
 #
-# Delete this block (or comment it out) once a real polling URL is set, or the
-# board will keep rendering these frozen departures.
+# Delete this block once a real polling URL is set, or the board keeps
+# rendering these frozen departures.
 variables:
-  t: "2026-10-26T20:34:04.385Z"
+  t: "2026-10-27T00:24:42.058Z"
   c:
     - s: 1
       y: "subway"
@@ -75,45 +73,89 @@ variables:
           r:
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:47"
+              - "20:38"
               - 1
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:49"
+              - "20:41"
               - 1
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:51"
+              - "20:43"
               - 1
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:53"
-              - 1
+              - "20:46"
+              - 0
             - - "7"
               - "34 St-Hudson Yards"
-              - "16:56"
+              - "20:51"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "20:55"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "20:58"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "21:02"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "21:05"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "21:09"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "21:13"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "21:17"
+              - 0
+            - - "7"
+              - "34 St-Hudson Yards"
+              - "21:21"
               - 0
         - h: "Outbound"
           r:
             - - "7"
               - "Flushing-Main St"
-              - "16:46"
+              - "20:38"
               - 1
             - - "7X"
               - "Flushing-Main St"
-              - "16:49"
+              - "20:42"
               - 1
             - - "7"
               - "Flushing-Main St"
-              - "16:52"
-              - 1
+              - "20:46"
+              - 0
             - - "7X"
               - "Flushing-Main St"
-              - "16:55"
+              - "20:50"
               - 0
             - - "7"
               - "Flushing-Main St"
-              - "16:59"
+              - "20:54"
+              - 0
+            - - "7X"
+              - "Flushing-Main St"
+              - "20:58"
+              - 0
+            - - "7"
+              - "Flushing-Main St"
+              - "21:02"
+              - 0
+            - - "7X"
+              - "Flushing-Main St"
+              - "21:06"
               - 0
     - s: 2
       y: "subway"
@@ -125,45 +167,65 @@ variables:
           r:
             - - "G"
               - "Church Av"
-              - "16:50"
+              - "20:46"
               - 1
             - - "G"
               - "Church Av"
-              - "16:58"
-              - 1
-            - - "G"
-              - "Church Av"
-              - "17:06"
+              - "20:55"
               - 0
             - - "G"
               - "Church Av"
-              - "17:13"
+              - "21:03"
               - 0
             - - "G"
               - "Church Av"
-              - "17:25"
+              - "21:11"
+              - 0
+            - - "G"
+              - "Church Av"
+              - "21:18"
               - 0
         - h: "Court Square"
           r:
             - - "G"
               - "Court Sq"
-              - "16:49"
+              - "20:41"
               - 1
             - - "G"
               - "Court Sq"
-              - "16:55"
+              - "20:49"
               - 1
             - - "G"
               - "Court Sq"
-              - "17:10"
+              - "20:56"
               - 0
             - - "G"
               - "Court Sq"
-              - "17:22"
+              - "21:03"
               - 0
             - - "G"
               - "Court Sq"
-              - "17:30"
+              - "21:11"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "21:18"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "21:26"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "21:34"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "21:43"
+              - 0
+            - - "G"
+              - "Court Sq"
+              - "21:54"
               - 0
     - s: 3
       y: "bus"
@@ -173,19 +235,11 @@ variables:
           r:
             - - "Q101"
               - "STEINWAY via STEINWAY ST"
-              - "16:41"
-              - 1
-            - - "Q101"
-              - "STEINWAY via STEINWAY ST"
-              - "16:56"
+              - "20:41"
               - 0
             - - "Q101"
               - "STEINWAY via STEINWAY ST"
-              - "17:11"
-              - 0
-            - - "Q103"
-              - "ASTORIA"
-              - "17:11"
+              - "21:01"
               - 0
     - s: 4
       y: "railroad-lirr"
@@ -193,57 +247,42 @@ variables:
       k:
         - h: ""
           r:
-            - - "Port Jefferson"
-              - "Port Jefferson"
-              - "16:58"
-              - 0
-            - - "Port Jefferson"
-              - "Port Jefferson"
-              - "17:43"
-              - 0
+
     - s: 5
       y: "railroad-lirr"
       n: "Grand Central"
       k:
         - h: ""
           r:
-            - - "Babylon"
-              - "Wantagh"
-              - "17:00"
-              - 1
-            - - "Port Jefferson"
-              - "Huntington"
-              - "17:06"
-              - 0
-            - - "Far Rockaway"
-              - "Far Rockaway"
-              - "17:12"
-              - 0
-            - - "Long Beach"
-              - "Long Beach"
-              - "17:18"
-              - 0
-            - - "Port Washington"
-              - "Port Washington"
-              - "17:21"
+            - - "West Hempstead"
+              - "West Hempstead"
+              - "20:56"
               - 0
             - - "Babylon"
               - "Babylon"
-              - "17:25"
-              - 0
-            - - "Babylon"
-              - "Seaford"
-              - "17:30"
-              - 0
-            - - "Port Jefferson"
-              - "Huntington"
-              - "17:33"
+              - "21:12"
               - 0
             - - "Far Rockaway"
               - "Far Rockaway"
-              - "17:36"
+              - "21:24"
               - 0
-            - - "Ronkonkoma"
-              - "Ronkonkoma"
-              - "17:39"
+            - - "Hempstead"
+              - "Hempstead"
+              - "21:46"
+              - 0
+            - - "Port Washington"
+              - "Port Washington"
+              - "21:49"
+              - 0
+            - - "Babylon"
+              - "Babylon"
+              - "22:07"
+              - 0
+            - - "Far Rockaway"
+              - "Far Rockaway"
+              - "22:28"
+              - 0
+            - - "Hempstead"
+              - "Hempstead"
+              - "22:54"
               - 0

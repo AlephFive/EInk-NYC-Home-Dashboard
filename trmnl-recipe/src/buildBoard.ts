@@ -126,13 +126,18 @@ const toBoardRow = (row: DepartureRowData): BoardRow => [
 /**
  * How many rows a card gets.
  *
- * Deliberately a flat constant for now rather than the dashboard's
- * height-derived `cardCapacity.ts`: the TRMNL design framework measures
- * rendered height at runtime, so the final number is a phase 2 decision (see
- * the spec's §3.2). This value matches what a card sharing a column fits
- * today, so the payload measured in phase 1 stays representative.
+ * Deliberately generous, and deliberately *not* derived from card height the
+ * way the dashboard's `cardCapacity.ts` is. The TRMNL framework's Content
+ * Limiter measures the rendered height in the browser and trims what does not
+ * fit, so the panel decides — which means the backend does not have to know
+ * the layout at all, and a card that gets more room (alone in its column, or
+ * on a larger device) fills it without a round trip.
+ *
+ * Measured: a full-height column fits ~15 rows at 800x480, a split one ~7.
+ * Sending 16 covers the largest case with a little slack, and the payload
+ * stays well inside TRMNL's 5KB cap.
  */
-const ROWS_PER_COLUMN = 5;
+const ROWS_PER_COLUMN = 16;
 
 /**
  * Whether ferry cards may render.

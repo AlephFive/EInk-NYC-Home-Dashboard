@@ -1,51 +1,195 @@
 {% comment %}
-  Phase 1 debug markup — text only, deliberately.
+  The board: three columns, each holding one or two cards.
 
-  This renders every field the endpoint sends, as plain lines, so an
-  end-to-end test has nothing to debug but the data: if a station is wrong,
-  a walk time is ignored, or a card fails, it is visible here without CSS
-  between you and it.
+  Slots map to the grid in fixed positions — 1/2 left, 3/4 middle, 5/6 right —
+  so a station stays where the user put it. A column with one active slot gives
+  that card the full height; with two, they split it with a rule between.
 
-  The real UI is phase 2 and will be built on the TRMNL design framework
-  (screen / view / layout / columns, with Item rows). See the spec's §3.2 —
-  the framework measures content height at runtime, which changes how many
-  rows a card should carry, so there is no point styling this first.
+  Rows are trimmed by the framework's Content Limiter rather than by the
+  backend: `data-content-limiter` on a `.content` element measures the rendered
+  height in the browser and drops what does not fit. The backend therefore
+  sends more rows than any card can show (16) and the panel decides, so a card
+  alone in its column fills the space without the server knowing the layout.
+  The explicit `data-content-max-height` is what makes the cut land between
+  rows instead of through one.
 
-  Row tuples are [badge, destination, time, urgent].
+  Row shape, matching the dashboard it replaces:
+    [badge] [destination, clipped] [time, right-aligned]
+
+  Rows are data tuples, not objects, to stay inside TRMNL's 5KB payload cap:
+    r[0] badge   r[1] destination   r[2] time   r[3] 1 when urgent
+{% endcomment %}
+
+{% comment %}
+  Heights the Content Limiter trims to. Measured against the rendered panel
+  rather than derived: the limiter needs a pixel budget, and these are what
+  leave a clean cut above the title bar at 800x480.
+{% endcomment %}
+{% assign full_height = 370 %}
+{% assign split_height = 160 %}
+
+{% comment %}
+  Two things the first renders exposed.
+
+  **A badge must not wrap.** A railroad branch name runs onto a second line
+  otherwise, doubling the row height and pushing the card over its budget. A
+  one-line clamp keeps every row identical.
+
+  **The time must not be squeezed off the edge.** The fix was not a width
+  utility but removing what was wasting the width: a railroad row repeated its
+  branch name as both badge and destination, so suppressing the duplicate gave
+  the time room. See the destination logic below.
 {% endcomment %}
 
 <div class="view">
   <div class="layout">
-    <pre style="font-size:12px; line-height:1.35; white-space:pre-wrap;">
-generated {{ t }}
-cards: {{ c | size }}
-{% for card in c %}
---------------------------------------------------
-slot {{ card.s }}  {{ card.y }}  "{{ card.n }}"
-{%- if card.b %}  bullets: {{ card.b | join: "," }}{% endif %}
-{%- if card.e %}
-  !! ERROR: {{ card.e }}
-{%- else %}
-{%- for col in card.k %}
-  [{{ col.h | default: "(no heading)" }}]  {{ col.r | size }} rows
-{%- for r in col.r %}
-    {{ r[0] }} | {{ r[1] }} | {{ r[2] }}{% if r[3] == 1 %} *URGENT{% endif %}
-{%- endfor %}
-{%- if col.r == empty %}
-    (no upcoming departures)
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-{% endfor %}
---------------------------------------------------
-{% if c == empty %}
-No cards configured. Set at least one card's transit type and station.
-{% endif %}
-    </pre>
+    <div class="grid grid--cols-3 h--full">
+
+      {% comment %}
+        Left column takes slots 1 and 2, middle 3 and 4, right 5 and 6.
+
+        Compared as numbers rather than by splitting a string: the backend
+        sends `s` as a number, and a split string yields strings, so `1 == "1"`
+        is false in Liquid and the whole board renders blank.
+      {% endcomment %}
+      {% for column_index in (0..2) %}
+        {% assign top_slot = column_index | times: 2 | plus: 1 %}
+        {% assign bottom_slot = top_slot | plus: 1 %}
+
+        {% comment %}
+          How many of this column's two slots the user configured. A slot left
+          Off never reaches the board, so a column may hold two cards, one, or
+          none — and a lone card takes the column's whole height.
+        {% endcomment %}
+        {% assign card_count = 0 %}
+        {% for card in c %}
+          {% if card.s == top_slot or card.s == bottom_slot %}
+            {% assign card_count = card_count | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+
+        <div class="col col--start gap--small">
+          {% for card in c %}
+            {% if card.s == top_slot or card.s == bottom_slot %}
+
+                {% comment %} A rule between two cards sharing a column. {% endcomment %}
+                {% if card.s == bottom_slot and card_count > 1 %}
+                  <div class="border--h-black w--full"></div>
+                {% endif %}
+
+                {% comment %}
+                  Card heading. Subway cards carry route bullets; the others
+                  are named by their station alone.
+                {% endcomment %}
+                <div class="flex flex--row items--center gap--small">
+                  {% if card.b %}
+                    {% for route in card.b %}
+                      <span class="label label--small label--filled">{{ route }}</span>
+                    {% endfor %}
+                  {% endif %}
+                  <span class="title title--small flex--1" data-clamp="1">{{ card.n }}</span>
+                </div>
+                <div class="border--h-40 w--full"></div>
+
+                {% if card.e %}
+                  {% comment %}
+                    A failed fetch, reported in place. Distinct from a card
+                    with nothing due — that is a fact about the service, not a
+                    fault, and says so below instead.
+                  {% endcomment %}
+                  <span class="label label--small label--outline">Unavailable</span>
+                  <span class="description" data-clamp="2">{{ card.e }}</span>
+
+                {% else %}
+                  {% if card_count == 1 %}
+                    {% assign card_height = full_height %}
+                  {% else %}
+                    {% assign card_height = split_height %}
+                  {% endif %}
+
+                  <div class="content w--full"
+                       data-content-limiter="true"
+                       data-content-max-height="{{ card_height }}">
+
+                    {% for col in card.k %}
+                      {% comment %}
+                        Direction headings, where a card has them: subway
+                        cards show two, bus and railroad one unnamed list.
+                      {% endcomment %}
+                      {% if col.h != "" %}
+                        <span class="label label--small label--underline">{{ col.h }}</span>
+                      {% endif %}
+
+                      {% for r in col.r %}
+                        {% comment %}
+                          Suppress a destination that merely repeats its badge.
+                          A branch's trains usually end at the branch's own
+                          namesake, so "Hempstead | Hempstead" is the common
+                          case at a railroad terminal — it costs the width the
+                          time needs and tells the rider nothing.
+                        {% endcomment %}
+                        {% if r[1] == r[0] %}
+                          {% assign destination = "" %}
+                        {% else %}
+                          {% assign destination = r[1] %}
+                        {% endif %}
+                        {% if r[3] == 1 %}
+                          {% comment %}
+                            Urgent: departures you must leave for now. Outlined
+                            rather than inverted — at a ten-minute threshold
+                            with a typical walk most rows qualify, and a panel
+                            of solid black rows has no emphasis left.
+                          {% endcomment %}
+                          <div class="flex flex--row flex--between items--center gap--small b--black bw--1">
+                            <span class="label label--small label--outline" data-clamp="1">{{ r[0] }}</span>
+                            {% if destination == blank %}
+                              <span class="flex--1"></span>
+                            {% else %}
+                              <span class="title title--small flex--1 overflow--hidden" data-clamp="1">{{ destination }}</span>
+                            {% endif %}
+                            <span class="value value--xsmall">{{ r[2] }}</span>
+                          </div>
+                        {% else %}
+                          <div class="flex flex--row flex--between items--center gap--small">
+                            <span class="label label--small label--filled" data-clamp="1">{{ r[0] }}</span>
+                            {% if destination == blank %}
+                              <span class="flex--1"></span>
+                            {% else %}
+                              <span class="title title--small flex--1 overflow--hidden" data-clamp="1">{{ destination }}</span>
+                            {% endif %}
+                            <span class="value value--xsmall">{{ r[2] }}</span>
+                          </div>
+                        {% endif %}
+                      {% endfor %}
+
+                      {% assign row_count = col.r | size %}
+                      {% if row_count == 0 %}
+                        {% comment %}
+                          Empty is not an error: the feed answered and had
+                          nothing due. Saying so is the whole point — the app
+                          does not guess whether service ended, the stop is
+                          peak-only, or everything is inside the walk time.
+                        {% endcomment %}
+                        <span class="description">No upcoming departures</span>
+                      {% endif %}
+                    {% endfor %}
+
+                  </div>
+                {% endif %}
+
+            {% endif %}
+          {% endfor %}
+        </div>
+
+      {% endfor %}
+
+    </div>
   </div>
 
   <div class="title_bar">
     <span class="title">NYC Transit</span>
-    <span class="instance">debug build</span>
+    {% if c == empty %}
+      <span class="instance">No cards configured</span>
+    {% endif %}
   </div>
 </div>
