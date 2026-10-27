@@ -119,6 +119,11 @@ route badge, and a column split into two headed blocks.
 
 ![Layout probe](images/phase2-layout-probe.png)
 
+And the limiter spike, showing a split column dividing cleanly beside two
+full-height ones, with outlined urgent rows in the third:
+
+![Limiter spike](images/phase2-limiter-spike.png)
+
 Three things that had to be found by rendering rather than reading:
 
 - **`col--start`** — a `.col` centres its content vertically by default, which
@@ -131,20 +136,41 @@ Three things that had to be found by rendering rather than reading:
 
 ## 4. Open questions, to settle by rendering
 
-**1. How does an urgent row read?** The dashboard inverts the whole row to
-solid black, which is the only emphasis a 1-bit panel really has.
-`item--emphasis-2/3` darkens a meta bar instead, which is subtler. Needs
-rendering side by side before choosing — and note the spec's standing concern
-that with a 10-minute threshold and typical walk times, *most* rows invert, so
-nothing stands out. Phase 2 is the moment to fix that, not preserve it.
+**1. ~~How does an urgent row read?~~ Settled for now: outlined.**
 
-**2. How many rows fit?** `cardCapacity.ts` computes this from fixed geometry
-because the dashboard renders once with no second pass. **The framework's
-Content Limiter measures at runtime** (`data-content-limiter`,
-`data-content-max-height`) and hides what does not fit. If that works, the
-capacity module stops being needed for the recipe — and the backend can send a
-generous number and let the panel decide. That is a real simplification, and
-it is the single biggest unknown.
+Four treatments rendered side by side — `label--outline` on the badge alone,
+a `b--black bw--1` box around the whole row, full inversion
+(`bg--black text--white`), and a trailing rule. All work on 1-bit.
+
+**Taking the outlined row as a placeholder**, per instruction. It is clearly
+distinguishable without the heaviness of inversion, which matters given the
+standing concern that at a 10-minute threshold with typical walk times *most*
+rows qualify — and a panel where most rows are solid black has no emphasis at
+all. Worth revisiting alongside a threshold relative to `walkTime`.
+
+**2. ~~How many rows fit?~~ Answered — the Content Limiter works.**
+
+Fed 24 rows into each column and let the panel decide:
+
+| Setup | Result |
+|---|---|
+| `data-content-limiter` with no height | ~15 rows, but leaves a clipped fragment |
+| `data-content-limiter` + `data-content-max-height="170"` | **clean cut at 7 rows** |
+| plain `overflow--hidden` | clips mid-row, unusable |
+
+Two requirements the docs make easy to miss, both found by rendering:
+
+- **The attribute must sit on an element with the `.content` class.** On a
+  bare `div` it does nothing at all — the first spike looked like the feature
+  was broken.
+- **An explicit `data-content-max-height` is what makes the cut clean.**
+  Without it the limiter still trims, but leaves a half-row fragment at the
+  bottom.
+
+**So `cardCapacity.ts` is not needed by the recipe.** The backend sends a
+generous fixed number and the panel decides what fits — which also means the
+row count stops depending on the backend knowing the layout. A split column
+takes `max-height` at roughly half a full one; both render cleanly.
 
 **3. Does "and X more" belong here?** The Content Limiter can append it.
 Hiding a train behind a counter is arguably worse than showing fewer rows
@@ -164,9 +190,9 @@ landscape and portrait. The grid should adapt, but "should" is not "does".
 
 ## 5. Order of work
 
-1. **Content Limiter spike.** Answers Q2, which decides whether the backend's
-   row count matters at all. Do it first for the same reason the CPU spike
-   went first in phase 1.
+1. ~~**Content Limiter spike.**~~ Done — see Q2. The limiter works with
+   `.content` plus an explicit max-height, so the backend can stop computing
+   row counts.
 2. **One card, rendered.** A single subway card with real data, compared
    against the dashboard's own render side by side.
 3. **The grid.** Three columns, splits where the slot config says.
