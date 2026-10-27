@@ -1,3 +1,36 @@
+<style>
+  /* MTA route bullets: a circle for local service, a diamond for express.
+     The feed names an express variant by suffixing X - 6X and 7X are the
+     ones that run today - so the X is a shape, not part of the route name,
+     and is stripped before display.
+
+     Framework labels are pills, and it has no circle or diamond utility, so
+     the two shapes are defined here. Sizes are in em so they follow whatever
+     element size the label is given at each breakpoint; this block sets no
+     font-size of its own. */
+  .bullet {
+    width: 1.7em;
+    height: 1.7em;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .bullet--express {
+    border-radius: 0;
+    /* A rotated square's bounding box grows by root 2, so a diamond would sit
+       29px wide beside a 20px circle and push its row out of line. Scaling by
+       1/root 2 keeps the two occupying the same space. */
+    transform: rotate(45deg) scale(0.707);
+  }
+  /* Counter-rotate the glyph so the number stays upright in the diamond. */
+  .bullet--express > span {
+    display: block;
+    /* Undo both, so the glyph stays upright and full size in the diamond. */
+    transform: rotate(-45deg) scale(1.414);
+  }
+</style>
+
 {% comment %}
   The board: three columns, each holding one or two cards.
 
@@ -78,6 +111,10 @@
   overrides it.
 {% endcomment %}
 
+{% comment %}
+  Split a route id into the character shown and the shape that shows it.
+  "7X" is the 7 running express, drawn as a diamond; "7" is a circle.
+{% endcomment %}
 <div class="view">
   <div class="layout">
     <div class="grid grid--cols-3 h--full">
@@ -132,7 +169,16 @@
                   <span class="title title--small md:title--base lg:title--large flex--1" data-clamp="1">{{ card.n }}</span>
                   {% if card.b %}
                     {% for route in card.b limit: 4 %}
-                      <span class="label label--small md:label--base label--filled">{{ route }}</span>
+                      {% assign is_express = false %}
+                      {% assign glyph = route %}
+                      {% if route.size > 1 and route contains "X" %}
+                        {% assign stripped = route | remove_last: "X" %}
+                        {% if stripped != "" %}
+                          {% assign is_express = true %}
+                          {% assign glyph = stripped %}
+                        {% endif %}
+                      {% endif %}
+                      <span class="label label--small md:label--base label--filled bullet{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
                     {% endfor %}
                   {% endif %}
                 </div>
@@ -214,6 +260,30 @@
                           beside "New Haven-State St" becomes "State St" —
                           which also stops the badge wrapping onto two lines.
                         {% endcomment %}
+                        {% comment %}
+                          A subway route is a single character, so it gets a
+                          bullet — circle for local, diamond for express, with
+                          the feed's X suffix stripped since the shape carries
+                          it. A bus route or railroad branch is a name and
+                          stays a pill: "Babylon" in a circle is unreadable.
+                        {% endcomment %}
+                        {% assign is_express = false %}
+                        {% assign glyph = r[0] %}
+                        {% if r[0].size > 1 and r[0] contains "X" %}
+                          {% assign stripped = r[0] | remove_last: "X" %}
+                          {% if stripped.size == 1 %}
+                            {% assign is_express = true %}
+                            {% assign glyph = stripped %}
+                          {% endif %}
+                        {% endif %}
+                        {% if glyph.size == 1 %}
+                          {% assign bullet_class = "bullet" %}
+                          {% if is_express %}
+                            {% assign bullet_class = "bullet bullet--express" %}
+                          {% endif %}
+                        {% else %}
+                          {% assign bullet_class = "" %}
+                        {% endif %}
                         {% assign destination = r[1] %}
                         {% if destination == r[0] %}
                           {% assign destination = "" %}
@@ -232,7 +302,7 @@
                           {% endcomment %}
                           <div class="b--black bw--1 w--full">
                             <div class="flex flex--row flex--between items--center gap--small w--full">
-                              <span class="label label--small md:label--base label--outline">{{ r[0] }}</span>
+                              <span class="label label--small md:label--base label--outline {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                               <span class="title title--small md:title--base">{{ r[2] }}</span>
                             </div>
                             {% if destination != blank %}
@@ -242,7 +312,7 @@
                         {% else %}
                           <div class="w--full">
                             <div class="flex flex--row flex--between items--center gap--small w--full">
-                              <span class="label label--small md:label--base label--filled">{{ r[0] }}</span>
+                              <span class="label label--small md:label--base label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                               <span class="title title--small md:title--base">{{ r[2] }}</span>
                             </div>
                             {% if destination != blank %}

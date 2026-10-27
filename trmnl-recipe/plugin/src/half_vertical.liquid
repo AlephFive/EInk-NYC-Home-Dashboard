@@ -1,3 +1,36 @@
+<style>
+  /* MTA route bullets: a circle for local service, a diamond for express.
+     The feed names an express variant by suffixing X - 6X and 7X are the
+     ones that run today - so the X is a shape, not part of the route name,
+     and is stripped before display.
+
+     Framework labels are pills, and it has no circle or diamond utility, so
+     the two shapes are defined here. Sizes are in em so they follow whatever
+     element size the label is given at each breakpoint; this block sets no
+     font-size of its own. */
+  .bullet {
+    width: 1.7em;
+    height: 1.7em;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .bullet--express {
+    border-radius: 0;
+    /* A rotated square's bounding box grows by root 2, so a diamond would sit
+       29px wide beside a 20px circle and push its row out of line. Scaling by
+       1/root 2 keeps the two occupying the same space. */
+    transform: rotate(45deg) scale(0.707);
+  }
+  /* Counter-rotate the glyph so the number stays upright in the diamond. */
+  .bullet--express > span {
+    display: block;
+    /* Undo both, so the glyph stays upright and full size in the diamond. */
+    transform: rotate(-45deg) scale(1.414);
+  }
+</style>
+
 {% comment %}
   Half the panel, narrow and tall — 400x480 on a TRMNL OG.
 
@@ -51,9 +84,24 @@
               {% for r in col.r %}
                 {% if shown >= 4 %}{% break %}{% endif %}
                 {% assign shown = shown | plus: 1 %}
+                      {% assign is_express = false %}
+                      {% assign glyph = r[0] %}
+                      {% if r[0].size > 1 and r[0] contains "X" %}
+                        {% assign stripped = r[0] | remove_last: "X" %}
+                        {% if stripped.size == 1 %}
+                          {% assign is_express = true %}
+                          {% assign glyph = stripped %}
+                        {% endif %}
+                      {% endif %}
+                      {% if glyph.size == 1 %}
+                        {% assign bullet_class = "bullet" %}
+                        {% if is_express %}{% assign bullet_class = "bullet bullet--express" %}{% endif %}
+                      {% else %}
+                        {% assign bullet_class = "" %}
+                      {% endif %}
                 {% if r[1] == r[0] %}{% assign destination = "" %}{% else %}{% assign destination = r[1] %}{% endif %}
                 <div class="flex flex--row flex--between items--center gap--small">
-                  <span class="label label--small label--filled">{{ r[0] }}</span>
+                  <span class="label label--small label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                   {% if destination == blank %}
                     <span class="flex--1"></span>
                   {% else %}
