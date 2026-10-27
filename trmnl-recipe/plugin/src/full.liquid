@@ -21,12 +21,22 @@
 {% endcomment %}
 
 {% comment %}
-  Heights the Content Limiter trims to. Measured against the rendered panel
-  rather than derived: the limiter needs a pixel budget, and these are what
-  leave a clean cut above the title bar at 800x480.
+  Heights the Content Limiter trims to, measured against the rendered panel.
+
+  Scaled by device: a TRMNL X is 1404px tall against the OG's 480, so a budget
+  tuned for one leaves most of the other empty. `trmnl.device.height` is what
+  the platform reports, so the budget follows the hardware rather than being
+  guessed per model.
+
+  The ratios come from the OG measurement — 374 of 480 usable for a full card,
+  163 for one sharing a column — applied to whatever height the device has.
+  A percentage point either way decides whether the last row lands whole or
+  leaves a fragment, so these were tuned against the render rather than
+  reasoned about.
 {% endcomment %}
-{% assign full_height = 370 %}
-{% assign split_height = 160 %}
+{% assign device_height = trmnl.device.height | default: 480 %}
+{% assign full_height = device_height | times: 78 | divided_by: 100 %}
+{% assign split_height = device_height | times: 34 | divided_by: 100 %}
 
 {% comment %}
   Two things the first renders exposed.
@@ -99,10 +109,10 @@
                 <div class="flex flex--row items--center gap--small">
                   {% if card.b %}
                     {% for route in card.b %}
-                      <span class="label label--small label--filled">{{ route }}</span>
+                      <span class="label label--small md:label--base label--filled">{{ route }}</span>
                     {% endfor %}
                   {% endif %}
-                  <span class="title title--small flex--1" data-clamp="1">{{ card.n }}</span>
+                  <span class="title title--small md:title--base lg:title--large flex--1" data-clamp="1">{{ card.n }}</span>
                 </div>
                 <div class="border--h-40 w--full"></div>
 
@@ -132,7 +142,7 @@
                         cards show two, bus and railroad one unnamed list.
                       {% endcomment %}
                       {% if col.h != "" %}
-                        <span class="label label--small label--underline">{{ col.h }}</span>
+                        <span class="label label--small md:label--base label--underline">{{ col.h }}</span>
                       {% endif %}
 
                       {% for r in col.r %}
@@ -156,23 +166,23 @@
                             of solid black rows has no emphasis left.
                           {% endcomment %}
                           <div class="flex flex--row flex--between items--center gap--small b--black bw--1">
-                            <span class="label label--small label--outline">{{ r[0] }}</span>
+                            <span class="label label--small md:label--base label--outline">{{ r[0] }}</span>
                             {% if destination == blank %}
                               <span class="flex--1"></span>
                             {% else %}
-                              <span class="title title--small flex--1" data-clamp="1">{{ destination }}</span>
+                              <span class="title title--small md:title--base flex--1" data-clamp="1">{{ destination }}</span>
                             {% endif %}
-                            <span class="value value--xsmall">{{ r[2] }}</span>
+                            <span class="value value--xsmall md:value--small lg:value--base">{{ r[2] }}</span>
                           </div>
                         {% else %}
                           <div class="flex flex--row flex--between items--center gap--small">
-                            <span class="label label--small label--filled">{{ r[0] }}</span>
+                            <span class="label label--small md:label--base label--filled">{{ r[0] }}</span>
                             {% if destination == blank %}
                               <span class="flex--1"></span>
                             {% else %}
-                              <span class="title title--small flex--1" data-clamp="1">{{ destination }}</span>
+                              <span class="title title--small md:title--base flex--1" data-clamp="1">{{ destination }}</span>
                             {% endif %}
-                            <span class="value value--xsmall">{{ r[2] }}</span>
+                            <span class="value value--xsmall md:value--small lg:value--base">{{ r[2] }}</span>
                           </div>
                         {% endif %}
                       {% endfor %}
