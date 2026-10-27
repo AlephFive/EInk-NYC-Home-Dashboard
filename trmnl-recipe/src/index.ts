@@ -26,14 +26,25 @@ function payloadBytes(board: Board): number {
 }
 
 /**
- * Drop rows until the board fits, longest column first.
+ * How much headroom to leave under TRMNL's cap.
  *
- * Keeping a safety margin under the real cap: the measurement here is of our
- * own JSON, while TRMNL measures what it stores after merging, which is not
- * guaranteed to be identical.
+ * What is measured here is our own JSON; what TRMNL enforces is the size of
+ * the merge variables it stores after merging, and the two are not guaranteed
+ * to be byte-identical. Overrun does not fail loudly — the board is silently
+ * truncated and the panel quietly loses its last cards — so the margin is
+ * sized for that asymmetry rather than for efficiency.
+ *
+ * 10% of the cap. A stress board of six multi-line complexes landed at 94.7%
+ * with a 5% margin, which is too close to depend on when the penalty is a
+ * board that looks broken for reasons the user cannot see.
+ */
+const PAYLOAD_MARGIN_RATIO = 0.1;
+
+/**
+ * Drop rows until the board fits, longest column first.
  */
 function trimToPayloadCap(board: Board, cap: number): void {
-  const margin = cap - 256;
+  const margin = cap - Math.ceil(cap * PAYLOAD_MARGIN_RATIO);
   // Bounded rather than `while (true)`: a pathological board should degrade,
   // not spin.
   for (let pass = 0; pass < 200; pass++) {

@@ -65,5 +65,11 @@
       {% endfor %}
     </div>
   </div>
-  <div class="title_bar"><span class="title">NYC Transit</span></div>
+  <div class="title_bar">
+    <span class="title">NYC Transit</span>
+    {% if d %}
+      {% comment %} Demo board; see the full layout for why this matters. {% endcomment %}
+      <span class="instance">Example</span>
+    {% endif %}
+  </div>
 </div>

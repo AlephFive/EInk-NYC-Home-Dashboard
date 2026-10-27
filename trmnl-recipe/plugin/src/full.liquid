@@ -35,7 +35,7 @@
   reasoned about.
 {% endcomment %}
 {% assign device_height = trmnl.device.height | default: 480 %}
-{% assign full_height = device_height | times: 78 | divided_by: 100 %}
+{% assign full_height = device_height | times: 72 | divided_by: 100 %}
 {% assign split_height = device_height | times: 34 | divided_by: 100 %}
 
 {% comment %}
@@ -163,10 +163,22 @@
                           case at a railroad terminal — it costs the width the
                           time needs and tells the rider nothing.
                         {% endcomment %}
-                        {% if r[1] == r[0] %}
+                        {% comment %}
+                          Suppress a destination that repeats its badge, and
+                          shorten one that merely extends it — a "New Haven"
+                          badge beside "New Haven-State St" says the branch
+                          twice, and the extra length squeezes the badge into
+                          wrapping, which makes that one row taller than its
+                          neighbours.
+                        {% endcomment %}
+                        {% assign destination = r[1] %}
+                        {% if destination == r[0] %}
                           {% assign destination = "" %}
                         {% else %}
-                          {% assign destination = r[1] %}
+                          {% assign badge_prefix = r[0] | append: "-" %}
+                          {% if destination contains badge_prefix %}
+                            {% assign destination = destination | remove_first: badge_prefix %}
+                          {% endif %}
                         {% endif %}
                         {% if r[3] == 1 %}
                           {% comment %}
@@ -223,8 +235,14 @@
 
   <div class="title_bar">
     <span class="title">NYC Transit</span>
-    {% if c == empty %}
-      <span class="instance">No cards configured</span>
+    {% if d %}
+      {% comment %}
+        The backend substitutes a demo board when nothing is configured, so
+        the panel must say whose stations these are. Without it a new
+        installer sees Times Square and reasonably assumes their own form
+        took effect.
+      {% endcomment %}
+      <span class="instance">Example - choose your stations in settings</span>
     {% endif %}
   </div>
 </div>
