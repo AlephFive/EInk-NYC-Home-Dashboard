@@ -60,6 +60,12 @@
   A fixed width was also tried and is wrong in both directions — far too wide
   for a one-character subway bullet, too narrow for "Port Washington".
 
+  **A row is two lines, not one.** Badge and time share the first; the
+  destination takes the second, with the whole column width. Side by side,
+  two direction columns are about 123px, and badge plus time plus gaps leave
+  43px — six characters, against destinations like "Coney Island-Stillwell
+  Av". One line per row simply cannot carry all three at this width.
+
   **The time is set at `title--small`, not `value--*`.** The smallest value
   size is 20px and took about 55px of a 90px direction column — well over half
   the width for a clock. At 16px it matches the destination beside it and
@@ -175,54 +181,41 @@
                       time are what a rider actually needs.
                     {% endcomment %}
                     {% for col in card.k %}
-                    {% assign distinct = "" %}
-                    {% for r in col.r %}
-                      {% unless distinct contains r[1] %}
-                        {% assign distinct = distinct | append: r[1] | append: "|" %}
-                      {% endunless %}
-                    {% endfor %}
-                    {% assign distinct_count = distinct | split: "|" | size %}
-                    {% comment %}
-                      Drop the destination only when it repeats every row *and*
-                      the card is split into two narrow columns. Every
-                      northbound 7 at Vernon Blvd ends at Flushing-Main St, so
-                      there the label says nothing and the width is better
-                      spent. A single full-width column keeps it even when it
-                      repeats — on a bus card the destination is the only thing
-                      distinguishing two routes at the same stop.
-                    {% endcomment %}
-                    {% if card.k.size > 1 and distinct_count < 2 %}
-                      {% assign hide_destination = true %}
-                    {% else %}
-                      {% assign hide_destination = false %}
-                    {% endif %}
                     <div class="flex--1 content w--full"
                          data-content-limiter="true"
                          data-content-max-height="{{ card_height }}">
                       {% if col.h != "" %}
-                        <span class="label label--small md:label--base label--underline">{{ col.h }}</span>
+                        <div class="flex flex--row w--full">
+                          <span class="label label--small md:label--base label--underline">{{ col.h }}</span>
+                        </div>
                       {% endif %}
 
                       {% for r in col.r %}
                         {% comment %}
-                          Suppress a destination that merely repeats its badge.
-                          A branch's trains usually end at the branch's own
-                          namesake, so "Hempstead | Hempstead" is the common
-                          case at a railroad terminal — it costs the width the
-                          time needs and tells the rider nothing.
-                        {% endcomment %}
-                        {% comment %}
-                          Suppress a destination that repeats its badge, and
-                          shorten one that merely extends it — a "New Haven"
-                          badge beside "New Haven-State St" says the branch
-                          twice, and the extra length squeezes the badge into
-                          wrapping, which makes that one row taller than its
-                          neighbours.
+                          Every row keeps its own destination.
+
+                          An earlier version hoisted it into the column
+                          heading when a column's departures all shared one,
+                          which is wrong for this network: subway lines
+                          branch, and a stop usually carries several routes.
+                          Southbound at Jay St-MetroTech is A, C and F with
+                          five distinct terminals — Euclid Av, Lefferts Blvd,
+                          Church Av, Far Rockaway, Coney Island — and naming
+                          one of them above the column would tell a rider to
+                          board the wrong train. Coney Island-Stillwell is a
+                          single stop ID carrying D, F, N and Q.
+
+                          The only destination worth suppressing is one that
+                          repeats its own badge, which is a railroad habit:
+                          a branch's trains usually end at the branch's
+                          namesake, so "Hempstead | Hempstead" says it twice.
+                          A destination that merely extends the badge is
+                          shortened to the part that differs — "New Haven"
+                          beside "New Haven-State St" becomes "State St" —
+                          which also stops the badge wrapping onto two lines.
                         {% endcomment %}
                         {% assign destination = r[1] %}
-                        {% if hide_destination %}
-                          {% assign destination = "" %}
-                        {% elsif destination == r[0] %}
+                        {% if destination == r[0] %}
                           {% assign destination = "" %}
                         {% else %}
                           {% assign badge_prefix = r[0] | append: "-" %}
@@ -237,24 +230,24 @@
                             with a typical walk most rows qualify, and a panel
                             of solid black rows has no emphasis left.
                           {% endcomment %}
-                          <div class="flex flex--row flex--between items--center gap--small b--black bw--1">
-                            <span class="label label--small md:label--base label--outline">{{ r[0] }}</span>
-                            {% if destination == blank %}
-                              <span class="flex--1"></span>
-                            {% else %}
-                              <span class="title title--small md:title--base flex--1" data-clamp="1">{{ destination }}</span>
+                          <div class="b--black bw--1 w--full">
+                            <div class="flex flex--row flex--between items--center gap--small w--full">
+                              <span class="label label--small md:label--base label--outline">{{ r[0] }}</span>
+                              <span class="title title--small md:title--base">{{ r[2] }}</span>
+                            </div>
+                            {% if destination != blank %}
+                              <span class="description w--full" data-clamp="1">{{ destination }}</span>
                             {% endif %}
-                            <span class="title title--small md:title--base">{{ r[2] }}</span>
                           </div>
                         {% else %}
-                          <div class="flex flex--row flex--between items--center gap--small">
-                            <span class="label label--small md:label--base label--filled">{{ r[0] }}</span>
-                            {% if destination == blank %}
-                              <span class="flex--1"></span>
-                            {% else %}
-                              <span class="title title--small md:title--base flex--1" data-clamp="1">{{ destination }}</span>
+                          <div class="w--full">
+                            <div class="flex flex--row flex--between items--center gap--small w--full">
+                              <span class="label label--small md:label--base label--filled">{{ r[0] }}</span>
+                              <span class="title title--small md:title--base">{{ r[2] }}</span>
+                            </div>
+                            {% if destination != blank %}
+                              <span class="description w--full" data-clamp="1">{{ destination }}</span>
                             {% endif %}
-                            <span class="title title--small md:title--base">{{ r[2] }}</span>
                           </div>
                         {% endif %}
                       {% endfor %}
