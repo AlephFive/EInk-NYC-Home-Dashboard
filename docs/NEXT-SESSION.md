@@ -53,6 +53,14 @@ Renders are in `docs/images/`. The plan and its open questions are in
   Check new utility classes against the framework stylesheet directly:
   `curl -s https://trmnl.com/css/3.4.4/plugins.css | grep -F '.classname{'`
 
+## Deferred by decision
+
+- **Caching the MTA feeds across requests.** One fetch returns a whole
+  division — 349 stops on `a_division` — so every user on those lines pulls
+  identical bytes. Worth doing at ~100 installs, pointless at one, since polls
+  are 15 minutes apart. Reasoning and the measured numbers are in the spec,
+  §7.2.
+
 ## Gotchas worth not rediscovering
 
 - **A deployed Worker runs in UTC.** `wrangler dev` inherits the developer's

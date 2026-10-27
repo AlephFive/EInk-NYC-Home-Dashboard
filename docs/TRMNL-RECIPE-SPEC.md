@@ -502,6 +502,50 @@ ambiguous about a publicly-listed plugin. One caveat to verify during the spike:
 Workers' CPU limit on the free plan, against protobuf decode of ~284KB across
 three feeds. Measured fetch time is 168ms; decode is unmeasured.
 
+### 7.2 Caching the feeds — deferred, not rejected
+
+**The MTA publishes whole-division snapshots.** One fetch of the `a_division`
+feed returns 10 routes, 349 stops and 5,310 stop-time updates — measured, not
+assumed. Eight feeds cover the entire subway. So every user watching any
+station on the 1 through 7 lines downloads byte-identical data, and caching
+the raw protobuf response would let one upstream fetch serve all of them.
+
+The Worker already shares a decoded feed **within** one request, so two LIRR
+cards on one board decode once. What is not built is sharing **across**
+requests.
+
+The mechanism is available: Workers' Cache API (`caches.default`) works on the
+free plan at 512MB per object, and caching the raw response rather than the
+decoded board means a hit skips the fetch *and* the ~4ms decode.
+
+**Why it is not built yet.** The benefit only appears at scale, because polls
+are 15 minutes apart and any sane TTL expires between them:
+
+| Installs | Polls/min | Est. hit rate |
+|---|---|---|
+| 10 | 0.7 | ~0% |
+| 100 | 6.7 | ~85% |
+| 1,000 | 67 | ~99% |
+
+Two things make the real numbers better than that table: a Workers cache is
+per data centre, and an NYC transit plugin has users concentrated near NYC
+colos; and TRMNL staggers device refreshes rather than synchronising them.
+
+But at one install it does nothing measurable, which is the problem — it would
+be a cache whose correctness could not be demonstrated. This project has
+already shipped framework classes that looked right and silently did nothing
+(`nowrap`, `overflow--hidden`, `items--stretch`), and a cache that appears to
+work while never being hit is the same failure in a place that matters more.
+It also adds state to a deliberately stateless design: today the only
+correctness question is "did the feed answer?", and a cache adds "is this
+stale?".
+
+**Build it when the plugin has roughly a hundred installs**, or sooner if the
+MTA ever rate-limits — though their feeds are unauthenticated and designed for
+public polling, so that seems unlikely. Cache the raw protobuf keyed by feed
+URL with a TTL under the feed's own update interval (~30s), and verify the hit
+rate before trusting it.
+
 ### 7.1 The MTA key
 
 Only the bus SIRI API needs a key; GTFS-RT feeds are unauthenticated. The key
