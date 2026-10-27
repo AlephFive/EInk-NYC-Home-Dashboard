@@ -142,15 +142,48 @@
                     {% assign card_height = split_height %}
                   {% endif %}
 
-                  <div class="content w--full"
-                       data-content-limiter="true"
-                       data-content-max-height="{{ card_height }}">
+                  {% comment %}
+                    A card's columns sit **side by side**, not stacked.
 
+                    A subway card has two — one per direction — and stacking
+                    them put the second inside the same height budget as the
+                    first, so the limiter cut it off entirely and the card
+                    looked like a terminal that only ran one way. Bus cards
+                    have one column per stop ID, which is one direction each,
+                    so the same rule applies to them.
+
+                    Each gets `flex--1` so they divide the card evenly
+                    whatever they hold, and its own limiter so a busy
+                    direction cannot crowd out a quiet one. The row carries
+                    `flex--top`, without which the shorter column centres
+                    itself vertically and the two headings no longer line up.
+                  {% endcomment %}
+                  <div class="flex flex--row gap--small w--full flex--top">
+                    {% comment %}
+                      When every departure in a column goes to the same place,
+                      the destination repeats down the column and tells the
+                      rider nothing — every northbound 7 at Vernon Blvd ends
+                      at Flushing-Main St. Dropping it matters here because
+                      two side-by-side columns leave about 40px for a
+                      destination, which is unreadable, while the badge and
+                      time are what a rider actually needs.
+                    {% endcomment %}
                     {% for col in card.k %}
-                      {% comment %}
-                        Direction headings, where a card has them: subway
-                        cards show two, bus and railroad one unnamed list.
-                      {% endcomment %}
+                    {% assign distinct = "" %}
+                    {% for r in col.r %}
+                      {% unless distinct contains r[1] %}
+                        {% assign distinct = distinct | append: r[1] | append: "|" %}
+                      {% endunless %}
+                    {% endfor %}
+                    {% assign distinct_count = distinct | split: "|" | size %}
+                    {% if card.k.size > 1 and distinct_count < 2 %}
+                      {% assign hide_destination = true %}
+                    {% else %}
+                      {% assign hide_destination = false %}
+                    {% endif %}
+                    <div class="flex--1 content"
+                         data-content-limiter="true"
+                         data-content-max-height="{{ card_height }}">
                       {% if col.h != "" %}
                         <span class="label label--small md:label--base label--underline">{{ col.h }}</span>
                       {% endif %}
@@ -172,7 +205,9 @@
                           neighbours.
                         {% endcomment %}
                         {% assign destination = r[1] %}
-                        {% if destination == r[0] %}
+                        {% if hide_destination %}
+                          {% assign destination = "" %}
+                        {% elsif destination == r[0] %}
                           {% assign destination = "" %}
                         {% else %}
                           {% assign badge_prefix = r[0] | append: "-" %}
@@ -219,8 +254,8 @@
                         {% endcomment %}
                         <span class="description">No upcoming departures</span>
                       {% endif %}
+                    </div>
                     {% endfor %}
-
                   </div>
                 {% endif %}
 
