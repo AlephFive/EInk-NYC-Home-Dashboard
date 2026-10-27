@@ -60,10 +60,16 @@
   A fixed width was also tried and is wrong in both directions — far too wide
   for a one-character subway bullet, too narrow for "Port Washington".
 
-  **The time must not be squeezed off the edge.** The fix was not a width
-  utility but removing what was wasting the width: a railroad row repeated its
-  branch name as both badge and destination, so suppressing the duplicate gave
-  the time room. See the destination logic below.
+  **The time is set at `title--small`, not `value--*`.** The smallest value
+  size is 20px and took about 55px of a 90px direction column — well over half
+  the width for a clock. At 16px it matches the destination beside it and
+  leaves room for the destination to be shown at all.
+
+  **`.content` caps itself at a prose-reading width.** The framework sets
+  `max-width: var(--richtext-content-max-width)` on it, which is right for
+  paragraphs and wrong for a departure column: it left a full-width card using
+  169px of its 253, and squeezed the subway columns to 87px. `w--full`
+  overrides it.
 {% endcomment %}
 
 <div class="view">
@@ -176,12 +182,21 @@
                       {% endunless %}
                     {% endfor %}
                     {% assign distinct_count = distinct | split: "|" | size %}
+                    {% comment %}
+                      Drop the destination only when it repeats every row *and*
+                      the card is split into two narrow columns. Every
+                      northbound 7 at Vernon Blvd ends at Flushing-Main St, so
+                      there the label says nothing and the width is better
+                      spent. A single full-width column keeps it even when it
+                      repeats — on a bus card the destination is the only thing
+                      distinguishing two routes at the same stop.
+                    {% endcomment %}
                     {% if card.k.size > 1 and distinct_count < 2 %}
                       {% assign hide_destination = true %}
                     {% else %}
                       {% assign hide_destination = false %}
                     {% endif %}
-                    <div class="flex--1 content"
+                    <div class="flex--1 content w--full"
                          data-content-limiter="true"
                          data-content-max-height="{{ card_height }}">
                       {% if col.h != "" %}
@@ -229,7 +244,7 @@
                             {% else %}
                               <span class="title title--small md:title--base flex--1" data-clamp="1">{{ destination }}</span>
                             {% endif %}
-                            <span class="value value--xsmall md:value--small lg:value--base">{{ r[2] }}</span>
+                            <span class="title title--small md:title--base">{{ r[2] }}</span>
                           </div>
                         {% else %}
                           <div class="flex flex--row flex--between items--center gap--small">
@@ -239,7 +254,7 @@
                             {% else %}
                               <span class="title title--small md:title--base flex--1" data-clamp="1">{{ destination }}</span>
                             {% endif %}
-                            <span class="value value--xsmall md:value--small lg:value--base">{{ r[2] }}</span>
+                            <span class="title title--small md:title--base">{{ r[2] }}</span>
                           </div>
                         {% endif %}
                       {% endfor %}
