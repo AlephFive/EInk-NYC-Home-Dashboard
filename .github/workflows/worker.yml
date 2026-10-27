@@ -75,6 +75,12 @@ jobs:
           cache: npm
           cache-dependency-path: trmnl-recipe/package-lock.json
 
+      # Both installs, for the same reason the check job needs them: the
+      # bundler resolves `@bufbuild/protobuf/wire` relative to the generated
+      # protobuf, which lives in the dashboard.
+      - run: npm ci
+        working-directory: EInk-NYC-Home-Dashboard
+
       - run: npm ci
         working-directory: trmnl-recipe
 
