@@ -25,6 +25,8 @@ describe("slot parsing", () => {
       stopIds: ["721"],
       walkTime: 10,
       title: "Home",
+      // Absent unless the card narrows itself to particular lines.
+      routes: undefined,
     });
   });
 
@@ -60,6 +62,42 @@ describe("slot parsing", () => {
   test("a title containing a colon survives", () => {
     const { cards } = board("c1=subway:721:10:Home: the 7");
     assert.equal(cards[0].title, "Home: the 7");
+  });
+});
+
+describe("narrowing a card to some routes", () => {
+  // A complex puts many lines on one card — Times Square is twelve — so a
+  // rider who only takes the 1/2/3 can name them and hide the rest.
+  test("reads a comma-separated list", () => {
+    const { cards } = board("c1=subway:127%2B725!1,2,3:5");
+    assert.deepEqual(cards[0].routes, ["1", "2", "3"]);
+    assert.deepEqual(cards[0].stopIds, ["127", "725"]);
+  });
+
+  test("is absent when not given", () => {
+    const { cards } = board("c1=subway:127:5");
+    assert.equal(cards[0].routes, undefined);
+  });
+
+  test("is absent when given empty", () => {
+    // The Liquid guard should omit it entirely, but a blank must not become
+    // a filter that matches nothing and empties the card.
+    const { cards } = board("c1=subway:127!:5");
+    assert.equal(cards[0].routes, undefined);
+  });
+
+  test("normalises case and spacing", () => {
+    const { cards } = board("c1=subway:127!a, c , e:5");
+    assert.deepEqual(cards[0].routes, ["A", "C", "E"]);
+  });
+
+  test("survives a stop name containing punctuation", () => {
+    // Routes are split before the "@name" suffix, because a bus stop name
+    // can contain almost anything and would otherwise swallow the filter.
+    const { cards } = board("c1=bus:505507@BORDEN AV/5 ST!Q101:3");
+    assert.deepEqual(cards[0].routes, ["Q101"]);
+    assert.equal(cards[0].title, "BORDEN AV/5 ST");
+    assert.deepEqual(cards[0].stopIds, ["505507"]);
   });
 });
 

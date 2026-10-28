@@ -94,6 +94,19 @@ custom_fields:
       Stations that share a complex are listed once and show every platform.
       A bus corner is listed once and shows both directions.
 
+  - keyname: card1_routes
+    field_type: string
+    name: Lines (optional)
+    description: Leave blank for every line at this station
+    group: Card 1
+    optional: true
+    placeholder: 1,2,3
+    help_text: >-
+      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
+      a complex like Times Square, which carries twelve lines on one card:
+      name a few and the rest are hidden. Asking for 7 includes the express 7,
+      and S covers every shuttle.
+
   - keyname: card1_walk
     field_type: number
     name: Walk time (minutes)
@@ -138,6 +151,19 @@ custom_fields:
     help_text: >
       Stations that share a complex are listed once and show every platform.
       A bus corner is listed once and shows both directions.
+
+  - keyname: card2_routes
+    field_type: string
+    name: Lines (optional)
+    description: Leave blank for every line at this station
+    group: Card 2
+    optional: true
+    placeholder: 1,2,3
+    help_text: >-
+      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
+      a complex like Times Square, which carries twelve lines on one card:
+      name a few and the rest are hidden. Asking for 7 includes the express 7,
+      and S covers every shuttle.
 
   - keyname: card2_walk
     field_type: number
@@ -184,6 +210,19 @@ custom_fields:
       Stations that share a complex are listed once and show every platform.
       A bus corner is listed once and shows both directions.
 
+  - keyname: card3_routes
+    field_type: string
+    name: Lines (optional)
+    description: Leave blank for every line at this station
+    group: Card 3
+    optional: true
+    placeholder: 1,2,3
+    help_text: >-
+      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
+      a complex like Times Square, which carries twelve lines on one card:
+      name a few and the rest are hidden. Asking for 7 includes the express 7,
+      and S covers every shuttle.
+
   - keyname: card3_walk
     field_type: number
     name: Walk time (minutes)
@@ -228,6 +267,19 @@ custom_fields:
     help_text: >
       Stations that share a complex are listed once and show every platform.
       A bus corner is listed once and shows both directions.
+
+  - keyname: card4_routes
+    field_type: string
+    name: Lines (optional)
+    description: Leave blank for every line at this station
+    group: Card 4
+    optional: true
+    placeholder: 1,2,3
+    help_text: >-
+      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
+      a complex like Times Square, which carries twelve lines on one card:
+      name a few and the rest are hidden. Asking for 7 includes the express 7,
+      and S covers every shuttle.
 
   - keyname: card4_walk
     field_type: number
@@ -274,6 +326,19 @@ custom_fields:
       Stations that share a complex are listed once and show every platform.
       A bus corner is listed once and shows both directions.
 
+  - keyname: card5_routes
+    field_type: string
+    name: Lines (optional)
+    description: Leave blank for every line at this station
+    group: Card 5
+    optional: true
+    placeholder: 1,2,3
+    help_text: >-
+      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
+      a complex like Times Square, which carries twelve lines on one card:
+      name a few and the rest are hidden. Asking for 7 includes the express 7,
+      and S covers every shuttle.
+
   - keyname: card5_walk
     field_type: number
     name: Walk time (minutes)
@@ -318,6 +383,19 @@ custom_fields:
     help_text: >
       Stations that share a complex are listed once and show every platform.
       A bus corner is listed once and shows both directions.
+
+  - keyname: card6_routes
+    field_type: string
+    name: Lines (optional)
+    description: Leave blank for every line at this station
+    group: Card 6
+    optional: true
+    placeholder: 1,2,3
+    help_text: >-
+      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
+      a complex like Times Square, which carries twelve lines on one card:
+      name a few and the rest are hidden. Asking for 7 includes the express 7,
+      and S covers every shuttle.
 
   - keyname: card6_walk
     field_type: number

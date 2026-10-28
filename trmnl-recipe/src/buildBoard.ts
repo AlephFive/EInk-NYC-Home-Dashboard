@@ -38,6 +38,7 @@ import {
   getDirectionLabels,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup";
 import { mergeSorted, stopTimeOf } from "../../EInk-NYC-Home-Dashboard/src/utils/multiStop";
+import { subwayRouteLabel } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
 import type { BoardSettings, CardSettings } from "./settings";
 
 /**
@@ -185,12 +186,51 @@ const FERRY_ENABLED = false;
  * serving each stop come from the station table, so the feed set is derived
  * rather than configured.
  */
+/**
+ * Whether a train belongs on a card that asked for particular routes.
+ *
+ * Matched on the label a rider reads, not the feed's route id, so "7" catches
+ * the 7X running express and "S" catches GS, FS and H. Asking for the 7 and
+ * being shown no express trains would be a surprising kind of correct.
+ */
+function routeFilterFor(routes: string[] | undefined) {
+  if (!routes || routes.length === 0) return undefined;
+  const wanted = new Set(routes.map((route) => route.toUpperCase()));
+
+  return (stop: { routeId?: string }): boolean => {
+    const routeId = stop.routeId ?? "";
+    if (wanted.has(routeId.toUpperCase())) return true;
+
+    // The express variant of a route the card asked for.
+    const local = /^[0-9A-Z]X$/.test(routeId) ? routeId.slice(0, -1) : routeId;
+    if (wanted.has(local.toUpperCase())) return true;
+
+    // And the shuttles, which the rider knows only as S.
+    return wanted.has(subwayRouteLabel(routeId).toUpperCase());
+  };
+}
+
 function subwayLinesFor(stopIds: string[]): string[] {
   const routes = new Set<string>();
   for (const stopId of stopIds) {
     for (const route of getSubwayRoutes(stopId)) routes.add(route);
   }
   return [...routes];
+}
+
+/**
+ * The bullets a card shows in its heading.
+ *
+ * A card narrowed to the 1/2/3 should not head itself with all twelve routes
+ * at Times Square — the heading would contradict every row beneath it.
+ */
+function bulletsFor(card: CardSettings, lines: string[]): string[] {
+  if (!card.routes || card.routes.length === 0) return lines;
+  const wanted = new Set(card.routes.map((route) => route.toUpperCase()));
+  const shown = lines.filter((line) => wanted.has(line.toUpperCase()));
+  // A route the station table does not list is still what the user asked
+  // for, so show it rather than an empty heading.
+  return shown.length > 0 ? shown : card.routes;
 }
 
 /** Build the two direction columns of a subway card. */
@@ -207,7 +247,7 @@ async function subwayCard(
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getStationName(card.stopIds[0], "subway"),
-    b: lines,
+    b: bulletsFor(card, lines),
   };
 
   try {
@@ -220,13 +260,16 @@ async function subwayCard(
 
     // South first, matching the dashboard's column order so the two surfaces
     // render the same board side by side.
+    const keep = routeFilterFor(card.routes);
+
     const directions = (["S", "N"] as const).map((direction) => {
-      const trains = mergeSorted(
+      const all = mergeSorted(
         card.stopIds.map((stopId) =>
           getUpcomingTrainsAtStation(feed.feedMessage, stopId, direction)
         ),
         stopTimeOf
       );
+      const trains = keep ? all.filter(keep) : all;
 
       const heading =
         direction === "N"

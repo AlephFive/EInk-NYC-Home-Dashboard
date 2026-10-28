@@ -7,7 +7,7 @@
  * the settings *are* the request.
  *
  * Card slots are encoded one parameter each, `c1`..`c6`, as
- * `type:stopIds:walkTime:title`. A flat string rather than JSON because it has
+ * `type:stopIds:walkTime:title`, with an optional `!routes` on the stop IDs. A flat string rather than JSON because it has
  * to survive being written into a URL by a Liquid template, where quoting JSON
  * is a reliable source of breakage.
  *
@@ -38,6 +38,15 @@ export interface CardSettings {
   walkTime: number;
   /** Overrides the station name as the card heading. */
   title?: string;
+  /**
+   * Show only these routes, as the rider names them — "7", "S", "A".
+   *
+   * Empty means every route the stop carries, which is the default and what
+   * most cards want. It earns its place at a complex: Times Square is five
+   * platform groups and twelve routes on one card, and someone who only
+   * rides the 1/2/3 does not want nine other lines competing for the rows.
+   */
+  routes?: string[];
 }
 
 /** A whole board, as one poll describes it. */
@@ -123,7 +132,15 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   // The picker may append "@<name>" to the ID list, carrying a display name
   // the server has no table for — bus stops, where `route_info.json` covers
   // only hand-added entries. An explicit title still wins over it.
-  const [idList = "", pickedName = ""] = ids.split("@");
+  // Routes are split off first. A stop name can contain almost anything —
+  // "BORDEN AV/5 ST" — so splitting "@" first would leave "!1,2,3" inside the
+  // name and lose the filter silently.
+  const [withName = "", routeList = ""] = ids.split("!");
+  const [idList = "", pickedName = ""] = withName.split("@");
+  const routes = routeList
+    .split(",")
+    .map((route) => route.trim().toUpperCase())
+    .filter(Boolean);
 
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
   //
@@ -146,6 +163,7 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
     stopIds,
     walkTime: parseNumber(walk, DEFAULT_WALK_TIME),
     title: title === "" ? undefined : title,
+    routes: routes.length > 0 ? routes : undefined,
   };
 }
 
