@@ -7,11 +7,21 @@
  * says `S`, so without this a card's heading bullet and its departure rows
  * disagree on the same card.
  *
- * Staten Island is left alone: `SIR` is what the railway is called, and it is
- * not a shuttle.
+ * The Staten Island Railway has the same split for a different reason: the
+ * feed runs it as `SI` and `SS`, but every one of its 21 stations is signed
+ * `SIR` and a rider has no idea the two exist. It is one railway, so it gets
+ * one label.
  */
-const SHUTTLE_ROUTE_IDS = new Set(["GS", "FS", "H"]);
+const ROUTE_LABELS = new Map([
+  // Every shuttle is signed, mapped and announced as S.
+  ["GS", "S"], // 42nd St, Times Sq to Grand Central
+  ["FS", "S"], // Franklin Av, Brooklyn
+  ["H", "S"], //  Rockaway Park, via Broad Channel
+  // Staten Island Railway, whichever service pattern the feed reports.
+  ["SI", "SIR"],
+  ["SS", "SIR"],
+]);
 
 export function subwayRouteLabel(routeId: string): string {
-  return SHUTTLE_ROUTE_IDS.has(routeId) ? "S" : routeId;
+  return ROUTE_LABELS.get(routeId) ?? routeId;
 }

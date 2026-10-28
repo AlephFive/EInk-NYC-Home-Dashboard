@@ -133,10 +133,56 @@ describe("shuttles are all signed S", () => {
     assert.equal(subwayRouteLabel("7X"), "7X");
   });
 
-  test("the Staten Island Railway keeps its own name", () => {
-    // SIR is a railway, not a shuttle, and is signed SIR.
+  test("the Staten Island Railway is one railway, not two", () => {
+    // The feed runs it as SI and SS — two service patterns over the same
+    // 21 stations — but every platform is signed SIR and a rider has no
+    // idea the split exists. Without this the card heading says SIR while
+    // its rows say SS, which is the same card disagreeing with itself.
+    assert.equal(subwayRouteLabel("SI"), "SIR");
+    assert.equal(subwayRouteLabel("SS"), "SIR");
     assert.equal(subwayRouteLabel("SIR"), "SIR");
-    assert.equal(subwayRouteLabel("SI"), "SI");
+  });
+});
+
+describe("the Staten Island Railway", () => {
+  // SIR is unlike the rest of the system and easy to get wrong: it is a
+  // single line with no branches, it does not touch the other 471 stations,
+  // and it is the only service whose stop IDs are not reachable from any
+  // other feed. It is also the one place where "subway" is a stretch — but
+  // it rides on the same GTFS-RT plumbing, so the board must handle it.
+
+  test("its stations are in the station table", () => {
+    // 21 of them, St George to Tottenville. If they were missing, a card
+    // would head itself "Stop S31" and nobody would know why.
+    assert.equal(getStationName("S31", "subway"), "St George");
+    assert.equal(getStationName("S09", "subway"), "Tottenville");
+  });
+
+  test("its stations report SIR as their route", () => {
+    assert.deepEqual(getSubwayRoutes("S31"), ["SIR"]);
+  });
+
+  test("it is not mistaken for an express variant", () => {
+    // "SIR" ends in R, not X, so the express rule must not fire — but the
+    // two-character "SS" is the kind of thing a loose rule would catch.
+    const stripExpress = (route: string) =>
+      /^[0-9A-Z]X$/.test(route) ? route.slice(0, -1) : route;
+    assert.equal(stripExpress("SIR"), "SIR");
+    assert.equal(stripExpress("SI"), "SI");
+    assert.equal(stripExpress("SS"), "SS");
+  });
+
+  test("it is not mistaken for a shuttle", () => {
+    // SS looks like a shuttle id and is not one; a rule keyed on a leading
+    // S would fold the whole railway into the 42nd St shuttle.
+    assert.notEqual(subwayRouteLabel("SS"), "S");
+    assert.notEqual(subwayRouteLabel("SI"), "S");
+  });
+
+  test("its destinations resolve like any other subway stop", () => {
+    // Feeds address platforms, so a terminus arrives as "S09S".
+    assert.equal(getDestinationName("S09S", "subway"), "Tottenville");
+    assert.equal(getDestinationName("S31N", "subway"), "St George");
   });
 });
 

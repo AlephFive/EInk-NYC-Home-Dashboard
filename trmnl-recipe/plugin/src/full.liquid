@@ -186,12 +186,21 @@
                       {% assign glyph = route %}
                       {% if route.size > 1 and route contains "X" %}
                         {% assign stripped = route | remove_last: "X" %}
-                        {% if stripped != "" %}
+                        {% if stripped.size == 1 %}
                           {% assign is_express = true %}
                           {% assign glyph = stripped %}
                         {% endif %}
                       {% endif %}
-                      <span class="label label--small md:label--base label--filled bullet{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
+                      {% comment %}
+                        A bullet holds one character. SIR is three and would
+                        spill out of the circle, so a multi-character route
+                        stays a pill — the same rule the departure rows use.
+                      {% endcomment %}
+                      {% if glyph.size == 1 %}
+                        <span class="label label--small md:label--base label--filled bullet{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
+                      {% else %}
+                        <span class="label label--small md:label--base label--filled">{{ glyph }}</span>
+                      {% endif %}
                     {% endfor %}
                   {% endif %}
                 </div>
