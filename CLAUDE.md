@@ -280,10 +280,28 @@ across all cards:
 
 - **Fixed `ROW_HEIGHT`** (26px) is what keeps rows uniform. Content never dictates
   height, so a long destination cannot make one row taller than its neighbours.
-- **Badge shape** is `"bullet"` (18px circle) for subway's one-character routes and
+- **Badge shape** is `"bullet"` (18px circle) for subway routes and
   `"rect"` (capped at 76px, ellipsized) for named routes — bus lines, railroad branches.
   Railroad badges use `getRailroadRouteShortName()`, which strips the trailing "Branch"
   from `route_long_name`: "Babylon Branch" becomes "Babylon".
+- **Three MTA display rules** turn a feed route id into what a rider sees, all
+  in `utils/subway/routeLabel.ts`. `subwayRouteGlyph()` returns the glyph to
+  draw and whether to draw it as a diamond:
+  - **Every shuttle is S.** The feeds say `GS` (42nd St), `FS` (Franklin Av)
+    and `H` (Rockaway Park); all three are signed, mapped and announced as S.
+  - **An express drops its X and gains a diamond.** `6X` and `7X` are the two
+    that run; the MTA draws the shape instead, so the X must never reach the
+    panel as text.
+  - **The Staten Island Railway is SI.** The feed runs it as `SI` and `SS` and
+    the station table says `SIR`; all three normalise to `SI`. The R211 trains
+    now on the line carry a circular SI bullet like any other route, and two
+    characters fit a bullet where three do not.
+
+  The four TRMNL Liquid layouts reproduce this rule in markup because a
+  template cannot import it — **if the rule changes, grep the layouts.** Their
+  bullets hold one or two characters; three or more falls back to a pill, so
+  `Q101` and `Babylon` stay readable. `trmnl-recipe/tests/transit.test.ts`
+  covers all three rules and the ways they can fire on each other.
 - **Destination** comes from `destinationStopId`, recorded by both `extractDataByStop()`
   implementations as the trip's final `stopTimeUpdate`. Resolve it with
   `getDestinationName()` in `stationLookup.ts`, which strips the subway's N/S suffix

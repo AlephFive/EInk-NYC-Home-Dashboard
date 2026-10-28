@@ -11,10 +11,17 @@
   .bullet {
     width: 1.7em;
     height: 1.7em;
+    /* The framework's own .label padding lands later in the cascade and
+       stretches the box back into a rounded rectangle once the glyph is
+       two characters wide. Pinning min/max as well as width is what keeps
+       SI a circle at the smaller layouts' label sizes. */
+    min-width: 1.7em;
+    max-width: 1.7em;
     padding: 0;
     border-radius: 50%;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
   }
   .bullet--express {
     border-radius: 0;
@@ -28,6 +35,21 @@
     display: block;
     /* Undo both, so the glyph stays upright and full size in the diamond. */
     transform: rotate(-45deg) scale(1.414);
+  }
+  /* Two letters in a circle sized for one would touch the curve on both
+     sides, so SI - the only two-character bullet in the system - is set
+     smaller and tighter, which is what the MTA's own SI bullet does. The
+     circle keeps its diameter, so it still lines up with every other
+     bullet in the column. */
+  .bullet--pair > span {
+    /* 0.78em cleared the curve but rendered SI as a smudge in the smaller
+       row labels on a 1-bit panel. 0.88em with the tracking pulled in is
+       the most type that still fits, and stays legible at row size. */
+    font-size: 0.88em;
+    letter-spacing: -0.06em;
+    /* The circle's padding is zero, so without this the tracking on the
+       final letter pushes SI visibly left of centre. */
+    text-indent: -0.06em;
   }
 </style>
 
@@ -65,7 +87,25 @@
         <div class="flex flex--row items--center gap--small">
           {% if card.b %}
             {% for route in card.b %}
-              <span class="label label--small label--filled">{{ route }}</span>
+              {% comment %}
+                The same rule the departure rows use: a bullet for one or two
+                characters, a pill for a named route, and the feed's X suffix
+                stripped because the diamond carries it.
+              {% endcomment %}
+              {% assign is_express = false %}
+              {% assign glyph = route %}
+              {% if route.size > 1 and route contains "X" %}
+                {% assign stripped = route | remove_last: "X" %}
+                {% if stripped.size == 1 %}
+                  {% assign is_express = true %}
+                  {% assign glyph = stripped %}
+                {% endif %}
+              {% endif %}
+              {% if glyph.size <= 2 %}
+                <span class="label label--small label--filled bullet{% if glyph.size == 2 %} bullet--pair{% endif %}{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
+              {% else %}
+                <span class="label label--small label--filled">{{ glyph }}</span>
+              {% endif %}
             {% endfor %}
           {% endif %}
           <span class="title title--small grow" data-clamp="1">{{ card.n }}</span>
@@ -93,8 +133,9 @@
                           {% assign glyph = stripped %}
                         {% endif %}
                       {% endif %}
-                      {% if glyph.size == 1 %}
+                      {% if glyph.size <= 2 %}
                         {% assign bullet_class = "bullet" %}
+                        {% if glyph.size == 2 %}{% assign bullet_class = "bullet bullet--pair" %}{% endif %}
                         {% if is_express %}{% assign bullet_class = "bullet bullet--express" %}{% endif %}
                       {% else %}
                         {% assign bullet_class = "" %}

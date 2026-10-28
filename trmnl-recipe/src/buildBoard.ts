@@ -38,7 +38,7 @@ import {
   getDirectionLabels,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup";
 import { mergeSorted, stopTimeOf } from "../../EInk-NYC-Home-Dashboard/src/utils/multiStop";
-import { subwayRouteLabel } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
+import { subwayRouteGlyph } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
 import type { BoardSettings, CardSettings } from "./settings";
 
 /**
@@ -201,12 +201,10 @@ function routeFilterFor(routes: string[] | undefined) {
     const routeId = stop.routeId ?? "";
     if (wanted.has(routeId.toUpperCase())) return true;
 
-    // The express variant of a route the card asked for.
-    const local = /^[0-9A-Z]X$/.test(routeId) ? routeId.slice(0, -1) : routeId;
-    if (wanted.has(local.toUpperCase())) return true;
-
-    // And the shuttles, which the rider knows only as S.
-    return wanted.has(subwayRouteLabel(routeId).toUpperCase());
+    // The express variant of a route the card asked for, and the shuttles
+    // and SIR, which a rider knows only by their signed label.
+    const { glyph } = subwayRouteGlyph(routeId);
+    return wanted.has(glyph.toUpperCase());
   };
 }
 

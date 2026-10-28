@@ -22,7 +22,10 @@ import {
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup.ts";
 import { isCityBound, getRailroadRouteShortName } from "../../EInk-NYC-Home-Dashboard/src/utils/railroad/routeLookup.ts";
 import { isBoardable } from "../../EInk-NYC-Home-Dashboard/src/utils/departures.ts";
-import { subwayRouteLabel } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
+import {
+  subwayRouteLabel,
+  subwayRouteGlyph,
+} from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
 
 describe("a station can carry several lines on one ID", () => {
   test("Coney Island-Stillwell Av serves D, F, N and Q", () => {
@@ -75,72 +78,146 @@ describe("a station complex spans several stop IDs", () => {
   });
 });
 
-describe("express variants", () => {
-  // The feed names an express run by suffixing X — 6X and 7X are the ones
-  // that exist. The MTA draws these as a diamond rather than a circle, so
-  // the X is a shape, not part of the route name.
-  const stripExpress = (route: string) =>
-    /^[0-9A-Z]X$/.test(route) ? route.slice(0, -1) : route;
+describe("special route display rules", () => {
+  // Three MTA conventions turn a feed route id into the thing a rider sees
+  // on the platform. Each one is invisible when broken: the board shows a
+  // plausible bullet that disagrees with the station it is standing in.
+  //
+  // These test subwayRouteGlyph, which the Liquid layouts mirror. The
+  // templates cannot import it, so the rule lives here in one place and the
+  // four layouts reproduce it — if this block changes, grep the layouts.
 
-  test("7X is the 7 running express", () => {
-    assert.equal(stripExpress("7X"), "7");
-  });
+  describe("every shuttle is signed S", () => {
+    // The feeds use internal ids, but the MTA signs, maps and announces all
+    // three shuttles as S, and the station table says S too. Without the
+    // mapping a card's heading bullet and its rows disagree.
+    const shuttles: [string, string][] = [
+      ["GS", "42nd St, Times Sq to Grand Central"],
+      ["FS", "Franklin Av, Brooklyn"],
+      ["H", "Rockaway Park, via Broad Channel"],
+    ];
 
-  test("6X is the 6 running express", () => {
-    assert.equal(stripExpress("6X"), "6");
-  });
-
-  test("a local route is untouched", () => {
-    for (const r of ["1", "7", "A", "G", "Q"]) {
-      assert.equal(stripExpress(r), r);
+    for (const [routeId, where] of shuttles) {
+      test(`${routeId} (${where}) shows as S`, () => {
+        assert.deepEqual(subwayRouteGlyph(routeId), {
+          glyph: "S",
+          isExpress: false,
+        });
+      });
     }
-  });
 
-  test("a two-letter route is not mistaken for an express", () => {
-    // GS is the 42nd St shuttle and FS the Franklin Av shuttle. Stripping a
-    // trailing S would be a different bug, but the rule must not fire on
-    // them at all — neither ends in X.
-    assert.equal(stripExpress("GS"), "GS");
-    assert.equal(stripExpress("FS"), "FS");
-    assert.equal(stripExpress("SIR"), "SIR");
-  });
-});
-
-describe("shuttles are all signed S", () => {
-  // The feeds name them by internal route id, but the MTA signs, maps and
-  // announces every one as S. The station table already says S, so without
-  // the mapping a card's heading bullet and its rows disagree.
-  const shuttles: [string, string][] = [
-    ["GS", "42nd St, Times Sq to Grand Central"],
-    ["FS", "Franklin Av, Brooklyn"],
-    ["H", "Rockaway Park, via Broad Channel"],
-  ];
-
-  for (const [routeId, where] of shuttles) {
-    test(`${routeId} (${where}) shows as S`, () => {
-      assert.equal(subwayRouteLabel(routeId), "S");
+    test("all three collapse to the same glyph", () => {
+      // The point of the rule: a rider cannot tell them apart, so neither
+      // should the board.
+      const glyphs = shuttles.map(([id]) => subwayRouteGlyph(id).glyph);
+      assert.deepEqual([...new Set(glyphs)], ["S"]);
     });
-  }
 
-  test("a numbered or lettered route is untouched", () => {
-    for (const r of ["1", "7", "A", "C", "G", "Q"]) {
-      assert.equal(subwayRouteLabel(r), r);
+    test("S fits a one-character bullet", () => {
+      // The layouts draw a circle only for a glyph of one or two characters.
+      assert.ok(subwayRouteGlyph("GS").glyph.length <= 2);
+    });
+  });
+
+  describe("an express drops its X and gains a diamond", () => {
+    // The feed suffixes X; the MTA draws the shape instead. So "7X" must
+    // never reach the panel as text — it is a 7 in a diamond.
+    const expresses: [string, string][] = [
+      ["6X", "6"],
+      ["7X", "7"],
+    ];
+
+    for (const [routeId, glyph] of expresses) {
+      test(`${routeId} is the ${glyph} in a diamond`, () => {
+        assert.deepEqual(subwayRouteGlyph(routeId), { glyph, isExpress: true });
+      });
     }
+
+    test("the X never survives into a label", () => {
+      for (const [routeId] of expresses) {
+        assert.ok(
+          !subwayRouteGlyph(routeId).glyph.includes("X"),
+          `${routeId} kept its X`
+        );
+      }
+    });
+
+    test("a local route keeps its circle", () => {
+      for (const r of ["1", "6", "7", "A", "G", "Q"]) {
+        assert.deepEqual(subwayRouteGlyph(r), { glyph: r, isExpress: false });
+      }
+    });
   });
 
-  test("an express variant is not swallowed", () => {
-    // 7X must still reach the express logic as 7X, not be rewritten here.
-    assert.equal(subwayRouteLabel("7X"), "7X");
+  describe("the Staten Island Railway shows SI", () => {
+    // The feed runs two service patterns, SI and SS, over one 21-station
+    // line; the station table calls all of it SIR. A rider sees none of
+    // that: the R211 trains now on the line carry a circular SI bullet,
+    // like any other subway route, and station signage is following.
+    for (const routeId of ["SI", "SS", "SIR"]) {
+      test(`${routeId} shows as SI`, () => {
+        assert.deepEqual(subwayRouteGlyph(routeId), {
+          glyph: "SI",
+          isExpress: false,
+        });
+      });
+    }
+
+    test("SI fits a bullet, SIR would not", () => {
+      // Why the label is SI and not SIR: two characters fit the circle the
+      // layouts draw, three spill out of it and fall back to a pill.
+      assert.equal(subwayRouteGlyph("SIR").glyph.length, 2);
+    });
   });
 
-  test("the Staten Island Railway is one railway, not two", () => {
-    // The feed runs it as SI and SS — two service patterns over the same
-    // 21 stations — but every platform is signed SIR and a rider has no
-    // idea the split exists. Without this the card heading says SIR while
-    // its rows say SS, which is the same card disagreeing with itself.
-    assert.equal(subwayRouteLabel("SI"), "SIR");
-    assert.equal(subwayRouteLabel("SS"), "SIR");
-    assert.equal(subwayRouteLabel("SIR"), "SIR");
+  describe("the three rules do not fire on each other", () => {
+    // Each rule keys on something the others nearly match, so a loose
+    // implementation of any one of them breaks another.
+
+    test("SS is the railway, not a shuttle", () => {
+      // A rule keyed on a leading S would fold the whole railway into the
+      // 42nd St shuttle.
+      assert.notEqual(subwayRouteGlyph("SS").glyph, "S");
+      assert.notEqual(subwayRouteGlyph("SI").glyph, "S");
+    });
+
+    test("no shuttle or railway id is read as express", () => {
+      // None of them ends in X, and the express rule must stay narrow
+      // enough that none is tempting.
+      for (const id of ["GS", "FS", "H", "SI", "SS", "SIR"]) {
+        assert.equal(
+          subwayRouteGlyph(id).isExpress,
+          false,
+          `${id} was drawn as a diamond`
+        );
+      }
+    });
+
+    test("a shuttle keeps its trailing S", () => {
+      // Stripping a trailing letter the way the express rule strips X would
+      // turn GS into G — a real route, on the other side of Brooklyn.
+      assert.equal(subwayRouteGlyph("GS").glyph, "S");
+      assert.notEqual(subwayRouteGlyph("GS").glyph, "G");
+    });
+
+    test("an express variant is not rewritten by the label map", () => {
+      // subwayRouteLabel passes 7X through untouched, so the express rule
+      // is what handles it. If the map ever caught it first, the diamond
+      // would be lost.
+      assert.equal(subwayRouteLabel("7X"), "7X");
+    });
+
+    test("a bus route or railroad branch stays a pill", () => {
+      // Three or more characters: no bullet, and nothing stripped. "Babylon"
+      // in a circle is unreadable, and a "Q101" shortened to "Q10" is a
+      // different route.
+      for (const name of ["Q101", "B41", "Babylon", "Port Washington"]) {
+        const { glyph, isExpress } = subwayRouteGlyph(name);
+        assert.equal(glyph, name);
+        assert.equal(isExpress, false);
+        assert.ok(glyph.length > 2, `${name} would be drawn as a bullet`);
+      }
+    });
   });
 });
 
@@ -159,24 +236,9 @@ describe("the Staten Island Railway", () => {
   });
 
   test("its stations report SIR as their route", () => {
+    // The station table's own spelling, which is why subwayRouteLabel has to
+    // normalise SIR as well as the feed's SI and SS.
     assert.deepEqual(getSubwayRoutes("S31"), ["SIR"]);
-  });
-
-  test("it is not mistaken for an express variant", () => {
-    // "SIR" ends in R, not X, so the express rule must not fire — but the
-    // two-character "SS" is the kind of thing a loose rule would catch.
-    const stripExpress = (route: string) =>
-      /^[0-9A-Z]X$/.test(route) ? route.slice(0, -1) : route;
-    assert.equal(stripExpress("SIR"), "SIR");
-    assert.equal(stripExpress("SI"), "SI");
-    assert.equal(stripExpress("SS"), "SS");
-  });
-
-  test("it is not mistaken for a shuttle", () => {
-    // SS looks like a shuttle id and is not one; a rule keyed on a leading
-    // S would fold the whole railway into the 42nd St shuttle.
-    assert.notEqual(subwayRouteLabel("SS"), "S");
-    assert.notEqual(subwayRouteLabel("SI"), "S");
   });
 
   test("its destinations resolve like any other subway stop", () => {

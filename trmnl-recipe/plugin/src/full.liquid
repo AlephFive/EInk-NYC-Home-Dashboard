@@ -11,10 +11,17 @@
   .bullet {
     width: 1.7em;
     height: 1.7em;
+    /* The framework's own .label padding lands later in the cascade and
+       stretches the box back into a rounded rectangle once the glyph is
+       two characters wide. Pinning min/max as well as width is what keeps
+       SI a circle at the smaller layouts' label sizes. */
+    min-width: 1.7em;
+    max-width: 1.7em;
     padding: 0;
     border-radius: 50%;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
   }
   .bullet--express {
     border-radius: 0;
@@ -28,6 +35,21 @@
     display: block;
     /* Undo both, so the glyph stays upright and full size in the diamond. */
     transform: rotate(-45deg) scale(1.414);
+  }
+  /* Two letters in a circle sized for one would touch the curve on both
+     sides, so SI - the only two-character bullet in the system - is set
+     smaller and tighter, which is what the MTA's own SI bullet does. The
+     circle keeps its diameter, so it still lines up with every other
+     bullet in the column. */
+  .bullet--pair > span {
+    /* 0.78em cleared the curve but rendered SI as a smudge in the smaller
+       row labels on a 1-bit panel. 0.88em with the tracking pulled in is
+       the most type that still fits, and stays legible at row size. */
+    font-size: 0.88em;
+    letter-spacing: -0.06em;
+    /* The circle's padding is zero, so without this the tracking on the
+       final letter pushes SI visibly left of centre. */
+    text-indent: -0.06em;
   }
 </style>
 
@@ -192,12 +214,15 @@
                         {% endif %}
                       {% endif %}
                       {% comment %}
-                        A bullet holds one character. SIR is three and would
-                        spill out of the circle, so a multi-character route
-                        stays a pill — the same rule the departure rows use.
+                        A bullet holds one or two characters. One covers every
+                        subway route and the shuttles; two covers SI, the
+                        Staten Island Railway, which the R211 trains now
+                        running the line sign as a circular SI bullet. Three
+                        or more is a bus route or a railroad branch, which
+                        stays a pill — "Babylon" in a circle is unreadable.
                       {% endcomment %}
-                      {% if glyph.size == 1 %}
-                        <span class="label label--small md:label--base label--filled bullet{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
+                      {% if glyph.size <= 2 %}
+                        <span class="label label--small md:label--base label--filled bullet{% if glyph.size == 2 %} bullet--pair{% endif %}{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
                       {% else %}
                         <span class="label label--small md:label--base label--filled">{{ glyph }}</span>
                       {% endif %}
@@ -283,11 +308,12 @@
                           which also stops the badge wrapping onto two lines.
                         {% endcomment %}
                         {% comment %}
-                          A subway route is a single character, so it gets a
-                          bullet — circle for local, diamond for express, with
-                          the feed's X suffix stripped since the shape carries
-                          it. A bus route or railroad branch is a name and
-                          stays a pill: "Babylon" in a circle is unreadable.
+                          A subway route is one character — or two, for SI —
+                          so it gets a bullet: circle for local, diamond for
+                          express, with the feed's X suffix stripped since the
+                          shape carries it. A bus route or railroad branch is a
+                          name and stays a pill: "Babylon" in a circle is
+                          unreadable.
                         {% endcomment %}
                         {% assign is_express = false %}
                         {% assign glyph = r[0] %}
@@ -298,8 +324,11 @@
                             {% assign glyph = stripped %}
                           {% endif %}
                         {% endif %}
-                        {% if glyph.size == 1 %}
+                        {% if glyph.size <= 2 %}
                           {% assign bullet_class = "bullet" %}
+                          {% if glyph.size == 2 %}
+                            {% assign bullet_class = "bullet bullet--pair" %}
+                          {% endif %}
                           {% if is_express %}
                             {% assign bullet_class = "bullet bullet--express" %}
                           {% endif %}
