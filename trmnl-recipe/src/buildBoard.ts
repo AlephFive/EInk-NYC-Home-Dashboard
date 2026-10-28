@@ -100,15 +100,41 @@ type SharedOptions = Omit<RowOptions, "walkTime"> & { fetchLimit: number };
  * Keyed by feed family rather than by card: the promise is created on first
  * use and reused, so a board with no railroad card never fetches one.
  */
-type FeedCache = Map<string, Promise<unknown>>;
+/**
+ * The shapes the two fetchers return, derived rather than redeclared so they
+ * cannot drift from the dashboard modules that produce them.
+ */
+type SubwayFeed = Awaited<ReturnType<typeof fetchMultipleTrainLines>>;
+type RailroadFeed = Awaited<ReturnType<typeof fetchMultipleRailroads>>;
 
+interface FeedCache {
+  /** Keyed by the sorted line set a card needs, since lines share feeds. */
+  subway: Map<string, Promise<SubwayFeed>>;
+  /** Keyed by railroad: LIRR and Metro-North are separate endpoints. */
+  railroad: Map<string, Promise<RailroadFeed>>;
+}
+
+const emptyFeedCache = (): FeedCache => ({
+  subway: new Map(),
+  railroad: new Map(),
+});
+
+/**
+ * Fetch a feed once per request, however many cards need it.
+ *
+ * Typed per family rather than through one `Map<string, Promise<unknown>>`:
+ * that needed an unchecked `as Promise<T>` on the hit path, so two callers
+ * using one key with different types would have compiled and failed at
+ * runtime. Nothing enforced the key namespacing that kept it safe — it was a
+ * convention in two string literals forty lines apart.
+ */
 function sharedFeed<T>(
-  cache: FeedCache,
+  cache: Map<string, Promise<T>>,
   key: string,
   load: () => Promise<T>
 ): Promise<T> {
   const existing = cache.get(key);
-  if (existing) return existing as Promise<T>;
+  if (existing) return existing;
   const created = load();
   cache.set(key, created);
   return created;
@@ -187,7 +213,7 @@ async function subwayCard(
   try {
     // Keyed by the feed set this card needs, so two cards on the same lines
     // share one fetch and one decode while cards on different lines do not.
-    const feed = await sharedFeed(feeds, `subway:${[...lines].sort().join(",")}`, () =>
+    const feed = await sharedFeed(feeds.subway, [...lines].sort().join(","), () =>
       fetchMultipleTrainLines(lines)
     );
     const labels = getDirectionLabels(card.stopIds[0]);
@@ -251,7 +277,7 @@ async function railroadCard(
   };
 
   try {
-    const feed = await sharedFeed(feeds, `railroad:${railroad}`, () =>
+    const feed = await sharedFeed(feeds.railroad, railroad, () =>
       fetchMultipleRailroads([railroad])
     );
 
@@ -412,7 +438,7 @@ export async function buildBoard(
   };
 
   // Shared per request, so concurrent cards reuse one decode per feed.
-  const feeds: FeedCache = new Map();
+  const feeds = emptyFeedCache();
 
   const cards = await Promise.all(
     settings.cards.map(async (card): Promise<BoardCard> => {
