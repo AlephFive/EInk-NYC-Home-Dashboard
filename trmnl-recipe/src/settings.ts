@@ -126,8 +126,14 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   const [idList = "", pickedName = ""] = ids.split("@");
 
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
+  //
+  // Split on whitespace too. A query string decodes a literal "+" as a space,
+  // and whether TRMNL percent-encodes the stored value when it interpolates
+  // it into the polling URL is not under our control — so "127+725" may
+  // arrive as "127 725". Accepting both means a multi-ID station cannot
+  // silently collapse into one unusable id.
   const stopIds = idList
-    .split("+")
+    .split(/[+\s]+/)
     .map((id) => id.trim())
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;

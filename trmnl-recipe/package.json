@@ -7,6 +7,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --import ./tests/resolve-ts.mjs --test \"tests/*.test.ts\"",
     "configure": "node scripts/configure.mjs",
     "spike:cpu": "node --experimental-strip-types spikes/decodeCost.ts"
   },

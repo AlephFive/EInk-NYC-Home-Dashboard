@@ -89,10 +89,38 @@ question is "did the feed answer?"
 
 Ordered by what I would actually fix, not by severity in the abstract.
 
-### 3.1 There are no tests — and this is the one that matters
+### 3.1 ~~There are no tests~~ — **fixed, 81 of them**
 
-`npm run` offers `dev`, `deploy`, `typecheck`, `configure`, `spike:cpu`. No
-test script, no test directory.
+`npm test` now runs 81 tests across four files, using Node's built-in runner
+with no new dependency. They caught one real bug immediately: a query string
+decodes a literal `+` as a space, so `subway:127+725` could arrive as
+`subway:127 725` and collapse a five-platform complex into one unusable ID.
+Whether TRMNL percent-encodes the interpolated value is not under our
+control, so the parser now accepts both separators.
+
+| File | Covers |
+|---|---|
+| `settings.test.ts` | 35 — slot parsing, aliases, the doubled prefix, bad slots, walk times, the demo board |
+| `transit.test.ts` | 26 — multi-line stations, complexes, express variants, boardability, ID collisions, city-bound |
+| `bus.test.ts` | 10 — stop pairing, the `valid_to` filter, picker grouping |
+| `payload.test.ts` | 10 — the trim loop, including degenerate input |
+
+The transit tests are the interesting ones. Each encodes a fact that, if
+forgotten, produces a board which looks fine and is wrong: Coney Island
+serving four lines on one ID, Times Square being five IDs under one complex,
+LIRR stop 1 being Albertson while Metro-North stop 1 is Grand Central, `7X`
+being the 7 running express rather than a separate route.
+
+Extracting `trimToPayloadCap` into `src/payload.ts` was needed to test it —
+importing `index.ts` would have started a Worker. That is better structure
+anyway: how big a board may be is a property of the board, not of the request
+that asked for it.
+
+**What is still untested:** the feed-fetching paths in `buildBoard.ts`. They
+need recorded protobuf fixtures, which is real work for less value — those
+paths are exercised by every render and every smoke test.
+
+The original finding stands as the reason this mattered:
 
 Everything has been verified by **rendering and looking**, which worked
 because a transit board is visual. But it only catches what is on screen in
@@ -224,10 +252,12 @@ which is a real gap rather than a stylistic one.
 
 ### If I were to spend one day on it
 
-1. Tests for `settings.ts` and `trimToPayloadCap` — pure functions, high
-   value, no fixtures needed. **Not done.**
+1. ~~Tests for `settings.ts` and `trimToPayloadCap`.~~ **Done — 81 tests,
+   see §3.1.** They found a real bug on the first run.
 2. ~~Remove the `sharedFeed` cast.~~ **Done, see §3.2.**
 3. Leave everything else alone.
+
+Items 3.3 through 3.6 remain defensible as-is.
 
 Items 3.3 through 3.6 are all defensible as-is, and changing them would be
 churn rather than improvement.
