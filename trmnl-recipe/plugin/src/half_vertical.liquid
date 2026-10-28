@@ -68,7 +68,7 @@
               <span class="label label--small label--filled">{{ route }}</span>
             {% endfor %}
           {% endif %}
-          <span class="title title--small flex--1" data-clamp="1">{{ card.n }}</span>
+          <span class="title title--small grow" data-clamp="1">{{ card.n }}</span>
         </div>
 
         {% if card.e %}
@@ -103,9 +103,9 @@
                 <div class="flex flex--row flex--between items--center gap--small">
                   <span class="label label--small label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                   {% if destination == blank %}
-                    <span class="flex--1"></span>
+                    <span class="grow"></span>
                   {% else %}
-                    <span class="title title--small flex--1" data-clamp="1">{{ destination }}</span>
+                    <span class="title title--small grow" data-clamp="1">{{ destination }}</span>
                   {% endif %}
                   <span class="title title--small">{{ r[2] }}</span>
                 </div>

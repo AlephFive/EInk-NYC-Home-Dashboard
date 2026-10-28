@@ -47,9 +47,12 @@ Renders are in `docs/images/`. The plan and its open questions are in
 - **The half/quadrant layouts have never been seen at their real size.**
   trmnlp previews every layout at 800x480 regardless, so their cell
   dimensions were derived rather than observed.
-- **`trmnlp lint` only validates `label--*` sizes.** Four classes that do not
-  exist in v3.4.4 passed lint silently this session (`nowrap`,
-  `overflow--hidden`, `items--stretch`, `col--start` inside `.content`).
+- **`trmnlp lint` only validates `label--*` sizes.** Five classes that do not
+  exist in v3.4.4 have passed lint silently: `nowrap`, `overflow--hidden`,
+  `items--stretch`, `col--start` inside `.content`, and `flex--1` — the last
+  used thirteen times across four layouts before being caught. The real
+  flex-grow utility is `grow`, and `basis--0` is needed alongside it for an
+  even split.
   Check new utility classes against the framework stylesheet directly:
   `curl -s https://trmnl.com/css/3.4.4/plugins.css | grep -F '.classname{'`
 

@@ -142,9 +142,22 @@
           {% endif %}
         {% endfor %}
 
-        <div class="col col--start gap--small">
+        <div class="col gap--small h--full{% if card_count < 2 %} col--start{% endif %}">
           {% for card in c %}
             {% if card.s == top_slot or card.s == bottom_slot %}
+              {% comment %}
+                Each card in a split column claims half the height whatever it
+                holds. Without this the divider lands wherever the top card
+                happens to end — a two-row bus card put it a quarter of the
+                way down and gave the card below three quarters of the column,
+                so two boards with the same layout looked different.
+
+                The column drops `col--start` when it is split: that sets
+                `justify-content: flex-start`, which packs children to the top
+                and overrides the even share. A single-card column keeps it,
+                so a lone card still sits at the top rather than centring.
+              {% endcomment %}
+              <div class="{% if card_count > 1 %}grow basis--0{% endif %} w--full">
 
                 {% comment %} A rule between two cards sharing a column. {% endcomment %}
                 {% if card.s == bottom_slot and card_count > 1 %}
@@ -166,7 +179,7 @@
                   not, so the rest are dropped.
                 {% endcomment %}
                 <div class="flex flex--row items--center gap--small">
-                  <span class="title title--small md:title--base lg:title--large flex--1" data-clamp="1">{{ card.n }}</span>
+                  <span class="title title--small md:title--base lg:title--large grow" data-clamp="1">{{ card.n }}</span>
                   {% if card.b %}
                     {% for route in card.b limit: 4 %}
                       {% assign is_express = false %}
@@ -210,7 +223,7 @@
                     have one column per stop ID, which is one direction each,
                     so the same rule applies to them.
 
-                    Each gets `flex--1` so they divide the card evenly
+                    Each gets `grow basis--0` so they divide the card evenly
                     whatever they hold, and its own limiter so a busy
                     direction cannot crowd out a quiet one. The row carries
                     `flex--top`, without which the shorter column centres
@@ -227,7 +240,7 @@
                       time are what a rider actually needs.
                     {% endcomment %}
                     {% for col in card.k %}
-                    <div class="flex--1 content w--full"
+                    <div class="grow basis--0 content w--full"
                          data-content-limiter="true"
                          data-content-max-height="{{ card_height }}">
                       {% if col.h != "" %}
@@ -336,7 +349,7 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-
+              </div>
             {% endif %}
           {% endfor %}
         </div>
