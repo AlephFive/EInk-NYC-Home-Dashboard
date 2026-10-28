@@ -22,6 +22,7 @@ import {
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup.ts";
 import { isCityBound, getRailroadRouteShortName } from "../../EInk-NYC-Home-Dashboard/src/utils/railroad/routeLookup.ts";
 import { isBoardable } from "../../EInk-NYC-Home-Dashboard/src/utils/departures.ts";
+import { subwayRouteLabel } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
 
 describe("a station can carry several lines on one ID", () => {
   test("Coney Island-Stillwell Av serves D, F, N and Q", () => {
@@ -102,6 +103,40 @@ describe("express variants", () => {
     assert.equal(stripExpress("GS"), "GS");
     assert.equal(stripExpress("FS"), "FS");
     assert.equal(stripExpress("SIR"), "SIR");
+  });
+});
+
+describe("shuttles are all signed S", () => {
+  // The feeds name them by internal route id, but the MTA signs, maps and
+  // announces every one as S. The station table already says S, so without
+  // the mapping a card's heading bullet and its rows disagree.
+  const shuttles: [string, string][] = [
+    ["GS", "42nd St, Times Sq to Grand Central"],
+    ["FS", "Franklin Av, Brooklyn"],
+    ["H", "Rockaway Park, via Broad Channel"],
+  ];
+
+  for (const [routeId, where] of shuttles) {
+    test(`${routeId} (${where}) shows as S`, () => {
+      assert.equal(subwayRouteLabel(routeId), "S");
+    });
+  }
+
+  test("a numbered or lettered route is untouched", () => {
+    for (const r of ["1", "7", "A", "C", "G", "Q"]) {
+      assert.equal(subwayRouteLabel(r), r);
+    }
+  });
+
+  test("an express variant is not swallowed", () => {
+    // 7X must still reach the express logic as 7X, not be rewritten here.
+    assert.equal(subwayRouteLabel("7X"), "7X");
+  });
+
+  test("the Staten Island Railway keeps its own name", () => {
+    // SIR is a railway, not a shuttle, and is signed SIR.
+    assert.equal(subwayRouteLabel("SIR"), "SIR");
+    assert.equal(subwayRouteLabel("SI"), "SI");
   });
 });
 
