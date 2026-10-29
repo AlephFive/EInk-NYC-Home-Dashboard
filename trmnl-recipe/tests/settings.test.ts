@@ -244,6 +244,29 @@ describe("the demo board", () => {
     assert.equal(bus.stopIds.length, 2, "a corner needs both direction IDs");
   });
 
+  test("the two railroads are shown at comparable stations", () => {
+    // Both cards render identically — a branch badge, a destination, a time
+    // — so the pair only teaches something if the stations are comparable.
+    //
+    // Penn Station was the wrong LIRR choice: at a terminal most trains run
+    // to their branch's namesake, so badge and destination repeat on 73% of
+    // rows ("Ronkonkoma | Ronkonkoma") against 21% at Grand Central, and the
+    // card reads as one word printed twice. Jamaica is the hub nearly every
+    // LIRR train passes through — 10 branches, 13 destinations, trains in
+    // both directions — which is the shape Grand Central has.
+    const rail = board("").cards.filter((c) =>
+      c.transitType.startsWith("railroad-")
+    );
+    assert.equal(rail.length, 2, "one card per railroad");
+    assert.deepEqual(
+      rail.map((c) => c.transitType).sort(),
+      ["railroad-lirr", "railroad-mtn"]
+    );
+
+    const lirr = rail.find((c) => c.transitType === "railroad-lirr");
+    assert.equal(lirr?.stopIds[0], "102", "the LIRR card should be Jamaica");
+  });
+
   test("demonstrates the line filter", () => {
     // Times Square carries twelve routes on one card, and narrowing it is
     // the non-obvious thing a new installer most needs to discover. The
@@ -260,7 +283,7 @@ describe("the demo board", () => {
     assert.deepEqual(names, [
       "Times Sq-42 St",
       "Times Sq N/Q/R/W",
-      "Penn Station",
+      "Jamaica",
       "W 42 St/5 Av",
       "Grand Central",
       "Wall St/Pier 11",

@@ -205,9 +205,15 @@ const DEMO_CARDS: CardSettings[] = [
   {
     slot: 3,
     transitType: "railroad-lirr",
-    stopIds: ["237"], // Penn Station
+    // Jamaica, not Penn Station. At a terminal most trains run to their
+    // branch's namesake, so badge and destination repeat on three rows in
+    // four — "Ronkonkoma | Ronkonkoma" — and the card reads as a column of
+    // the same word twice. Jamaica is the LIRR's hub, where nearly every
+    // train passes through: 10 branches, 13 destinations, and trains in
+    // both directions, which is what the Metro-North card beside it shows.
+    stopIds: ["102"],
     walkTime: 10,
-    title: "Penn Station",
+    title: "Jamaica",
   },
   {
     slot: 4,
