@@ -196,6 +196,32 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("a heading tag cannot overflow its card", () => {
+    // The tag shares its slot with the subway's route bullets, but unlike a
+    // bullet it is words. Unbounded, a long one wraps onto a second line,
+    // pushes past the card's edge into the heading beside it, and crushes
+    // the station name it was meant to sit next to — verified by rendering
+    // a 32-character tag, which clipped "Harlem-125 St" to "Harlem-1…".
+    //
+    // The station name is what a rider reads first, so the tag gives way.
+    for (const [name, liquid] of layouts) {
+      assert.ok(
+        liquid.includes(".type-tag {"),
+        `${name} does not define the tag's bounds`
+      );
+      assert.ok(
+        /<span class="label[^"]*label--filled type-tag">/.test(liquid),
+        `${name} renders a heading tag without bounding it`
+      );
+      for (const rule of ["text-overflow: ellipsis", "white-space: nowrap", "max-width"]) {
+        assert.ok(
+          liquid.includes(rule),
+          `${name}'s tag is missing ${rule}`
+        );
+      }
+    }
+  });
+
   test("every layout draws the direction arrow", () => {
     // `‹` toward the city, `›` away. Single-angle quotes rather than ← →,
     // which the panel's face draws inconsistently at this size.
@@ -265,7 +291,12 @@ describe("every class exists in the framework", () => {
   const cachePath = resolve(root, "node_modules/.cache/trmnl-framework.css");
 
   /** Classes we define ourselves, in each layout's own <style> block. */
-  const OURS = new Set(["bullet", "bullet--express", "bullet--pair"]);
+  const OURS = new Set([
+    "bullet",
+    "bullet--express",
+    "bullet--pair",
+    "type-tag",
+  ]);
 
   let frameworkClasses: Set<string> | undefined;
 

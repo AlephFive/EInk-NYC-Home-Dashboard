@@ -51,6 +51,24 @@
        final letter pushes SI visibly left of centre. */
     text-indent: -0.06em;
   }
+  /* A heading tag names the network — LIRR, Metro North, Bus, Ferry — and
+     shares its slot with the subway's route bullets. Unlike a bullet it is
+     words, so it needs bounding: without this a long one wraps onto a second
+     line, pushes past the card's edge into the heading beside it, and
+     crushes the station name it was meant to sit next to.
+
+     The station name is what a rider reads first, so the tag is the one that
+     gives way: it will not grow past a third of the heading, will not wrap,
+     and ellipsizes when it must. */
+  .type-tag {
+    max-width: 33%;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
 </style>
 
 {% comment %}
@@ -228,7 +246,7 @@
                       {% if card.y == "subway" and glyph.size <= 2 %}
                         <span class="label label--small md:label--base label--filled bullet{% if glyph.size == 2 %} bullet--pair{% endif %}{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
                       {% else %}
-                        <span class="label label--small md:label--base label--filled">{{ glyph }}</span>
+                        <span class="label label--small md:label--base label--filled type-tag">{{ glyph }}</span>
                       {% endif %}
                     {% endfor %}
                   {% endif %}
