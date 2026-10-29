@@ -552,8 +552,26 @@ cards on one board decode once. What is not built is sharing **across**
 requests.
 
 The mechanism is available: Workers' Cache API (`caches.default`) works on the
-free plan at 512MB per object, and caching the raw response rather than the
-decoded board means a hit skips the fetch *and* the ~4ms decode.
+free plan at 512MB per object, caches responses from third-party origins, and
+accepts an arbitrarily constructed `Response` — so what to cache is a real
+design choice rather than a given.
+
+**Correction (2026-10-29): caching raw feed bytes does not save CPU.** An
+earlier version of this section claimed a hit "skips the fetch *and* the ~4ms
+decode". It does not. A raw-bytes hit returns protobuf, which must still be
+decoded — and decode is the part billed against the 10ms CPU limit, while the
+fetch it *does* skip is I/O and is not billed at all. Measured on the
+`a_division` feed:
+
+| Cache shape | Cost on a hit | Verdict |
+|---|---|---|
+| Raw protobuf bytes | still 2.27ms to decode | saves I/O, not CPU |
+| Decoded feed as JSON | 3.02ms to `JSON.parse`, 7.1x larger (121KB → 859KB) | **slower than decoding** |
+| Finished board | 0.02ms to parse a ~2–5KB payload | 100–500x cheaper |
+
+Protobuf is already a fast binary format; JSON is not a shortcut around it.
+Only caching the **finished board** avoids the decode, and that key is the
+user's whole settings string.
 
 **Why it is not built yet.** The benefit only appears at scale, because polls
 are 15 minutes apart and any sane TTL expires between them:
@@ -577,11 +595,33 @@ It also adds state to a deliberately stateless design: today the only
 correctness question is "did the feed answer?", and a cache adds "is this
 stale?".
 
-**Build it when the plugin has roughly a hundred installs**, or sooner if the
-MTA ever rate-limits — though their feeds are unauthenticated and designed for
-public polling, so that seems unlikely. Cache the raw protobuf keyed by feed
-URL with a TTL under the feed's own update interval (~30s), and verify the hit
-rate before trusting it.
+#### What the layers are actually worth
+
+| Layer | Key | Hit rate | Saves | Build? |
+|---|---|---|---|---|
+| **Demo board** | `isDemo` | very high | ~3–10ms CPU per hit | **yes, now** |
+| Raw feed bytes | feed URL | ~0% at 10 installs, high at 100+ | upstream fetches, not CPU | at ~100 installs |
+| Decoded feed | feed URL | — | nothing; it is slower | no |
+| Per-user board | settings string | ~0% | — | no |
+
+A per-user board cache cannot work: two users share a key only if they picked
+identical stations *and* identical walk times, and walk time is by definition
+personal. The one exception is the **demo board**, which every unconfigured
+install and the public store preview request with the same empty query — one
+key, one build, served to everyone. `settings.isDemo` already identifies it.
+
+Note also what caching does *not* change: **billable requests**. A cache hit
+is still a Worker request, because the poll already arrived. Caching moves CPU
+and upstream fetches, never the request count — so the 100,000/day free limit
+(~1,000 installs at a 15-minute poll) is unaffected by any of this.
+
+**Order of work:** cache the demo board now, since its key is already computed
+and its correctness is checkable at one install. **Add the raw-feed cache at
+roughly a hundred installs**, or sooner if the MTA rate-limits — their feeds
+are unauthenticated and built for public polling, so that seems unlikely. Use
+a TTL under the feed's own update interval: sampled every 10 seconds, the
+`a_division` feed changed on *every* sample, so ~30s is a ceiling and not a
+target. Verify the hit rate before trusting it.
 
 ### 7.1 The MTA key
 

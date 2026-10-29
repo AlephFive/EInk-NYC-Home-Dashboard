@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --import ./tests/resolve-ts.mjs --test \"tests/*.test.ts\"",
     "configure": "node scripts/configure.mjs",
-    "spike:cpu": "node --experimental-strip-types spikes/decodeCost.ts"
+    "spike:cpu": "node --experimental-transform-types spikes/decodeCost.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261023.1",
