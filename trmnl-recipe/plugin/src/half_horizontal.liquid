@@ -69,6 +69,24 @@
     white-space: nowrap;
     display: block;
   }
+  /* A row badge is a route name — a railroad branch, a bus route — and some
+     are long: "City Terminal Zone" is LIRR's name for Penn/Atlantic/Grand
+     Central service. Unbounded it wraps to a second line and makes that one
+     row taller than its neighbours, which is what uniform row height exists
+     to prevent: a column you can scan down.
+
+     So a badge never wraps. It keeps its own width where it fits and
+     ellipsizes where it does not, and the destination beside it gives way
+     first — the route is what a rider scans for. */
+  .row-badge {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
 </style>
 
 {% comment %}
@@ -87,11 +105,37 @@
 {% assign device_height = trmnl.device.height | default: 480 %}
 {% assign card_height = device_height | times: 30 | divided_by: 100 %}
 
+{% comment %}
+  Sized to the columns actually in use, so a two-column board fills the cell
+  rather than leaving a third of it blank. Slots keep their columns — only
+  the empty ones are dropped, so a card never moves because another was
+  added elsewhere.
+
+  This layout shows one card per column (the top slot), so a column is in use
+  exactly when that slot is configured.
+{% endcomment %}
+{% assign used_columns = 0 %}
+{% for column_index in (0..2) %}
+  {% assign slot = column_index | times: 2 | plus: 1 %}
+  {% for card in c %}
+    {% if card.s == slot %}
+      {% assign used_columns = used_columns | plus: 1 %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% if used_columns == 0 %}{% assign used_columns = 1 %}{% endif %}
+
 <div class="view">
   <div class="layout">
-    <div class="grid grid--cols-3 h--full">
+    <div class="grid grid--cols-{{ used_columns }} h--full">
       {% for column_index in (0..2) %}
         {% assign top_slot = column_index | times: 2 | plus: 1 %}
+        {% assign has_card = false %}
+        {% for card in c %}
+          {% if card.s == top_slot %}{% assign has_card = true %}{% break %}{% endif %}
+        {% endfor %}
+        {% if has_card %}
         <div class="col col--start gap--small">
           {% for card in c %}
             {% if card.s == top_slot %}
@@ -183,7 +227,7 @@
                   {% assign arrow = "›" %}
                 {% endif %}
                       <div class="flex flex--row flex--between flex--center-y gap--small">
-                        <span class="label label--small label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
+                        <span class="label label--small label--filled {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                         <span class="title title--small grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
                         <span class="title title--small">{{ r[2] }}</span>
                       </div>
@@ -199,6 +243,7 @@
             {% endif %}
           {% endfor %}
         </div>
+        {% endif %}
       {% endfor %}
     </div>
   </div>

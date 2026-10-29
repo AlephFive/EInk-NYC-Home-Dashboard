@@ -47,15 +47,33 @@ const layouts = new Map(LAYOUTS.map((name) => [name, source(name)]));
 const markupOf = (liquid: string): string =>
   liquid.replace(/<style>[\s\S]*?<\/style>/g, "");
 
-/** Every class name a layout applies, with Liquid tags stripped out. */
+/**
+ * Every class name a layout applies.
+ *
+ * Liquid is stripped **before** attributes are found, not after. A class
+ * attribute can hold a tag containing quotes — `{% if bullet_class == "" %}`
+ * — and those quotes close the `class="…"` match early, leaving a fragment
+ * whose tail reads as a class called `if`. Removing the tags first makes the
+ * attribute well-formed before it is parsed.
+ */
 function classesUsed(liquid: string): Set<string> {
+  const withoutLiquid = markupOf(liquid)
+    .replace(/\{%[\s\S]*?%\}/g, " ")
+    .replace(/\{\{[\s\S]*?\}\}/g, " ");
+
   const found = new Set<string>();
-  for (const [, attr] of markupOf(liquid).matchAll(/class="([^"]*)"/g)) {
-    const literal = attr
-      .replace(/\{%[\s\S]*?%\}/g, " ")
-      .replace(/\{\{[\s\S]*?\}\}/g, " ");
-    for (const name of literal.split(/\s+/)) {
-      if (name) found.add(name);
+  for (const [, attr] of withoutLiquid.matchAll(/class="([^"]*)"/g)) {
+    for (const name of attr.split(/\s+/)) {
+      // A class interpolated from Liquid — `grid--cols-{{ used_columns }}` —
+      // leaves a stem like "grid--cols-" once the tag is gone. It is a real
+      // class at render time but not a literal one here, so a name ending
+      // in a hyphen is skipped rather than reported as invented.
+      //
+      // Everything else must be checked. The framework's own names carry
+      // double hyphens and colons (`label--filled`, `md:title--base`), so
+      // the pattern has to admit them — an earlier version did not, and
+      // silently skipped every class worth checking.
+      if (name && !name.endsWith("-")) found.add(name);
     }
   }
   return found;
@@ -222,6 +240,43 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("the grid is sized to the columns in use", () => {
+    // Hardcoded at three, a board using two left a third of the panel
+    // blank — and width is the thing destinations are short of, which is
+    // why three is the maximum in the first place. Two columns go from
+    // ~253px each to ~390px.
+    //
+    // Slots keep their columns: only the empty ones are dropped, so a card
+    // never moves because a different card was added elsewhere.
+    for (const name of ["full", "half_horizontal"]) {
+      const liquid = layouts.get(name)!;
+      assert.ok(
+        liquid.includes("grid--cols-{{ used_columns }}"),
+        `${name} hardcodes its column count`
+      );
+      assert.ok(
+        /\{%\s*if used_columns == 0\s*%\}/.test(liquid),
+        `${name} does not guard against an empty board`
+      );
+    }
+  });
+
+  test("a long row badge cannot make its row taller", () => {
+    // Uniform row height is what makes a column scannable. "City Terminal
+    // Zone" — LIRR's name for Penn/Atlantic/Grand Central service — wrapped
+    // to a second line and pushed its row past its neighbours.
+    for (const [name, liquid] of layouts) {
+      assert.ok(
+        liquid.includes(".row-badge {"),
+        `${name} does not bound its row badges`
+      );
+      assert.ok(
+        liquid.includes("row-badge{% endif %}"),
+        `${name} never applies the bound`
+      );
+    }
+  });
+
   test("every layout draws the direction arrow", () => {
     // `‹` toward the city, `›` away. Single-angle quotes rather than ← →,
     // which the panel's face draws inconsistently at this size.
@@ -296,6 +351,7 @@ describe("every class exists in the framework", () => {
     "bullet--express",
     "bullet--pair",
     "type-tag",
+    "row-badge",
   ]);
 
   let frameworkClasses: Set<string> | undefined;

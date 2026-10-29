@@ -69,6 +69,24 @@
     white-space: nowrap;
     display: block;
   }
+  /* A row badge is a route name — a railroad branch, a bus route — and some
+     are long: "City Terminal Zone" is LIRR's name for Penn/Atlantic/Grand
+     Central service. Unbounded it wraps to a second line and makes that one
+     row taller than its neighbours, which is what uniform row height exists
+     to prevent: a column you can scan down.
+
+     So a badge never wraps. It keeps its own width where it fits and
+     ellipsizes where it does not, and the destination beside it gives way
+     first — the route is what a rider scans for. */
+  .row-badge {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
 </style>
 
 {% comment %}
@@ -178,7 +196,7 @@
                   {% assign arrow = "›" %}
                 {% endif %}
                 <div class="flex flex--row flex--between flex--center-y gap--small">
-                  <span class="label label--small label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
+                  <span class="label label--small label--filled {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                   <span class="title title--small grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
                   <span class="title title--small">{{ r[2] }}</span>
                 </div>

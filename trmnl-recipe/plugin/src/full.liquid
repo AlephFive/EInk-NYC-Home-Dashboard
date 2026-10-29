@@ -69,6 +69,24 @@
     white-space: nowrap;
     display: block;
   }
+  /* A row badge is a route name — a railroad branch, a bus route — and some
+     are long: "City Terminal Zone" is LIRR's name for Penn/Atlantic/Grand
+     Central service. Unbounded it wraps to a second line and makes that one
+     row taller than its neighbours, which is what uniform row height exists
+     to prevent: a column you can scan down.
+
+     So a badge never wraps. It keeps its own width where it fits and
+     ellipsizes where it does not, and the destination beside it gives way
+     first — the route is what a rider scans for. */
+  .row-badge {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
 </style>
 
 {% comment %}
@@ -155,9 +173,35 @@
   Split a route id into the character shown and the shape that shows it.
   "7X" is the 7 running express, drawn as a diamond; "7" is a circle.
 {% endcomment %}
+{% comment %}
+  How many of the three columns hold a card.
+
+  The grid is sized to that rather than fixed at three, so a board using two
+  columns fills the panel instead of leaving a third of it blank. Two columns
+  go from ~253px each to ~390px — and width is the thing destinations have
+  been short of all along, which is why three is the maximum in the first
+  place.
+
+  Slots keep their columns: 1/2 left, 3/4 middle, 5/6 right. Only the empty
+  columns are dropped, so a card never moves because a different card was
+  added elsewhere.
+{% endcomment %}
+{% assign used_columns = 0 %}
+{% for column_index in (0..2) %}
+  {% assign first = column_index | times: 2 | plus: 1 %}
+  {% assign second = first | plus: 1 %}
+  {% for card in c %}
+    {% if card.s == first or card.s == second %}
+      {% assign used_columns = used_columns | plus: 1 %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% if used_columns == 0 %}{% assign used_columns = 1 %}{% endif %}
+
 <div class="view">
   <div class="layout">
-    <div class="grid grid--cols-3 h--full">
+    <div class="grid grid--cols-{{ used_columns }} h--full">
 
       {% comment %}
         Left column takes slots 1 and 2, middle 3 and 4, right 5 and 6.
@@ -182,6 +226,12 @@
           {% endif %}
         {% endfor %}
 
+        {% comment %}
+          An empty column is skipped entirely rather than rendered blank —
+          otherwise the grid would reserve a track for it and the reflow
+          above would buy nothing.
+        {% endcomment %}
+        {% if card_count > 0 %}
         <div class="col gap--small h--full{% if card_count < 2 %} col--start{% endif %}">
           {% for card in c %}
             {% if card.s == top_slot or card.s == bottom_slot %}
@@ -419,7 +469,7 @@
                             is what forces two lines there.
                           {% endcomment %}
                           <div class="flex flex--row flex--between flex--center-y gap--small w--full">
-                            <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
+                            <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                             {% comment %}
                               The arrow stands on its own when the
                               destination was dropped as redundant — a train
@@ -433,7 +483,7 @@
                         {% else %}
                           <div class="w--full">
                             <div class="flex flex--row flex--between flex--center-y gap--small w--full">
-                              <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
+                              <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                               <span class="title title--small md:title--base">{{ r[2] }}</span>
                             </div>
                             {% if destination != blank %}
@@ -461,6 +511,7 @@
             {% endif %}
           {% endfor %}
         </div>
+        {% endif %}
 
       {% endfor %}
 
