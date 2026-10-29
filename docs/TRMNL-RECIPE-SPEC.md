@@ -336,49 +336,42 @@ the server where it already lives.
 transit type, letting one endpoint serve subway, LIRR and Metro-North and
 route bus queries to the portal.
 
-#### Verify before store submission
+#### `xhrSelectSearch` does not support `depends_on` — answered 2026-10-29
 
-`xhrSelectSearch` is **real but undocumented**. It appears in no public TRMNL
-documentation — not the custom-fields help, not `llms-full.txt` — which is
-why this section exists rather than citing a doc link.
+`xhrSelectSearch` is **real but undocumented**: it is in `usetrmnl/trmnlp`'s
+field-type allowlist, vendored from the hosted service, and GitHub code
+search finds it across 27 third-party plugins.
 
-What it is grounded in (checked 2026-10-29):
+What is *not* true is the `depends_on` wiring this spec originally described.
+`usetrmnl/trmnl-form-builder` lists each field type's supported properties:
 
-| Source | What it shows |
-|---|---|
-| `usetrmnl/trmnlp` → `db/data/form_fields.yml` | `xhrSelectSearch` is in the field-type allowlist, vendored from the hosted service |
-| `usetrmnl/trmnl-form-builder` → `AGENTS.md` | Describes `xhrSelect`/`xhrSelectSearch` as "dynamic dropdowns with dependencies" |
-| GitHub code search | 27 results across third-party plugins, so it is in real use |
+```
+xhrSelect:       endpoint, http_verb, depends_on, multiple, optional
+xhrSelectSearch: endpoint, http_verb,             multiple, optional
+```
 
-So the field type is safe to rely on. **Two things are not, and both are
-cheap to check the moment `trmnlp push` has run:**
+**`depends_on` is an `xhrSelect`-only property.** Declaring it on an
+`xhrSelectSearch` field stopped the widget initialising altogether: the
+dropdown rendered empty and the Worker logged **zero requests** — confirmed
+with `wrangler tail`, where a hand-made `curl` appeared instantly and the
+plugin's own UI produced nothing at all.
 
-1. **Does `depends_on` survive?** The form builder states the parent of a
-   `depends_on` "must be an `xhrSelect` type", and ours is a plain `select`
-   (`cardN_type`). If the hosted service enforces that, the reference is
-   *silently cleared* — the docs say so explicitly.
+So the transit type cannot ride in the endpoint path, because nothing
+interpolates `{{cardN_type}}` into it. **Each slot's endpoint carries its own
+slot number instead:**
 
-   The blast radius is specific. `{{cardN_type}}` is interpolated into the
-   endpoint **path**, so a cleared dependency leaves the Worker without a
-   type there. It falls back to `pickTransitType()`, which scans the posted
-   body — and TRMNL posts *every* slot's settings, so it returns **card 1's
-   type for all six pickers**. A board whose card 1 is Subway would then
-   search the subway table for its LIRR and bus cards too.
+```
+/api/stations?slot=1
+```
 
-   Worth knowing: `/api/stations/<type>` already answers correctly when the
-   path carries the type, and the body fallback answers correctly when only
-   one type is set. The failure is specific to a mixed board with a cleared
-   dependency.
+The Worker reads that slot's own `cardN_type` out of the posted body. TRMNL
+posts *every* slot's settings together, so the slot is what keeps a card 2
+picker set to LIRR from answering with card 1's subway stations — verified
+against the deployed Worker, where `slot=1` returns subway Jamaica stations
+and `slot=2` returns LIRR Jamaica from the same request body.
 
-2. **Does the search box render for a store user?** Everything above is
-   about the field being accepted. What has never been observed is the
-   widget itself in a plugin-settings page. If it degrades to a plain text
-   input, users would be typing raw stop IDs — which is unusable, and would
-   change the plugin's design rather than being a small fix.
-
-**Check both by pushing the plugin and opening its settings.** Neither needs
-a device. If (2) fails, a hosted station-search page becomes necessary
-rather than optional — see the note in §9.
+A slot whose type is unset returns an empty list rather than borrowing a
+neighbour's, which is the honest answer before the user has chosen one.
 
 ### 4.3 What the form deliberately does not expose
 

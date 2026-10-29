@@ -51,22 +51,12 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
     const body = await readBody(request);
     query = String(body.query ?? query ?? "");
 
-    // What TRMNL actually posts is undocumented, and the picker returning an
-    // empty dropdown in the real plugin is the only evidence we have. One
-    // line in `wrangler tail` while opening the field settles the shape.
-    console.log(
-      "picker",
-      JSON.stringify({
-        path: url.pathname,
-        keys: Object.keys(body).sort(),
-      })
-    );
     // The path wins. TRMNL posts *every* sibling setting, so the body carries
     // all six slots' types — and picking "the first key ending _type" out of
     // them returns card 1's type no matter which slot's picker is open. The
     // path segment comes from this field's own `depends_on` interpolation, so
     // it is the only one that identifies the right slot.
-    kindValue = kindValue ?? pickTransitType(body);
+    kindValue = kindValue ?? pickTransitType(body, url.searchParams.get("slot"));
   }
 
   // `/api/bus-stops` is an alias for `/api/stations/bus`, kept because the
@@ -138,7 +128,23 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
  * a form whose endpoint omits the interpolation. TRMNL posts every slot's
  * settings, so this cannot tell which slot asked; the path can.
  */
-function pickTransitType(body: Record<string, unknown>): string | undefined {
+function pickTransitType(
+  body: Record<string, unknown>,
+  slot?: string | null
+): string | undefined {
+  // The asking slot, when the endpoint says which one it is. TRMNL posts
+  // every slot's settings together, so without this a card 2 picker set to
+  // LIRR would answer from card 1's transit type — the board's first card
+  // decides what every other card searches.
+  if (slot) {
+    const own = body[`card${slot}_type`];
+    if (typeof own === "string" && own.trim()) return own;
+    // The slot is known and its type is unset: the user has not chosen one
+    // yet, so an empty dropdown is the honest answer rather than falling
+    // back to a neighbour's type.
+    return undefined;
+  }
+
   for (const [key, value] of Object.entries(body)) {
     if (key.endsWith("_type") && typeof value === "string" && value.trim()) {
       return value;

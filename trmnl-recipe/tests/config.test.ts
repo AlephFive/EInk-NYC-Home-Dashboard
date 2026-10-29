@@ -146,6 +146,45 @@ describe("the two configuration sources agree", () => {
     assert.deepEqual(cardFields(formYaml), cardFields(settingsYml));
   });
 
+  test("no station field declares depends_on", () => {
+    // xhrSelectSearch does not support it. The form-builder's own field
+    // definitions list depends_on under xhrSelect only, and declaring it
+    // here stopped the widget initialising at all — the dropdown was empty
+    // and the Worker never saw a single request.
+    for (const [name, yaml] of [
+      ["settings.yml", settingsYml],
+      ["form.yaml", formYaml],
+    ] as [string, string][]) {
+      assert.ok(
+        !yaml.includes("depends_on"),
+        `${name} declares depends_on on an xhrSelectSearch field`
+      );
+    }
+  });
+
+  test("each station endpoint names its own slot", () => {
+    // Without depends_on the transit type cannot ride in the path, so the
+    // endpoint carries the slot instead and the Worker reads that slot's
+    // own type out of the posted body. TRMNL posts every slot's settings
+    // together, so without the slot a card 2 picker set to LIRR would
+    // answer from card 1's type.
+    for (const [name, yaml] of [
+      ["settings.yml", settingsYml],
+      ["form.yaml", formYaml],
+    ] as [string, string][]) {
+      for (const slot of [1, 2, 3, 4, 5, 6]) {
+        assert.ok(
+          yaml.includes(`/api/stations?slot=${slot}`),
+          `${name} has no endpoint for slot ${slot}`
+        );
+      }
+      assert.ok(
+        !/\/api\/stations\/\{\{/.test(yaml),
+        `${name} still interpolates the type into the endpoint path`
+      );
+    }
+  });
+
   test("the recipe templates keep their placeholder", () => {
     // `recipe/` is the source the configure script reads; it writes
     // `recipe/out/` and leaves these untouched, so the hostname can change

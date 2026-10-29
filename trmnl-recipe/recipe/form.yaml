@@ -35,8 +35,7 @@
   description: Type part of a name, then pick from the list
   group: Card 1
   optional: true
-  depends_on: card1_type
-  endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card1_type}}
+  endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=1
   http_verb: POST
   help_text: >
     Stations that share a complex are listed once and show every platform.
@@ -93,8 +92,7 @@
   description: Type part of a name, then pick from the list
   group: Card 2
   optional: true
-  depends_on: card2_type
-  endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card2_type}}
+  endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=2
   http_verb: POST
   help_text: >
     Stations that share a complex are listed once and show every platform.
@@ -151,8 +149,7 @@
   description: Type part of a name, then pick from the list
   group: Card 3
   optional: true
-  depends_on: card3_type
-  endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card3_type}}
+  endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=3
   http_verb: POST
   help_text: >
     Stations that share a complex are listed once and show every platform.
@@ -209,8 +206,7 @@
   description: Type part of a name, then pick from the list
   group: Card 4
   optional: true
-  depends_on: card4_type
-  endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card4_type}}
+  endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=4
   http_verb: POST
   help_text: >
     Stations that share a complex are listed once and show every platform.
@@ -267,8 +263,7 @@
   description: Type part of a name, then pick from the list
   group: Card 5
   optional: true
-  depends_on: card5_type
-  endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card5_type}}
+  endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=5
   http_verb: POST
   help_text: >
     Stations that share a complex are listed once and show every platform.
@@ -325,8 +320,7 @@
   description: Type part of a name, then pick from the list
   group: Card 6
   optional: true
-  depends_on: card6_type
-  endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card6_type}}
+  endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=6
   http_verb: POST
   help_text: >
     Stations that share a complex are listed once and show every platform.

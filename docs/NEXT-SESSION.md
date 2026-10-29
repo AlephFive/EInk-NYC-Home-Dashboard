@@ -14,29 +14,19 @@ Only the `id` was worth keeping, and it is now committed. **After any push,
 `git diff` the file and restore everything but the id.** Do not let the
 server's copy stand.
 
-## Before store submission: check the station picker
+## Station picker: fixed, needs one retest
 
-Two things to confirm the moment `trmnlp push` has run, both from the
-plugin's settings page and neither needing a device:
+`depends_on` is not supported on `xhrSelectSearch` — it is an `xhrSelect`
+property — and declaring it stopped the widget initialising. The dropdown was
+empty and the Worker saw no request at all.
 
-1. **Does the search box render?** The station field is `xhrSelectSearch`,
-   which is real (it is in `usetrmnl/trmnlp`'s field allowlist) but appears
-   in no public TRMNL documentation. If it degrades to a plain text input,
-   users would type raw stop IDs — unusable, and a design change rather than
-   a fix.
+Fixed: `depends_on` removed, and each slot's endpoint now carries its own
+slot (`/api/stations?slot=2`) so the Worker reads that card's transit type
+rather than the first one it finds. Deployed and verified by hand.
 
-2. **Does `depends_on` survive?** TRMNL's form-builder docs say a
-   `depends_on` parent "must be an `xhrSelect` type"; ours is a plain
-   `select`, and a rejected reference is *silently cleared*. If it is, every
-   card's picker falls back to card 1's transit type — so a mixed board
-   searches the wrong table for cards 2-6.
-
-Full reasoning and the evidence behind it: spec §4.2.
-
-# Where this left off — 2026-10-27
-
-Phase 1 is merged to `main` and deployed. Phase 2's layout work is complete on
-`phase2-layout`, pushed but not merged.
+**Still to confirm in the UI**: push the plugin, open card 1, and check the
+dropdown now populates. If it does, the question of whether the search widget
+renders at all is finally answered yes.
 
 ## State
 
