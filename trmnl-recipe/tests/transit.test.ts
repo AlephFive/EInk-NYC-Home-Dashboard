@@ -533,6 +533,30 @@ describe("a station's expanded lines are all fetchable", () => {
     assert.deepEqual(feedKeysFor("1X"), []);
   });
 
+  test("no speculative id is fit to show a rider", () => {
+    // The second half of the same bug. Once unmapped ids stopped being fatal,
+    // the expanded list was still what fed the card's heading bullets — so
+    // Times Sq rendered "1 1X 2 2X 3 3X" and Coney Island "D DX F FX". Those
+    // are internal feed names; a diamond 1 is a train nobody can board.
+    //
+    // Bullets must come from the station table's routes, never the expansion.
+    for (const [stopId, label] of stations) {
+      const shown = getSubwayRoutes(stopId);
+      const expanded = expand(shown);
+
+      assert.ok(
+        expanded.length >= shown.length,
+        "the expansion should be at least as wide as the routes"
+      );
+      for (const route of shown) {
+        assert.ok(
+          !/^[0-9A-Z]X$/.test(route),
+          `${label}: the station table itself lists "${route}"`
+        );
+      }
+    }
+  });
+
   test("every mapped id names a feed that exists", () => {
     // The other half: an id that maps to a key with no URL would throw at
     // fetch time, which no amount of skipping would rescue.

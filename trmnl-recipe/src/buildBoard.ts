@@ -238,22 +238,39 @@ function routeFilterFor(routes: string[] | undefined) {
 }
 
 /**
- * The feed route ids to fetch for a card's stops.
+ * The routes a card's stops carry, as the station table signs them.
  *
- * The station table signs routes the way a rider reads them, so every
- * shuttle in it is `S` and the railway is `SIR` — neither of which the feeds
- * ever report. Expanding each label to the ids behind it is what sends a
- * Franklin Av card to the bdfm feed instead of a_division, where its trains
- * do not exist.
+ * These are rider-facing — `S` for every shuttle, `SIR` for the railway — and
+ * are what the card's heading bullets show.
  */
-function subwayLinesFor(stopIds: string[]): string[] {
+function subwayRoutesFor(stopIds: string[]): string[] {
   const routes = new Set<string>();
   for (const stopId of stopIds) {
-    for (const route of getSubwayRoutes(stopId)) {
-      for (const id of subwayRouteIds(route)) routes.add(id);
-    }
+    for (const route of getSubwayRoutes(stopId)) routes.add(route);
   }
   return [...routes];
+}
+
+/**
+ * The feed route ids to fetch for those routes.
+ *
+ * The station table never uses the names the feeds report: every shuttle in
+ * it is `S` and the railway is `SIR`. Expanding each label to the ids behind
+ * it is what sends a Franklin Av card to the bdfm feed instead of
+ * a_division, where its trains do not exist.
+ *
+ * **Deliberately wider than what runs.** The express rule derives `1X` from
+ * `1` because the trailing X is the rule, not a list to maintain, so this
+ * yields ids for expresses that do not exist. They map to no feed and are
+ * skipped at fetch. They must never reach the panel — these are internal
+ * names, and a diamond `1` is a train nobody can board.
+ */
+function subwayLinesFor(routes: string[]): string[] {
+  const ids = new Set<string>();
+  for (const route of routes) {
+    for (const id of subwayRouteIds(route)) ids.add(id);
+  }
+  return [...ids];
 }
 
 /**
@@ -262,10 +279,10 @@ function subwayLinesFor(stopIds: string[]): string[] {
  * A card narrowed to the 1/2/3 should not head itself with all twelve routes
  * at Times Square — the heading would contradict every row beneath it.
  */
-function bulletsFor(card: CardSettings, lines: string[]): string[] {
-  if (!card.routes || card.routes.length === 0) return lines;
+function bulletsFor(card: CardSettings, routes: string[]): string[] {
+  if (!card.routes || card.routes.length === 0) return routes;
   const wanted = new Set(card.routes.map((route) => route.toUpperCase()));
-  const shown = lines.filter((line) => wanted.has(line.toUpperCase()));
+  const shown = routes.filter((route) => wanted.has(route.toUpperCase()));
   // A route the station table does not list is still what the user asked
   // for, so show it rather than an empty heading.
   return shown.length > 0 ? shown : card.routes;
@@ -278,15 +295,17 @@ async function subwayCard(
   rowOptions: SharedOptions,
   feeds: FeedCache
 ): Promise<BoardCard> {
-  // Walks every stop's route list, so computed once and reused for both the
-  // card's bullets and its feed set.
-  const lines = subwayLinesFor(card.stopIds);
+  // Two different vocabularies, and keeping them apart is load-bearing. The
+  // bullets are what a rider reads; the lines are internal feed ids and are
+  // deliberately wider, including expresses that do not run.
+  const routes = subwayRoutesFor(card.stopIds);
+  const lines = subwayLinesFor(routes);
 
   const base: BoardCard = {
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getStationName(card.stopIds[0], "subway"),
-    b: bulletsFor(card, lines),
+    b: bulletsFor(card, routes),
   };
 
   try {
