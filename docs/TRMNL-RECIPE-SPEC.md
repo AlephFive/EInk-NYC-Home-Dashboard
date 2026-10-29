@@ -726,9 +726,39 @@ the recipe ships.
    `title` is the only one of the four that is purely cosmetic and already
    defaults to the station name (`TransitCard.tsx:309`). Dropping it saves six
    fields; keeping it helps users who merge stop IDs under one card.
-5. **Ferry.** Still schedule-based (`getFerrySchedule.ts`), which conflicts with
-   live-data-only. Options: omit ferry from v1, or ship it clearly labelled as
-   scheduled. Omitting is the honest default given the rule.
+5. **Ferry.** Omitted from v1 — still schedule-based (`getFerrySchedule.ts`),
+   which conflicts with live-data-only.
+
+   **A live feed exists (investigated 2026-10-29).** NYC Ferry publishes
+   GTFS-RT and GTFS static through Connexionz:
+
+   ```
+   .../gtfsrealtime.aspx/tripupdate        GTFS-RT TripUpdate, protobuf
+   .../gtfsrealtime.aspx/vehicleposition   GTFS-RT VehiclePosition
+   .../gtfs.aspx                           GTFS static, 49KB zip (302 -> follow)
+   ```
+
+   Host: `nycferry.connexionz.net`. **Note it is HTTP, not HTTPS** — Workers
+   can fetch it, but it is worth confirming before depending on it.
+
+   What the static feed contains: **51 stops, 7 routes** (AS, ER, RES, RS,
+   RWS, SB, SG), 852 trips, 5,146 stop-times, service 04:34–22:08. The
+   current `schedule.json` covers only `ER`, so going live would widen ferry
+   coverage sevenfold and make the station picker work the way the other
+   types do.
+
+   **The realtime feed decoded cleanly and was healthy but empty**, sampled
+   at 22:43 local — `header.timestamp` current to the second,
+   `gtfsRealtimeVersion` 2.0, zero entities. That is consistent with the
+   22:08 last departure rather than a dead endpoint, but **it has not yet
+   been observed carrying a single entity**. Confirm during service hours
+   before building anything: an empty feed only proves the feed is empty.
+
+   Remaining work once that is confirmed: map the GTFS stop IDs into the
+   station picker, replace `getFerrySchedule.ts` with a feed fetch, flip
+   `FERRY_ENABLED` in `buildBoard.ts`, and add Ferry to the form's type
+   options. The card builder, row builder and per-stop error handling are
+   already in place and unused.
 6. **Metro-North terminal coverage.** `cityTerminals.json` holds only Grand
    Central for MTN, which is correct for this board but may mislabel direction
    for users near other terminals. Needs auditing before a public release.
