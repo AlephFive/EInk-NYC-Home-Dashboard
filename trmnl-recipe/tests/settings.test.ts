@@ -66,6 +66,29 @@ describe("slot parsing", () => {
 });
 
 describe("narrowing a card to some routes", () => {
+  // The filter is not subway-only. It was, silently: routeFilterFor ran
+  // inside subwayCard and nowhere else, so a railroad, bus or ferry card
+  // accepted the field and ignored it — a user asking for the Babylon
+  // branch got all nine, with nothing to say the request had been dropped.
+  test("every transit type accepts a route filter", () => {
+    const cases: [string, string][] = [
+      ["subway:127!1,2,3:5", "subway"],
+      ["lirr:102!Babylon:10", "railroad-lirr"],
+      ["mtn:1!Hudson:10", "railroad-mtn"],
+      ["bus:403257!M42:5", "bus"],
+      ["ferry:87!ER:5", "ferry"],
+    ];
+
+    for (const [slot, type] of cases) {
+      const { cards } = board(`c1=${slot}`);
+      assert.equal(cards[0]?.transitType, type, slot);
+      assert.ok(
+        (cards[0]?.routes?.length ?? 0) > 0,
+        `${type} dropped its route filter at parse`
+      );
+    }
+  });
+
   // A complex puts many lines on one card — Times Square is twelve — so a
   // rider who only takes the 1/2/3 can name them and hide the rest.
   test("reads a comma-separated list", () => {

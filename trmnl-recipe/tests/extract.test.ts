@@ -189,6 +189,60 @@ describe("a branching station, from a captured feed", () => {
   });
 });
 
+describe("the route filter narrows a non-subway card", () => {
+  // The subway matches on a *label* that several feed ids map onto, so it
+  // has its own rule. Everywhere else the badge is the name, and the filter
+  // matches that — which is what makes "Babylon" work on an LIRR card.
+  //
+  // This was ignored entirely until now: the filter ran inside subwayCard
+  // and nowhere else, so three of the five types accepted the field and
+  // discarded it.
+  const feed = loadFeed("ferry-wall-st");
+
+  /** The filter as buildBoard applies it, on the badge a row shows. */
+  const keep = (badge: string, wanted: string[]) => {
+    const upper = badge.toUpperCase();
+    return wanted.some(
+      (route) => upper === route.toUpperCase() || upper.startsWith(route.toUpperCase())
+    );
+  };
+
+  test("a ferry card can be narrowed to one route", () => {
+    const sailings = extractFerryDataByStop(feed as never, "87");
+    const routes = [...new Set(sailings.map((s) => s.routeId))];
+    assert.ok(routes.length > 0, "the fixture has no sailings");
+
+    const narrowed = sailings.filter((s) => keep(s.routeId, [routes[0]]));
+    assert.ok(narrowed.length > 0, "filtering to a present route emptied the card");
+    for (const sailing of narrowed) {
+      assert.equal(sailing.routeId, routes[0]);
+    }
+  });
+
+  test("matching ignores case and accepts a prefix", () => {
+    // A rider types what they read, and these labels are long enough to
+    // invite near-misses — "babylon" for Babylon, "far rockaway" for the
+    // Far Rockaway branch.
+    assert.ok(keep("Babylon", ["babylon"]));
+    assert.ok(keep("Far Rockaway", ["Far"]));
+    assert.ok(keep("M42", ["m42"]));
+  });
+
+  test("an unrelated route does not match", () => {
+    assert.equal(keep("Babylon", ["Hudson"]), false);
+    assert.equal(keep("ER", ["SG"]), false);
+  });
+
+  test("a prefix matches by design, even a short one", () => {
+    // "M4" catches the M42, and "M" would catch every Manhattan bus. That
+    // is the cost of accepting partial names, and the right trade: a filter
+    // that is too generous shows extra rows, where one that is too strict
+    // empties the card and looks broken.
+    assert.equal(keep("M42", ["M4"]), true);
+    assert.equal(keep("M42", ["M"]), true);
+  });
+});
+
 describe("the ferry, from a captured feed", () => {
   // The feed that broke two assumptions the MTA feeds had made safe.
   const feed = loadFeed("ferry-wall-st");

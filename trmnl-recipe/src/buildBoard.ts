@@ -302,6 +302,41 @@ function routeFilterFor(routes: string[] | undefined) {
 }
 
 /**
+ * Whether a row belongs on a card that asked for particular routes.
+ *
+ * The non-subway version, matched on the badge the row actually shows — a
+ * railroad branch ("Babylon"), a bus route ("M42"), a ferry route ("ER").
+ * The subway needs its own rule because its badge is a *label* that several
+ * feed ids map onto; everywhere else the badge is the name.
+ *
+ * Matched loosely on purpose. A rider types what they read, and these labels
+ * are long enough to invite near-misses: "babylon" for Babylon, "far
+ * rockaway" for the Far Rockaway branch. Case is ignored and a prefix
+ * counts, so a partial name narrows the card rather than silently emptying
+ * it.
+ */
+/** Apply a card's route filter to built rows, or pass them through. */
+function filterRows(
+  rows: DepartureRowData[],
+  routes: string[] | undefined
+): DepartureRowData[] {
+  const keep = rowFilterFor(routes);
+  return keep ? rows.filter(keep) : rows;
+}
+
+function rowFilterFor(routes: string[] | undefined) {
+  if (!routes || routes.length === 0) return undefined;
+  const wanted = routes.map((route) => route.trim().toUpperCase());
+
+  return (row: DepartureRowData): boolean => {
+    const badge = row.badge.toUpperCase();
+    return wanted.some(
+      (route) => badge === route || badge.startsWith(route)
+    );
+  };
+}
+
+/**
  * The routes a card's stops carry, as the station table signs them.
  *
  * These are rider-facing — `S` for every shuttle, `SIR` for the railway — and
@@ -345,13 +380,11 @@ function subwayLinesFor(routes: string[]): string[] {
  * were distinguishable only by their station names, which assumes the
  * reader knows which railroad serves where.
  *
- * Bus is omitted deliberately: its rows already carry the route as a badge
- * on every line (`M42`, `Q101`), so a "Bus" tag would repeat what the card
- * is already saying twelve times over.
  */
 const TYPE_TAGS: Record<string, string> = {
   "railroad-lirr": "LIRR",
   "railroad-mtn": "Metro North",
+  bus: "Bus",
   ferry: "Ferry",
 };
 
@@ -485,12 +518,15 @@ async function railroadCard(
       k: [
         {
           h: "",
-          r: trainRows(trains, {
-            ...rowOptions,
-            walkTime: card.walkTime,
-            // A railroad card is one full-height list, not two columns.
-            limit: rowOptions.limit * 2,
-          }).map(toBoardRow),
+          r: filterRows(
+            trainRows(trains, {
+              ...rowOptions,
+              walkTime: card.walkTime,
+              // A railroad card is one full-height list, not two columns.
+              limit: rowOptions.limit * 2,
+            }),
+            card.routes
+          ).map(toBoardRow),
         },
       ],
     };
@@ -517,6 +553,7 @@ async function busCard(
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getStationName(card.stopIds[0], "bus"),
+    b: [TYPE_TAGS[card.transitType]],
   };
 
   const results = await Promise.all(
@@ -530,9 +567,10 @@ async function busCard(
         return {
           column: {
             h: "",
-            r: busRows(buses, { ...rowOptions, walkTime: card.walkTime }).map(
-              toBoardRow
-            ),
+            r: filterRows(
+              busRows(buses, { ...rowOptions, walkTime: card.walkTime }),
+              card.routes
+            ).map(toBoardRow),
           },
         };
       } catch (err) {
@@ -598,10 +636,13 @@ async function ferryCard(
       k: [
         {
           h: "",
-          r: liveFerryRows(sailings, {
-            ...rowOptions,
-            walkTime: card.walkTime,
-          }).map(toBoardRow),
+          r: filterRows(
+            liveFerryRows(sailings, {
+              ...rowOptions,
+              walkTime: card.walkTime,
+            }),
+            card.routes
+          ).map(toBoardRow),
         },
       ],
     };
