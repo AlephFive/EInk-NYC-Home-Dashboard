@@ -17,13 +17,40 @@ import {
 } from "./payload";
 import { searchStations, parsePickerKind, type PickerOption } from "./pickers";
 
+/**
+ * What a browser must be told before it will send the picker's POST.
+ *
+ * The station field runs **in the browser**, not on TRMNL's server, so a
+ * cross-origin POST to this Worker is preflighted. Answering that preflight
+ * with only `allow-origin` is not enough: the browser also asks whether the
+ * headers it intends to send are permitted, and if the answer omits them it
+ * cancels the POST.
+ *
+ * It cancels it *silently* — the dropdown renders empty, the Worker logs
+ * nothing but a stray OPTIONS, and both ends look healthy. That is what the
+ * empty picker turned out to be, after `depends_on` and the response shape
+ * had both been ruled out.
+ *
+ * `x-csrf-token` is in the list because TRMNL's widget sends one unless the
+ * field sets `exclude_csrf_token`.
+ */
+const CORS_HEADERS = {
+  // TRMNL polls server-side, but the picker is a browser XHR, and a browser
+  // is also how you debug a recipe.
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+  "access-control-allow-headers": "content-type, x-csrf-token",
+  // Cache the preflight for a day, so typing in the picker does not pay for
+  // a round trip per keystroke.
+  "access-control-max-age": "86400",
+} as const;
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
-      // TRMNL polls server-side, but a browser is how you debug a recipe.
-      "access-control-allow-origin": "*",
+      ...CORS_HEADERS,
       // Never serve a cached board: the whole point is live departures.
       "cache-control": "no-store",
     },
@@ -218,6 +245,14 @@ export default {
     ctx?: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
+
+    // Answer the preflight before anything else, and for every path — a
+    // browser sends it to whatever URL the field holds, including a stale
+    // one from a previous push. 204 with no body is the conventional
+    // answer; the headers are the whole point of the response.
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
 
     if (url.pathname === "/health") {
       return json({ ok: true });

@@ -397,6 +397,32 @@ Source: the TRMNL form-builder help article
 a third-party plugin's vendored reference rather than the docs site's own
 sitemap, which does not list it.
 
+#### The picker is a browser XHR, so it is preflighted
+
+The third and final cause, and the one that hid the other two.
+
+The station field runs **in the user's browser**, not on TRMNL's server.
+A cross-origin POST to this Worker is therefore preflighted, and answering
+that preflight with `access-control-allow-origin` alone is not enough: the
+browser also asks whether the *headers* it intends to send are permitted —
+`content-type`, and `x-csrf-token`, which TRMNL's widget sends unless the
+field sets `exclude_csrf_token`.
+
+Omitting `access-control-allow-headers` makes the browser **cancel the POST
+silently**. No error on either side: the dropdown renders empty, and the
+Worker log shows a lone `OPTIONS` with no `POST` behind it. That signature —
+repeated OPTIONS, never a POST — is what finally identified it, via
+`wrangler tail`.
+
+`OPTIONS` is now answered for every path, before routing, because the
+browser preflights whatever URL the field holds — including a stale endpoint
+from an earlier push.
+
+**All three had to be fixed for the dropdown to work**, and each one hid the
+next: `depends_on` stopped the widget initialising, so no request was made;
+fixing that exposed the response-shape mismatch; fixing that exposed the
+preflight.
+
 ### 4.3 What the form deliberately does not expose
 
 - **Subway `lines`.** In `displayConfig.ts` this selects *feeds*, not routes,
