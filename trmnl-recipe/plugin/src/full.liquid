@@ -200,7 +200,7 @@
                   four the bullets stop telling a rider anything the name has
                   not, so the rest are dropped.
                 {% endcomment %}
-                <div class="flex flex--row items--center gap--small">
+                <div class="flex flex--row flex--center-y gap--small">
                   <span class="title title--small md:title--base lg:title--large grow" data-clamp="1">{{ card.n }}</span>
                   {% if card.b %}
                     {% for route in card.b limit: 4 %}
@@ -351,8 +351,8 @@
                             with a typical walk most rows qualify, and a panel
                             of solid black rows has no emphasis left.
                           {% endcomment %}
-                          <div class="b--black bw--1 w--full">
-                            <div class="flex flex--row flex--between items--center gap--small w--full">
+                          <div class="w--full">
+                            <div class="flex flex--row flex--between flex--center-y gap--small w--full">
                               <span class="label label--small md:label--base label--outline {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                               <span class="title title--small md:title--base">{{ r[2] }}</span>
                             </div>
@@ -362,7 +362,7 @@
                           </div>
                         {% else %}
                           <div class="w--full">
-                            <div class="flex flex--row flex--between items--center gap--small w--full">
+                            <div class="flex flex--row flex--between flex--center-y gap--small w--full">
                               <span class="label label--small md:label--base label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                               <span class="title title--small md:title--base">{{ r[2] }}</span>
                             </div>

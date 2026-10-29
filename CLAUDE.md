@@ -305,10 +305,17 @@ across all cards:
     characters fit a bullet where three do not.
 
   The four TRMNL Liquid layouts reproduce this rule in markup because a
-  template cannot import it — **if the rule changes, grep the layouts.** Their
-  bullets hold one or two characters; three or more falls back to a pill, so
-  `Q101` and `Babylon` stay readable. `trmnl-recipe/tests/transit.test.ts`
-  covers all three rules and the ways they can fire on each other.
+  template cannot import it — TRMNL's Liquid has no partials, and `{% render %}`
+  / `{% include %}` fail *silently at render time* rather than breaking the
+  build. Their bullets hold one or two characters; three or more falls back to
+  a pill, so `Q101` and `Babylon` stay readable.
+
+  **`trmnl-recipe/tests/layouts.test.ts` guards the duplication**: it asserts
+  every layout carries the same rule, that no layout prints a raw feed route
+  id, and that **every class exists in the framework stylesheet** — `trmnlp
+  lint` only validates `label--*` sizes, so an invented class is inert and
+  usually looks close enough to ship. `transit.test.ts` covers the three rules
+  themselves and the ways they can fire on each other.
 
 #### Feed ids vs rider labels
 

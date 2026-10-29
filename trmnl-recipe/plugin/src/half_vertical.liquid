@@ -84,7 +84,7 @@
           <div class="border--h-40 w--full"></div>
         {% endunless %}
 
-        <div class="flex flex--row items--center gap--small">
+        <div class="flex flex--row flex--center-y gap--small">
           {% if card.b %}
             {% for route in card.b %}
               {% comment %}
@@ -141,7 +141,7 @@
                         {% assign bullet_class = "" %}
                       {% endif %}
                 {% if r[1] == r[0] %}{% assign destination = "" %}{% else %}{% assign destination = r[1] %}{% endif %}
-                <div class="flex flex--row flex--between items--center gap--small">
+                <div class="flex flex--row flex--between flex--center-y gap--small">
                   <span class="label label--small label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                   {% if destination == blank %}
                     <span class="grow"></span>
