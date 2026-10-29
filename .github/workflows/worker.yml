@@ -16,12 +16,19 @@ on:
       # change there can break it without touching trmnl-recipe/ at all.
       - "EInk-NYC-Home-Dashboard/src/utils/**"
       - "EInk-NYC-Home-Dashboard/src/staticData/**"
+      # The suite and the post-deploy smoke test are what decide whether a
+      # deploy is allowed to proceed, so a change to either must run them —
+      # otherwise a weakened check lands green without ever executing.
+      - "trmnl-recipe/tests/**"
+      - ".github/scripts/**"
       - ".github/workflows/worker.yml"
   pull_request:
     paths:
       - "trmnl-recipe/src/**"
       - "EInk-NYC-Home-Dashboard/src/utils/**"
       - "EInk-NYC-Home-Dashboard/src/staticData/**"
+      - "trmnl-recipe/tests/**"
+      - ".github/scripts/**"
 
 jobs:
   check:
