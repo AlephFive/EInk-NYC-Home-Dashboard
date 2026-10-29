@@ -4,6 +4,13 @@
 #
 # Replace REPLACE_ME with the deployed Worker's hostname — or run
 # `npm run configure <host>` from trmnl-recipe/, which does it everywhere.
+# The plugin this project pushes to. Written by `trmnlp push` on the first
+# push and kept here deliberately: without it every push CREATES A NEW
+# PLUGIN rather than updating this one.
+#
+#   https://trmnl.com/plugin_settings/524413/edit
+id: 524413
+
 name: NYC Transit Board
 description: NYC departures you can still catch
 

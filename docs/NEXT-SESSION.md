@@ -1,3 +1,19 @@
+## `trmnlp push` rewrites settings.yml — check the diff
+
+The plugin exists: **524413**, https://trmnl.com/plugin_settings/524413/edit
+
+`push` writes the server's normalised copy back over `src/settings.yml`, and
+that round-trip is lossy. After the first push it had:
+
+- `refresh_interval` **900 -> 1440** (15 minutes became 24 hours)
+- `recipe_overview` and `categories` **dropped** — the store listing copy
+- `placeholder: "1,2,3"` -> `123`, a quoted string read as a number
+- em-dashes mojibaked (`—` -> `â€"`), so something reads the file as cp1252
+
+Only the `id` was worth keeping, and it is now committed. **After any push,
+`git diff` the file and restore everything but the id.** Do not let the
+server's copy stand.
+
 ## Before store submission: check the station picker
 
 Two things to confirm the moment `trmnlp push` has run, both from the
