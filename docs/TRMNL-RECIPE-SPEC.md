@@ -249,6 +249,16 @@ Per slot *N* in 1..6, all fields grouped under an accordion `Card N`:
   endpoint: https://<host>/api/stations
   help_text: Type part of a station name.
 
+- keyname: card1_routes
+  field_type: string
+  name: Lines (optional)
+  group: Card 1
+  optional: true
+  placeholder: 1,2,3
+  help_text: >
+    Comma separated, as a rider names them. Blank shows every line the stop
+    carries.
+
 - keyname: card1_walk_time
   field_type: number
   name: Walk time (minutes)
@@ -286,6 +296,33 @@ Board-level settings, group `Display`:
     The panel refreshes on an interval, so a countdown can be stale by up to
     that interval while a clock time never is.
 ```
+
+### 4.1.1 The line filter, and splitting a complex
+
+`cardN_routes` narrows a card to the routes named, matched on the **label a
+rider reads** rather than the feed's route id. So `7` catches the `7X` running
+express and `S` catches `GS`, `FS` and `H` — asking for the 7 and being shown
+no express trains would be a surprising kind of correct. Blank means every
+route, which is what most cards want.
+
+It earns its place at a complex. Times Square is twelve routes on one card,
+which is complete and nearly useless. The intended use is **the same station in
+two slots with a different filter on each** — `1,2,3` in card 1 and `N,Q,R,W`
+in card 2 — giving one column of red lines above one of yellow. No special
+support is needed; two ordinary cards do it. Set `cardN_title` on at least one,
+or both default to the same heading.
+
+The filter rides on the stop IDs as `!routes` in the slot encoding, and the
+polling URL omits the segment entirely when the field is blank — an empty `!`
+would parse as a filter matching nothing and silently empty the card.
+
+> **Both halves must ship together.** A field is only wired up when it appears
+> in *both* the form and the polling URL, and each half has broken
+> independently: `polling-url.txt` once read `cardN_routes` that `form.yaml`
+> never defined, and `settings.yml` once defined fields its own `polling_url`
+> never wrote. Neither is a type error and neither fails lint — the board
+> renders perfectly and the control does nothing. `tests/config.test.ts`
+> compares the two sources for exactly this.
 
 ### 4.2 Why `xhrSelectSearch` rather than `select`
 
