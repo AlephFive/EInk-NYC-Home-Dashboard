@@ -3,6 +3,25 @@ import {
   TripUpdate_StopTimeUpdate,
 } from "../../protocol/proto/generated/gtfs-realtime";
 import apis from "../../staticData/subway/apis.json";
+import { subwayRouteIds } from "./routeLabel";
+
+/**
+ * The feed an id belongs to, accepting either a feed route id (`FS`) or the
+ * label a rider reads (`S`).
+ *
+ * `lineMappings` is keyed on the feed's own ids, because one label can span
+ * three feeds — every shuttle is signed `S`, but GS, FS and H live in
+ * a_division, bdfm and ace respectively. A label is therefore expanded
+ * first, and resolves only when its ids agree on a feed.
+ */
+function feedKeysFor(line: string): string[] {
+  const keys = new Set<string>();
+  for (const id of subwayRouteIds(line)) {
+    const key = apis.lineMappings[id as keyof typeof apis.lineMappings];
+    if (key) keys.add(key);
+  }
+  return [...keys];
+}
 
 export interface TrainDataResponse {
   feedMessage: FeedMessage;
@@ -45,10 +64,19 @@ export async function fetchTrainData(
   trainLine: string
 ): Promise<TrainDataResponse> {
   // Look up the API key for this train line
-  const apiKey = apis.lineMappings[trainLine as keyof typeof apis.lineMappings];
+  const [apiKey, ...rest] = feedKeysFor(trainLine);
 
   if (!apiKey) {
     throw new Error(`Train line "${trainLine}" not found in API mappings`);
+  }
+  if (rest.length > 0) {
+    // "S" is three shuttles across three feeds, so a single-feed fetch
+    // cannot answer it. fetchMultipleTrainLines can; this cannot.
+    throw new Error(
+      `Train line "${trainLine}" spans several feeds (${[apiKey, ...rest].join(
+        ", "
+      )}) — use fetchMultipleTrainLines`
+    );
   }
 
   // Get the API URL for this key
@@ -106,20 +134,25 @@ export async function fetchMultipleTrainLines(
   const apiKeyToUrl = new Map<string, string>();
 
   for (const line of trainLines) {
-    const apiKey = apis.lineMappings[line as keyof typeof apis.lineMappings];
+    // A rider-facing label can span several feeds, so this is a list: "S"
+    // yields a_division, bdfm and ace, and dropping any of them hides a
+    // whole shuttle.
+    const apiKeys = feedKeysFor(line);
 
-    if (!apiKey) {
+    if (apiKeys.length === 0) {
       throw new Error(`Train line "${line}" not found in API mappings`);
     }
 
-    const apiUrl = apis.apiUrl[apiKey as keyof typeof apis.apiUrl];
+    for (const apiKey of apiKeys) {
+      const apiUrl = apis.apiUrl[apiKey as keyof typeof apis.apiUrl];
 
-    if (!apiUrl) {
-      throw new Error(`API URL not found for key "${apiKey}"`);
+      if (!apiUrl) {
+        throw new Error(`API URL not found for key "${apiKey}"`);
+      }
+
+      apiKeySet.add(apiKey);
+      apiKeyToUrl.set(apiKey, apiUrl);
     }
-
-    apiKeySet.add(apiKey);
-    apiKeyToUrl.set(apiKey, apiUrl);
   }
 
   // Fetch data from each unique API endpoint

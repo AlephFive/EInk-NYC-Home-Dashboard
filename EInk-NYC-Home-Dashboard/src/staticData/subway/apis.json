@@ -13,25 +13,18 @@
     "A": "ace",
     "C": "ace",
     "E": "ace",
-    "SR": "ace",
-
     "B": "bdfm",
     "D": "bdfm",
     "F": "bdfm",
     "M": "bdfm",
-    "SF": "bdfm",
-
     "J": "jz",
     "Z": "jz",
-
     "N": "nqrw",
     "Q": "nqrw",
     "R": "nqrw",
     "W": "nqrw",
-
     "L": "l",
     "G": "g",
-
     "1": "a_division",
     "2": "a_division",
     "3": "a_division",
@@ -39,8 +32,13 @@
     "5": "a_division",
     "6": "a_division",
     "7": "a_division",
-    "S": "a_division",
-
-    "SIR": "si"
+    "GS": "a_division",
+    "FS": "bdfm",
+    "H": "ace",
+    "SI": "si",
+    "SS": "si",
+    "6X": "a_division",
+    "7X": "a_division",
+    "FX": "bdfm"
   }
 }

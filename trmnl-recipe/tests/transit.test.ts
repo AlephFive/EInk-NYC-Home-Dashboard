@@ -25,7 +25,10 @@ import { isBoardable } from "../../EInk-NYC-Home-Dashboard/src/utils/departures.
 import {
   subwayRouteLabel,
   subwayRouteGlyph,
+  subwayRouteIds,
+  subwayRouteMatches,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
+import apis from "../../EInk-NYC-Home-Dashboard/src/staticData/subway/apis.json" with { type: "json" };
 
 describe("a station can carry several lines on one ID", () => {
   test("Coney Island-Stillwell Av serves D, F, N and Q", () => {
@@ -218,6 +221,166 @@ describe("special route display rules", () => {
         assert.ok(glyph.length > 2, `${name} would be drawn as a bullet`);
       }
     });
+  });
+});
+
+describe("label to feed route ids, the reverse direction", () => {
+  // The forward direction is many-to-one, so going back fans out. Code that
+  // needs one id for a label picks the wrong shuttle, silently.
+
+  test("S is all three shuttles", () => {
+    assert.deepEqual([...subwayRouteIds("S")].sort(), ["FS", "GS", "H"]);
+  });
+
+  test("SI is both of the railway's service patterns", () => {
+    assert.deepEqual([...subwayRouteIds("SI")].sort(), ["SI", "SS"]);
+  });
+
+  test("a plain route carries its express variant", () => {
+    // Asking for the 7 must reach the 7X, or a rider who asked for the 7 is
+    // shown no express trains — a surprising kind of correct.
+    assert.deepEqual(subwayRouteIds("7"), ["7", "7X"]);
+    assert.deepEqual(subwayRouteIds("6"), ["6", "6X"]);
+  });
+
+  test("the plain route is still included", () => {
+    // The express is appended, not substituted.
+    assert.ok(subwayRouteIds("7").includes("7"));
+  });
+
+  test("a multi-character route gains no express form", () => {
+    // Only a single character can take the X suffix, so a bus route does
+    // not sprout a "Q101X".
+    assert.deepEqual(subwayRouteIds("Q101"), ["Q101"]);
+  });
+
+  test("it is case-insensitive", () => {
+    assert.deepEqual([...subwayRouteIds("s")].sort(), ["FS", "GS", "H"]);
+  });
+
+  test("the station table's own spelling resolves to feed ids", () => {
+    // getSubwayRoutes("S31") returns "SIR", so this is what a St George
+    // card actually asks for. It must reach SI and SS — never itself, which
+    // no feed reports and nothing can fetch.
+    assert.deepEqual([...subwayRouteIds("SIR")].sort(), ["SI", "SS"]);
+    assert.ok(!subwayRouteIds("SIR").includes("SIR"));
+  });
+
+  test("an unknown label stands for itself", () => {
+    // Not every route is in the label map, and most are not: the 1 is just
+    // the 1. A label this module has never heard of is still a route id.
+    assert.deepEqual(subwayRouteIds("L"), ["L"]);
+  });
+
+  describe("round-tripping against the forward direction", () => {
+    // The two functions must agree, or a card fetches one set of feeds and
+    // then filters the results with a different rule.
+    for (const label of ["S", "SI", "1", "7", "A", "G", "Q"]) {
+      test(`every id behind "${label}" labels back to it`, () => {
+        for (const id of subwayRouteIds(label)) {
+          assert.equal(
+            subwayRouteGlyph(id).glyph,
+            label.toUpperCase(),
+            `${id} does not read as ${label}`
+          );
+        }
+      });
+    }
+  });
+});
+
+describe("a label resolves to the feeds its trains are actually in", () => {
+  // The bug this guards: the station table signs every shuttle "S", and a
+  // lineMappings keyed on "S" sent Franklin Av to a_division — where its
+  // trains do not exist. The card fetched a real feed and showed nothing.
+  const feedFor = (id: string) =>
+    apis.lineMappings[id as keyof typeof apis.lineMappings];
+
+  test("the three shuttles are in three different feeds", () => {
+    // Verified against live feeds: ace carries H, bdfm carries FS,
+    // a_division carries GS.
+    assert.equal(feedFor("GS"), "a_division");
+    assert.equal(feedFor("FS"), "bdfm");
+    assert.equal(feedFor("H"), "ace");
+  });
+
+  test("asking for S reaches all three", () => {
+    const feeds = new Set(subwayRouteIds("S").map(feedFor));
+    assert.deepEqual([...feeds].sort(), ["a_division", "ace", "bdfm"]);
+  });
+
+  test("an express rides its local's feed", () => {
+    for (const [local, express] of [["6", "6X"], ["7", "7X"], ["F", "FX"]]) {
+      assert.equal(
+        feedFor(express),
+        feedFor(local),
+        `${express} is not in the same feed as the ${local}`
+      );
+    }
+  });
+
+  test("every id the reverse direction produces is mapped", () => {
+    // A label that fans out to an unmapped id throws at fetch time, which on
+    // an unattended panel is a card that never loads.
+    for (const label of ["S", "SI", "1", "6", "7", "A", "C", "F", "G", "Q"]) {
+      for (const id of subwayRouteIds(label)) {
+        assert.ok(feedFor(id), `${id} (from "${label}") has no feed`);
+      }
+    }
+  });
+
+  test("no mapping key is unreachable", () => {
+    // SR and SF were invented keys that nothing ever produced — the station
+    // table says "S" — so they sat in the file looking correct while the
+    // shuttles they named went unfetched.
+    const reachable = new Set<string>();
+    for (const label of Object.keys(apis.lineMappings)) {
+      for (const id of subwayRouteIds(label)) reachable.add(id);
+    }
+    for (const key of Object.keys(apis.lineMappings)) {
+      assert.ok(reachable.has(key), `"${key}" is in lineMappings but unreachable`);
+    }
+  });
+});
+
+describe("matching a train against the lines a rider asked for", () => {
+  test("a line matches itself", () => {
+    assert.equal(subwayRouteMatches("7", ["7"]), true);
+  });
+
+  test("asking for the 7 includes the 7X", () => {
+    assert.equal(subwayRouteMatches("7X", ["7"]), true);
+  });
+
+  test("asking for S includes every shuttle", () => {
+    for (const id of ["GS", "FS", "H"]) {
+      assert.equal(subwayRouteMatches(id, ["S"]), true, `${id} did not match`);
+    }
+  });
+
+  test("asking for SI includes both service patterns", () => {
+    assert.equal(subwayRouteMatches("SS", ["SI"]), true);
+    assert.equal(subwayRouteMatches("SI", ["SI"]), true);
+  });
+
+  test("the feed's own id still matches", () => {
+    // A user who writes GS rather than S gets what they asked for.
+    assert.equal(subwayRouteMatches("GS", ["GS"]), true);
+  });
+
+  test("an unrelated line does not match", () => {
+    assert.equal(subwayRouteMatches("N", ["7"]), false);
+    assert.equal(subwayRouteMatches("GS", ["G"]), false);
+  });
+
+  test("asking for the G does not catch the 42nd St shuttle", () => {
+    // GS labels to S, not G. A prefix match would put Brooklyn's G on a
+    // Times Square card.
+    assert.equal(subwayRouteMatches("GS", ["G"]), false);
+  });
+
+  test("it is case-insensitive on both sides", () => {
+    assert.equal(subwayRouteMatches("gs", ["s"]), true);
   });
 });
 

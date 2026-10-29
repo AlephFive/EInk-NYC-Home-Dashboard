@@ -38,7 +38,10 @@ import {
   getDirectionLabels,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup";
 import { mergeSorted, stopTimeOf } from "../../EInk-NYC-Home-Dashboard/src/utils/multiStop";
-import { subwayRouteGlyph } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
+import {
+  subwayRouteIds,
+  subwayRouteMatches,
+} from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
 import type { BoardSettings, CardSettings } from "./settings";
 
 /**
@@ -195,23 +198,25 @@ const FERRY_ENABLED = false;
  */
 function routeFilterFor(routes: string[] | undefined) {
   if (!routes || routes.length === 0) return undefined;
-  const wanted = new Set(routes.map((route) => route.toUpperCase()));
-
-  return (stop: { routeId?: string }): boolean => {
-    const routeId = stop.routeId ?? "";
-    if (wanted.has(routeId.toUpperCase())) return true;
-
-    // The express variant of a route the card asked for, and the shuttles
-    // and SIR, which a rider knows only by their signed label.
-    const { glyph } = subwayRouteGlyph(routeId);
-    return wanted.has(glyph.toUpperCase());
-  };
+  return (stop: { routeId?: string }): boolean =>
+    subwayRouteMatches(stop.routeId ?? "", routes);
 }
 
+/**
+ * The feed route ids to fetch for a card's stops.
+ *
+ * The station table signs routes the way a rider reads them, so every
+ * shuttle in it is `S` and the railway is `SIR` — neither of which the feeds
+ * ever report. Expanding each label to the ids behind it is what sends a
+ * Franklin Av card to the bdfm feed instead of a_division, where its trains
+ * do not exist.
+ */
 function subwayLinesFor(stopIds: string[]): string[] {
   const routes = new Set<string>();
   for (const stopId of stopIds) {
-    for (const route of getSubwayRoutes(stopId)) routes.add(route);
+    for (const route of getSubwayRoutes(stopId)) {
+      for (const id of subwayRouteIds(route)) routes.add(id);
+    }
   }
   return [...routes];
 }

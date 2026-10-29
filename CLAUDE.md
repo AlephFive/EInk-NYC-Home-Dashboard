@@ -219,11 +219,18 @@ upcoming departures in one response.
 groups subway lines into 8 feeds, and a feed returns every line in its group. It is
 effectively required on a subway card — omitting it means no feed is fetched.
 
+It accepts either a feed route id (`FS`) or the label a rider reads (`S`), because
+`subwayRouteIds()` expands a label before the lookup — see "Feed ids vs rider labels"
+below.
+
 ### API URLs and Mappings
 
 Static data files contain API configuration:
 
-- `src/staticData/subway/apis.json`: Maps subway lines to feed URLs
+- `src/staticData/subway/apis.json`: Maps subway lines to feed URLs. **`lineMappings`
+  is keyed on the feed's own route ids**, not on rider-facing labels — `GS`/`FS`/`H`
+  rather than `S`, `SI`/`SS` rather than `SIR`, and the express runs that exist
+  (`6X`, `7X`, `FX`) beside their locals. See "Feed ids vs rider labels".
 - `src/staticData/railroad/apis.json`: Railroad feed URLs
 - `src/staticData/bus/apis.json`: Bus API endpoint
 
@@ -302,6 +309,43 @@ across all cards:
   bullets hold one or two characters; three or more falls back to a pill, so
   `Q101` and `Babylon` stay readable. `trmnl-recipe/tests/transit.test.ts`
   covers all three rules and the ways they can fire on each other.
+
+#### Feed ids vs rider labels
+
+The forward direction above is **many-to-one**: `GS`, `FS` and `H` are all signed
+`S`. So going back fans out, and `subwayRouteIds()` is the reverse — **there is no
+single id to invert to**, which is exactly why it exists as a function rather than a
+lookup by hand.
+
+```
+subwayRouteIds("S")   -> ["GS", "FS", "H"]     three shuttles, three feeds
+subwayRouteIds("SIR") -> ["SI", "SS"]          the station table's spelling
+subwayRouteIds("7")   -> ["7", "7X"]           local plus its express
+subwayRouteIds("1")   -> ["1"]                 no 1X runs
+```
+
+Two rules keep it honest:
+
+- **Only express runs that actually exist are emitted.** 6, 7 and F have one; the 1
+  does not. Inventing a `1X` yields a route id no feed reports, and resolving it
+  throws at fetch time — on an unattended panel, a card that never loads. The live
+  feeds are the authority, and the tests assert `lineMappings` against them.
+- **Station-table spellings resolve but are never emitted.** `getSubwayRoutes("S31")`
+  returns `SIR`, so `SIR` has to resolve — but to `SI`/`SS`, never to itself.
+
+`subwayRouteMatches(routeId, labels)` is the pair to this for filtering: it
+normalises a train's feed id forward and compares, so a card narrowed to `7` accepts
+the `7X` and one narrowed to `S` accepts all three shuttles. Filtering uses the
+forward direction, fetching uses the reverse; both must agree, and a round-trip test
+asserts they do.
+
+**The bug this fixed:** `lineMappings` was keyed on labels, with invented `SR`/`SF`
+keys that nothing ever produced — the station table says `S` for all three shuttles.
+So `S` resolved to `a_division` and a **Franklin Av or Rockaway Park card fetched the
+wrong feed and silently showed nothing**. Rockaway happened to work only because the
+`A` also stops there and dragged in `ace`. Verified against live feeds: `ace` carries
+`H`, `bdfm` carries `FS` (and `FX`), `a_division` carries `GS`/`6X`/`7X`, `si`
+carries `SI`/`SS`.
 - **Destination** comes from `destinationStopId`, recorded by both `extractDataByStop()`
   implementations as the trip's final `stopTimeUpdate`. Resolve it with
   `getDestinationName()` in `stationLookup.ts`, which strips the subway's N/S suffix
@@ -444,6 +488,10 @@ isolation still works. `TransitCard` gathers its own `stopIds`, merges their lis
   since `lines` selects *feeds*: D/F come from `bdfm`, N/Q from `nqrw`. Omit a line and
   its trains simply never appear — `127` with `lines: ["1","2","3"]` returns 23
   departures per direction, but fetching only D/F/N/Q returns zero for it.
+- **The three shuttles share a label but not a feed.** The station table signs all of
+  them `S`, yet `GS` is in `a_division`, `FS` in `bdfm` and `H` in `ace`. Asking for
+  `S` fetches all three — see "Feed ids vs rider labels". This is why a label can
+  never be resolved to a single feed.
 - **`north_direction_label` / `south_direction_label`** in the station GeoJSON give MTA's
   own wayfinding text ("Manhattan", "Last Stop", "Hudson Yards"), which the cards use in
   place of "Northbound"/"Southbound". Note "Last Stop" is a *label*, not a reliable
