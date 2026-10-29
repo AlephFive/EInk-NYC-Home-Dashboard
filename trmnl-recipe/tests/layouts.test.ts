@@ -166,6 +166,36 @@ describe("the display rule is identical in every layout", () => {
     );
   });
 
+  test("every layout puts the heading marks after the title", () => {
+    // Subway bullets and the LIRR/Metro North/Ferry tags share one slot, to
+    // the right of the station name. Three layouts rendered them *before*
+    // the title, so a tag sat where a reader expects the name — visible
+    // only once the non-subway types had marks of their own.
+    for (const [name, liquid] of layouts) {
+      const title = liquid.indexOf("{{ card.n }}");
+      const marks = liquid.indexOf("{% if card.b %}");
+      assert.ok(title >= 0 && marks >= 0, `${name} has no card heading`);
+      assert.ok(
+        title < marks,
+        `${name} renders the heading marks before the station name`
+      );
+    }
+  });
+
+  test("every layout caps the heading marks", () => {
+    // A twelve-route complex wraps its bullets onto a second line and, in
+    // the smaller layouts, straight through the neighbouring card's
+    // heading. Past a few they stop telling a rider anything the station
+    // name has not.
+    for (const [name, liquid] of layouts) {
+      assert.match(
+        liquid,
+        /\{%\s*for route in card\.b limit: [1-9]\s*%\}/,
+        `${name} renders every bullet a card carries`
+      );
+    }
+  });
+
   test("every layout draws the direction arrow", () => {
     // `‹` toward the city, `›` away. Single-angle quotes rather than ← →,
     // which the panel's face draws inconsistently at this size.

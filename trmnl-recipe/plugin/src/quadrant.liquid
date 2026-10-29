@@ -85,8 +85,17 @@
         {% endunless %}
 
         <div class="flex flex--row flex--center-y gap--small">
+          <span class="title title--small grow" data-clamp="1">{{ card.n }}</span>
           {% if card.b %}
-            {% for route in card.b %}
+            {% comment %}
+                      Capped, like the full layout. Past a few the bullets
+                      stop telling a rider anything the station name has not,
+                      and a twelve-route complex wraps them onto a second line
+                      — which here pushed them straight through the heading of
+                      the card beside it. Three rather than four: these
+                      layouts give a heading roughly half the width.
+                    {% endcomment %}
+                    {% for route in card.b limit: 3 %}
               {% comment %}
                 The same rule the departure rows use: a bullet for one or two
                 characters, a pill for a named route, and the feed's X suffix
@@ -108,7 +117,6 @@
               {% endif %}
             {% endfor %}
           {% endif %}
-          <span class="title title--small grow" data-clamp="1">{{ card.n }}</span>
         </div>
 
         {% if card.e %}

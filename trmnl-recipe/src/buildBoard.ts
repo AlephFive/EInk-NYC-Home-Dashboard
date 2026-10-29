@@ -89,7 +89,14 @@ export interface BoardCard {
   y: string;
   /** Card heading. */
   n: string;
-  /** Subway route bullets; absent for other types. */
+  /**
+   * The marks beside the card's heading.
+   *
+   * Subway cards carry their route bullets; every other type carries a
+   * single tag naming the network. One field rather than two, so the
+   * templates render the heading with one rule instead of branching per
+   * transit type four times over.
+   */
   b?: string[];
   /** Columns of departures. Absent when the card failed. */
   k?: BoardColumn[];
@@ -331,6 +338,24 @@ function subwayLinesFor(routes: string[]): string[] {
 }
 
 /**
+ * The tag a non-subway card shows beside its heading.
+ *
+ * A subway card is identified by its route bullets, and before this the
+ * other types showed nothing at all — a Metro-North card and an LIRR card
+ * were distinguishable only by their station names, which assumes the
+ * reader knows which railroad serves where.
+ *
+ * Bus is omitted deliberately: its rows already carry the route as a badge
+ * on every line (`M42`, `Q101`), so a "Bus" tag would repeat what the card
+ * is already saying twelve times over.
+ */
+const TYPE_TAGS: Record<string, string> = {
+  "railroad-lirr": "LIRR",
+  "railroad-mtn": "Metro North",
+  ferry: "Ferry",
+};
+
+/**
  * The bullets a card shows in its heading.
  *
  * A card narrowed to the 1/2/3 should not head itself with all twelve routes
@@ -435,6 +460,7 @@ async function railroadCard(
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getStationName(card.stopIds[0], card.transitType),
+    b: [TYPE_TAGS[card.transitType]],
   };
 
   try {
@@ -543,6 +569,7 @@ async function ferryCard(
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getFerryStopName(card.stopIds[0]) ?? card.stopIds[0],
+    b: [TYPE_TAGS[card.transitType]],
   };
 
   if (!FERRY_ENABLED) {
