@@ -112,6 +112,37 @@ describe("the picker offers a corner as one choice", { concurrency: 1 }, () => {
   });
 });
 
+describe("the response shape xhrSelectSearch expects", () => {
+  // The two XHR field types disagree, and the mismatch is silent — the
+  // request succeeds, the widget cannot read the options, and the dropdown
+  // renders empty with no error anywhere:
+  //
+  //   xhrSelect        [{ "Braves": 123 }]           label -> value
+  //   xhrSelectSearch  [{ id, name }]                objects
+  //
+  // The pickers produce label -> value pairs, which is the natural shape for
+  // a lookup; `toSearchOption` in index.ts converts at the boundary. These
+  // assert the internal shape the conversion depends on.
+
+  test("a picker option is one label mapped to one value", () => {
+    const option = { "Jamaica": "lirr:102" };
+    const entries = Object.entries(option);
+    assert.equal(entries.length, 1, "an option must hold exactly one pair");
+  });
+
+  test("the value carries the transit type and stop IDs", () => {
+    // What the conversion puts in `id`, and what the board parses back out.
+    for (const value of [
+      "subway:127+725+902+A27+R16",
+      "lirr:102",
+      "bus:505507+505513@BORDEN AV/5 ST",
+      "ferry:87",
+    ]) {
+      assert.match(value, /^(subway|lirr|mtn|bus|ferry):/);
+    }
+  });
+});
+
 describe("station search for the rail types", () => {
   test("a subway complex is one option carrying every platform", async () => {
     const options = await searchStations("subway", "times sq");

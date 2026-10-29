@@ -15,7 +15,7 @@ import {
   payloadBytes,
   trimToPayloadCap,
 } from "./payload";
-import { searchStations, parsePickerKind } from "./pickers";
+import { searchStations, parsePickerKind, type PickerOption } from "./pickers";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -75,13 +75,34 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
   }
 
   try {
-    return json(await searchStations(kind, query));
+    return json((await searchStations(kind, query)).map(toSearchOption));
   } catch (err) {
     return json(
       { error: err instanceof Error ? err.message : "Search failed" },
       502
     );
   }
+}
+
+/**
+ * One option, in the shape `xhrSelectSearch` expects.
+ *
+ * The two XHR field types disagree, and the difference is silent:
+ *
+ *   xhrSelect        [{ "Braves": 123 }]                label -> value
+ *   xhrSelectSearch  [{ id: "...", name: "..." }]       objects
+ *
+ * We returned the first for a field declared as the second, so the widget
+ * received options it could not read and rendered an empty dropdown — with
+ * no error anywhere, because the request succeeded.
+ *
+ * The pickers keep producing label->value pairs, which is the natural shape
+ * for a lookup and what the tests assert against; the conversion happens
+ * here, at the one point where the format is TRMNL's business.
+ */
+function toSearchOption(option: PickerOption): { id: string; name: string } {
+  const [[name, id]] = Object.entries(option);
+  return { id, name };
 }
 
 /** `/api/stations/subway` -> "subway". Undefined when the path carries none. */

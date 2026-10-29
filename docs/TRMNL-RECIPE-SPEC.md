@@ -373,6 +373,30 @@ and `slot=2` returns LIRR Jamaica from the same request body.
 A slot whose type is unset returns an empty list rather than borrowing a
 neighbour's, which is the honest answer before the user has chosen one.
 
+#### The two XHR field types want different response shapes
+
+This was the second cause of the empty dropdown, and the quieter one:
+
+```
+xhrSelect        [{ "Braves": 123 }]                 label -> value
+xhrSelectSearch  [{ id: "db-123", name: "Tasks" }]   objects
+```
+
+We returned the `xhrSelect` shape from a field declared as
+`xhrSelectSearch`. The request succeeded, the widget could not read the
+options, and the dropdown rendered empty — **no error anywhere**, which is
+why the Worker logs looked healthy while the UI showed nothing.
+
+The pickers still produce label->value pairs internally: that is the natural
+shape for a lookup, it is what the tests assert, and it keeps TRMNL's format
+out of the search code. `toSearchOption` in `index.ts` converts at the one
+boundary where the format is TRMNL's business.
+
+Source: the TRMNL form-builder help article
+(`help.trmnl.com/en/articles/10513740-custom-plugin-form-builder`), found via
+a third-party plugin's vendored reference rather than the docs site's own
+sitemap, which does not list it.
+
 ### 4.3 What the form deliberately does not expose
 
 - **Subway `lines`.** In `displayConfig.ts` this selects *feeds*, not routes,
