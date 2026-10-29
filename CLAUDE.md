@@ -321,15 +321,19 @@ lookup by hand.
 subwayRouteIds("S")   -> ["GS", "FS", "H"]     three shuttles, three feeds
 subwayRouteIds("SIR") -> ["SI", "SS"]          the station table's spelling
 subwayRouteIds("7")   -> ["7", "7X"]           local plus its express
-subwayRouteIds("1")   -> ["1"]                 no 1X runs
+subwayRouteIds("1")   -> ["1", "1X"]           guessed wide; 1X is inert
 ```
 
 Two rules keep it honest:
 
-- **Only express runs that actually exist are emitted.** 6, 7 and F have one; the 1
-  does not. Inventing a `1X` yields a route id no feed reports, and resolving it
-  throws at fetch time — on an unattended panel, a card that never loads. The live
-  feeds are the authority, and the tests assert `lineMappings` against them.
+- **The express form comes from the `X` suffix, not a list.** It is the same rule
+  that *recognises* an express, so the two directions cannot drift. This guesses
+  wide — no `1X` runs — and that is deliberate: an id for an express that does not
+  exist is inert, because resolving an id to a feed skips whatever is unmapped and
+  filtering never consults this direction at all. Guessing wide yields an id nothing
+  matches; a stale hardcoded list yields a **real express silently missing from a
+  card**, which is the failure that actually hurts. (A `6X`/`7X` list had already
+  missed the `FX` running today.)
 - **Station-table spellings resolve but are never emitted.** `getSubwayRoutes("S31")`
   returns `SIR`, so `SIR` has to resolve — but to `SI`/`SS`, never to itself.
 

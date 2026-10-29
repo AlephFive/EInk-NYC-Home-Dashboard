@@ -82,13 +82,18 @@ export function subwayRouteGlyph(routeId: string): {
  * 7X too. They are *appended* rather than substituted: asking for the 7 must
  * still match a plain `7`.
  *
- * Only express runs that **actually exist** are emitted. Not every route has
- * one — 6, 7 and F do; the 1 does not — and inventing a `1X` would produce a
- * route id no feed reports, which throws when something tries to resolve it
- * to a feed. `EXPRESS_ROUTES` is the list, and it is asserted against the
- * live feeds in the tests.
+ * The express form is derived from the `X` suffix rather than listed, the
+ * same rule `EXPRESS_ROUTE` uses to recognise one. Not every route runs an
+ * express — 6, 7 and F do today; the 1 does not — but naming the ones that
+ * do would be a list to maintain against a timetable that changes, and the
+ * MTA can add an express without telling us.
+ *
+ * An id for an express that does not run costs nothing: resolving a route
+ * id to a feed skips whatever is unmapped, and filtering never consults
+ * this direction at all — it normalises the train's own id forward. So the
+ * failure mode of guessing wide is an id nothing matches, where the failure
+ * mode of a stale list is a real express silently missing from a card.
  */
-const EXPRESS_ROUTES = new Set(["6X", "7X", "FX"]);
 const LABEL_TO_ROUTE_IDS = new Map<string, string[]>();
 for (const [routeId, label] of ROUTE_LABELS) {
   if (STATION_TABLE_SPELLINGS.has(routeId)) continue;
@@ -111,9 +116,11 @@ export function subwayRouteIds(label: string): string[] {
   const mapped = LABEL_TO_ROUTE_IDS.get(upper);
   if (mapped) return [...mapped];
 
-  // A plain route stands for itself, plus its express run where one runs.
-  const express = `${upper}X`;
-  if (EXPRESS_ROUTES.has(express)) return [upper, express];
+  // A plain route stands for itself, plus its express run. Only a single
+  // character takes the X suffix — the same bound EXPRESS_ROUTE applies —
+  // so "Q101" does not sprout a "Q101X", and an id that is already an
+  // express is not doubled into "7XX".
+  if (/^[0-9A-Z]$/.test(upper)) return [upper, `${upper}X`];
   return [upper];
 }
 

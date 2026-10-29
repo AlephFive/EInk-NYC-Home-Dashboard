@@ -241,6 +241,14 @@ describe("label to feed route ids, the reverse direction", () => {
     // shown no express trains — a surprising kind of correct.
     assert.deepEqual(subwayRouteIds("7"), ["7", "7X"]);
     assert.deepEqual(subwayRouteIds("6"), ["6", "6X"]);
+    // Including the F, whose FX is running today and which a hardcoded
+    // 6X/7X list had missed.
+    assert.deepEqual(subwayRouteIds("F"), ["F", "FX"]);
+  });
+
+  test("an express is not doubled into an XX", () => {
+    // A feed id that is already express stands for itself.
+    assert.deepEqual(subwayRouteIds("7X"), ["7X"]);
   });
 
   test("the plain route is still included", () => {
@@ -249,8 +257,8 @@ describe("label to feed route ids, the reverse direction", () => {
   });
 
   test("a multi-character route gains no express form", () => {
-    // Only a single character can take the X suffix, so a bus route does
-    // not sprout a "Q101X".
+    // Only a single character can take the X suffix — the same bound the
+    // detection regex applies — so a bus route does not sprout a "Q101X".
     assert.deepEqual(subwayRouteIds("Q101"), ["Q101"]);
   });
 
@@ -267,9 +275,11 @@ describe("label to feed route ids, the reverse direction", () => {
   });
 
   test("an unknown label stands for itself", () => {
-    // Not every route is in the label map, and most are not: the 1 is just
-    // the 1. A label this module has never heard of is still a route id.
-    assert.deepEqual(subwayRouteIds("L"), ["L"]);
+    // Most routes are not in the label map: the L is just the L. A label
+    // this module has never heard of is still a route id — plus the
+    // express form the X rule derives, which is unmapped and so inert.
+    assert.ok(subwayRouteIds("L").includes("L"));
+    assert.equal(subwayRouteLabel("L"), "L");
   });
 
   describe("round-tripping against the forward direction", () => {
@@ -319,14 +329,34 @@ describe("a label resolves to the feeds its trains are actually in", () => {
     }
   });
 
-  test("every id the reverse direction produces is mapped", () => {
-    // A label that fans out to an unmapped id throws at fetch time, which on
-    // an unattended panel is a card that never loads.
-    for (const label of ["S", "SI", "1", "6", "7", "A", "C", "F", "G", "Q"]) {
-      for (const id of subwayRouteIds(label)) {
-        assert.ok(feedFor(id), `${id} (from "${label}") has no feed`);
-      }
+  test("every route the feeds report is mapped", () => {
+    // The direction that matters. Asserting the generator only emits mapped
+    // ids would be circular — it would pass by construction and say nothing
+    // about whether a real train can be fetched.
+    //
+    // This list is what the live feeds carried when checked. A route the
+    // MTA adds shows up here as a failure, which is the point.
+    const live = [
+      "A", "C", "E", "H",
+      "B", "D", "F", "FS", "FX", "M",
+      "J", "Z", "N", "Q", "R", "W", "L", "G",
+      "1", "2", "3", "4", "5", "6", "6X", "7", "7X", "GS",
+      "SI", "SS",
+    ];
+    for (const id of live) {
+      assert.ok(feedFor(id), `${id} runs today but has no feed mapping`);
     }
+  });
+
+  test("an express nobody runs costs nothing", () => {
+    // subwayRouteIds guesses wide — "1" yields "1X" though no 1X runs —
+    // because the X suffix is the rule, not a list to maintain. The guess
+    // is harmless: resolving a route id to a feed skips what is unmapped.
+    assert.ok(subwayRouteIds("1").includes("1X"));
+    assert.equal(feedFor("1X"), undefined);
+
+    const feeds = new Set(subwayRouteIds("1").map(feedFor).filter(Boolean));
+    assert.deepEqual([...feeds], ["a_division"], "the 1 still fetches cleanly");
   });
 
   test("no mapping key is unreachable", () => {
