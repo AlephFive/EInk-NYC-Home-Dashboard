@@ -45,7 +45,7 @@ categories:
 strategy: polling
 polling_verb: GET
 polling_url: >-
-  https://REPLACE_ME.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}{% if card2_routes != blank %}!{{ card2_routes }}{% endif %}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}{% if card3_routes != blank %}!{{ card3_routes }}{% endif %}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}{% if card4_routes != blank %}!{{ card4_routes }}{% endif %}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}{% if card5_routes != blank %}!{{ card5_routes }}{% endif %}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}{% if card6_routes != blank %}!{{ card6_routes }}{% endif %}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
+  https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}{% if card2_routes != blank %}!{{ card2_routes }}{% endif %}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}{% if card3_routes != blank %}!{{ card3_routes }}{% endif %}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}{% if card4_routes != blank %}!{{ card4_routes }}{% endif %}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}{% if card5_routes != blank %}!{{ card5_routes }}{% endif %}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}{% if card6_routes != blank %}!{{ card6_routes }}{% endif %}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
 
 # TRMNL's store minimum, and the reason the board shows clock times rather than
 # a countdown: a "leave in 6 min" line is stale by up to the refresh interval,
@@ -88,7 +88,7 @@ custom_fields:
     group: Card 1
     optional: true
     depends_on: card1_type
-    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card1_type}}
+    endpoint: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/stations/{{card1_type}}
     http_verb: POST
     help_text: >
       Stations that share a complex are listed once and show every platform.
@@ -146,7 +146,7 @@ custom_fields:
     group: Card 2
     optional: true
     depends_on: card2_type
-    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card2_type}}
+    endpoint: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/stations/{{card2_type}}
     http_verb: POST
     help_text: >
       Stations that share a complex are listed once and show every platform.
@@ -204,7 +204,7 @@ custom_fields:
     group: Card 3
     optional: true
     depends_on: card3_type
-    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card3_type}}
+    endpoint: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/stations/{{card3_type}}
     http_verb: POST
     help_text: >
       Stations that share a complex are listed once and show every platform.
@@ -262,7 +262,7 @@ custom_fields:
     group: Card 4
     optional: true
     depends_on: card4_type
-    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card4_type}}
+    endpoint: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/stations/{{card4_type}}
     http_verb: POST
     help_text: >
       Stations that share a complex are listed once and show every platform.
@@ -320,7 +320,7 @@ custom_fields:
     group: Card 5
     optional: true
     depends_on: card5_type
-    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card5_type}}
+    endpoint: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/stations/{{card5_type}}
     http_verb: POST
     help_text: >
       Stations that share a complex are listed once and show every platform.
@@ -378,7 +378,7 @@ custom_fields:
     group: Card 6
     optional: true
     depends_on: card6_type
-    endpoint: https://REPLACE_ME.workers.dev/api/stations/{{card6_type}}
+    endpoint: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/stations/{{card6_type}}
     http_verb: POST
     help_text: >
       Stations that share a complex are listed once and show every platform.

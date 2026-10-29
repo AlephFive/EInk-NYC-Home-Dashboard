@@ -117,11 +117,24 @@ describe("every card field is actually wired up", () => {
 });
 
 describe("the two configuration sources agree", () => {
-  test("the polling URLs are identical", () => {
+  /**
+   * A polling URL with its host replaced by a fixed token.
+   *
+   * `npm run configure <host>` rewrites `settings.yml` **in place** — it is
+   * what trmnlp uploads — while leaving `recipe/` as templates carrying
+   * REPLACE_ME. So after configuring, the two differ by exactly the
+   * hostname and by nothing else, and that is the invariant worth holding:
+   * comparing them literally fails the moment the recipe is configured,
+   * which is a normal state rather than a defect.
+   */
+  const withoutHost = (url: string) =>
+    url.replace(/https:\/\/[^/]+\//, "https://HOST/");
+
+  test("the polling URLs are identical apart from the host", () => {
     // One is pasted into TRMNL's UI, the other uploaded by trmnlp. A board
     // built from one would differ from the other in ways no test of the
     // Worker could see, because the Worker only ever sees the result.
-    assert.equal(pastedUrl, shippedUrl);
+    assert.equal(withoutHost(pastedUrl), withoutHost(shippedUrl));
   });
 
   test("both forms declare the same card fields", () => {
@@ -133,21 +146,35 @@ describe("the two configuration sources agree", () => {
     assert.deepEqual(cardFields(formYaml), cardFields(settingsYml));
   });
 
-  test("the hostname placeholder is consistent", () => {
-    // `npm run configure <host>` rewrites every one. If a file used a
-    // different placeholder it would be skipped and ship pointing nowhere.
-    const files: [string, string][] = [
-      ["settings.yml", settingsYml],
+  test("the recipe templates keep their placeholder", () => {
+    // `recipe/` is the source the configure script reads; it writes
+    // `recipe/out/` and leaves these untouched, so the hostname can change
+    // without re-editing them. `settings.yml` is deliberately excluded —
+    // it is rewritten in place, because it is the file trmnlp uploads.
+    for (const [name, content] of [
       ["form.yaml", formYaml],
       ["polling-url.txt", pollingUrlTxt],
-    ];
-
-    for (const [name, content] of files) {
+    ] as [string, string][]) {
       assert.ok(
         content.includes("REPLACE_ME"),
-        `${name} has no REPLACE_ME — was it configured in place?`
+        `${name} was configured in place — it should stay a template`
       );
     }
+  });
+
+  test("the shipped settings point at exactly one host", () => {
+    // Either every endpoint still says REPLACE_ME, or every one names the
+    // same deployed Worker. A mixture means `configure` missed a spot, and
+    // a missed picker endpoint fails as an empty dropdown rather than an
+    // error — which is hard to notice and hard to diagnose.
+    const hosts = new Set(
+      [...settingsYml.matchAll(/https:\/\/([^/\s"']+)\/api\//g)].map((m) => m[1])
+    );
+    assert.equal(
+      hosts.size,
+      1,
+      `settings.yml points at several hosts: ${[...hosts].join(", ")}`
+    );
   });
 });
 
