@@ -1,0 +1,4899 @@
+{
+ "_comment": "Captured from the ace feed, pruned to trips calling at A41. Times are rebased on load — see tests/fixtures/load.ts. Regenerate with: node scripts/captureFixture.mjs subway-jay-st ace A41",
+ "capturedAt": "2026-10-29T15:45:28.656Z",
+ "feed": "ace",
+ "stopIds": [
+  "A41"
+ ],
+ "entity": [
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "064050_A..N55R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793288809
+      },
+      "departure": {
+       "time": 1793288809
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793288989
+      },
+      "departure": {
+       "time": 1793288989
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793289079
+      },
+      "departure": {
+       "time": 1793289079
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793289199
+      },
+      "departure": {
+       "time": 1793289199
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793289349
+      },
+      "departure": {
+       "time": 1793289349
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793289469
+      },
+      "departure": {
+       "time": 1793289469
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793289679
+      },
+      "departure": {
+       "time": 1793289679
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793289739
+      },
+      "departure": {
+       "time": 1793289739
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793289949
+      },
+      "departure": {
+       "time": 1793289949
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793290399
+      },
+      "departure": {
+       "time": 1793290399
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793290579
+      },
+      "departure": {
+       "time": 1793290579
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793290804
+      },
+      "departure": {
+       "time": 1793290804
+      }
+     },
+     {
+      "stopId": "A07N",
+      "arrival": {
+       "time": 1793290939
+      },
+      "departure": {
+       "time": 1793290939
+      }
+     },
+     {
+      "stopId": "A06N",
+      "arrival": {
+       "time": 1793290999
+      },
+      "departure": {
+       "time": 1793290999
+      }
+     },
+     {
+      "stopId": "A05N",
+      "arrival": {
+       "time": 1793291119
+      },
+      "departure": {
+       "time": 1793291119
+      }
+     },
+     {
+      "stopId": "A03N",
+      "arrival": {
+       "time": 1793291299
+      },
+      "departure": {
+       "time": 1793291299
+      }
+     },
+     {
+      "stopId": "A02N",
+      "arrival": {
+       "time": 1793291449
+      },
+      "departure": {
+       "time": 1793291449
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "065950_C..S04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793288773
+      },
+      "departure": {
+       "time": 1793288773
+      }
+     },
+     {
+      "stopId": "A43S",
+      "arrival": {
+       "time": 1793288893
+      },
+      "departure": {
+       "time": 1793288893
+      }
+     },
+     {
+      "stopId": "A44S",
+      "arrival": {
+       "time": 1793288983
+      },
+      "departure": {
+       "time": 1793288983
+      }
+     },
+     {
+      "stopId": "A45S",
+      "arrival": {
+       "time": 1793289103
+      },
+      "departure": {
+       "time": 1793289103
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793289163
+      },
+      "departure": {
+       "time": 1793289163
+      }
+     },
+     {
+      "stopId": "A47S",
+      "arrival": {
+       "time": 1793289253
+      },
+      "departure": {
+       "time": 1793289253
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793289373
+      },
+      "departure": {
+       "time": 1793289373
+      }
+     },
+     {
+      "stopId": "A49S",
+      "arrival": {
+       "time": 1793289493
+      },
+      "departure": {
+       "time": 1793289493
+      }
+     },
+     {
+      "stopId": "A50S",
+      "arrival": {
+       "time": 1793289583
+      },
+      "departure": {
+       "time": 1793289583
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793289703
+      },
+      "departure": {
+       "time": 1793289703
+      }
+     },
+     {
+      "stopId": "A52S",
+      "arrival": {
+       "time": 1793289853
+      },
+      "departure": {
+       "time": 1793289853
+      }
+     },
+     {
+      "stopId": "A53S",
+      "arrival": {
+       "time": 1793289943
+      },
+      "departure": {
+       "time": 1793289943
+      }
+     },
+     {
+      "stopId": "A54S",
+      "arrival": {
+       "time": 1793290033
+      },
+      "departure": {
+       "time": 1793290033
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793290123
+      },
+      "departure": {
+       "time": 1793290123
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "066300_A..S57R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793288783
+      },
+      "departure": {
+       "time": 1793288783
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793288873
+      },
+      "departure": {
+       "time": 1793288873
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793289143
+      },
+      "departure": {
+       "time": 1793289143
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793289293
+      },
+      "departure": {
+       "time": 1793289293
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793289503
+      },
+      "departure": {
+       "time": 1793289503
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793289803
+      },
+      "departure": {
+       "time": 1793289803
+      }
+     },
+     {
+      "stopId": "A57S",
+      "arrival": {
+       "time": 1793289923
+      },
+      "departure": {
+       "time": 1793289923
+      }
+     },
+     {
+      "stopId": "A59S",
+      "arrival": {
+       "time": 1793290013
+      },
+      "departure": {
+       "time": 1793290013
+      }
+     },
+     {
+      "stopId": "A60S",
+      "arrival": {
+       "time": 1793290133
+      },
+      "departure": {
+       "time": 1793290133
+      }
+     },
+     {
+      "stopId": "A61S",
+      "arrival": {
+       "time": 1793290223
+      },
+      "departure": {
+       "time": 1793290223
+      }
+     },
+     {
+      "stopId": "A63S",
+      "arrival": {
+       "time": 1793290433
+      },
+      "departure": {
+       "time": 1793290433
+      }
+     },
+     {
+      "stopId": "A64S",
+      "arrival": {
+       "time": 1793290673
+      },
+      "departure": {
+       "time": 1793290673
+      }
+     },
+     {
+      "stopId": "A65S",
+      "arrival": {
+       "time": 1793290763
+      },
+      "departure": {
+       "time": 1793290763
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067500_A..N54R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793288801
+      },
+      "departure": {
+       "time": 1793288801
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793288921
+      },
+      "departure": {
+       "time": 1793288921
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793289101
+      },
+      "departure": {
+       "time": 1793289101
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793289191
+      },
+      "departure": {
+       "time": 1793289191
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793289311
+      },
+      "departure": {
+       "time": 1793289311
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793289461
+      },
+      "departure": {
+       "time": 1793289461
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793289581
+      },
+      "departure": {
+       "time": 1793289581
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793289791
+      },
+      "departure": {
+       "time": 1793289791
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793289851
+      },
+      "departure": {
+       "time": 1793289851
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793290091
+      },
+      "departure": {
+       "time": 1793290091
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793290541
+      },
+      "departure": {
+       "time": 1793290541
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793290721
+      },
+      "departure": {
+       "time": 1793290721
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793290946
+      },
+      "departure": {
+       "time": 1793290946
+      }
+     },
+     {
+      "stopId": "A07N",
+      "arrival": {
+       "time": 1793291081
+      },
+      "departure": {
+       "time": 1793291081
+      }
+     },
+     {
+      "stopId": "A06N",
+      "arrival": {
+       "time": 1793291141
+      },
+      "departure": {
+       "time": 1793291141
+      }
+     },
+     {
+      "stopId": "A05N",
+      "arrival": {
+       "time": 1793291261
+      },
+      "departure": {
+       "time": 1793291261
+      }
+     },
+     {
+      "stopId": "A03N",
+      "arrival": {
+       "time": 1793291441
+      },
+      "departure": {
+       "time": 1793291441
+      }
+     },
+     {
+      "stopId": "A02N",
+      "arrival": {
+       "time": 1793291591
+      },
+      "departure": {
+       "time": 1793291591
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "068700_C..N04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A44N",
+      "arrival": {
+       "time": 1793288706
+      },
+      "departure": {
+       "time": 1793288706
+      }
+     },
+     {
+      "stopId": "A43N",
+      "arrival": {
+       "time": 1793288773
+      },
+      "departure": {
+       "time": 1793288773
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793288893
+      },
+      "departure": {
+       "time": 1793288893
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793289013
+      },
+      "departure": {
+       "time": 1793289013
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793289133
+      },
+      "departure": {
+       "time": 1793289133
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793289313
+      },
+      "departure": {
+       "time": 1793289313
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793289403
+      },
+      "departure": {
+       "time": 1793289403
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793289523
+      },
+      "departure": {
+       "time": 1793289523
+      }
+     },
+     {
+      "stopId": "A33N",
+      "arrival": {
+       "time": 1793289643
+      },
+      "departure": {
+       "time": 1793289643
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793289793
+      },
+      "departure": {
+       "time": 1793289793
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793289943
+      },
+      "departure": {
+       "time": 1793289943
+      }
+     },
+     {
+      "stopId": "A30N",
+      "arrival": {
+       "time": 1793290033
+      },
+      "departure": {
+       "time": 1793290033
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793290123
+      },
+      "departure": {
+       "time": 1793290123
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793290213
+      },
+      "departure": {
+       "time": 1793290213
+      }
+     },
+     {
+      "stopId": "A25N",
+      "arrival": {
+       "time": 1793290318
+      },
+      "departure": {
+       "time": 1793290318
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793290483
+      },
+      "departure": {
+       "time": 1793290483
+      }
+     },
+     {
+      "stopId": "A22N",
+      "arrival": {
+       "time": 1793290603
+      },
+      "departure": {
+       "time": 1793290603
+      }
+     },
+     {
+      "stopId": "A21N",
+      "arrival": {
+       "time": 1793290693
+      },
+      "departure": {
+       "time": 1793290693
+      }
+     },
+     {
+      "stopId": "A20N",
+      "arrival": {
+       "time": 1793290783
+      },
+      "departure": {
+       "time": 1793290783
+      }
+     },
+     {
+      "stopId": "A19N",
+      "arrival": {
+       "time": 1793290903
+      },
+      "departure": {
+       "time": 1793290903
+      }
+     },
+     {
+      "stopId": "A18N",
+      "arrival": {
+       "time": 1793290963
+      },
+      "departure": {
+       "time": 1793290963
+      }
+     },
+     {
+      "stopId": "A17N",
+      "arrival": {
+       "time": 1793291053
+      },
+      "departure": {
+       "time": 1793291053
+      }
+     },
+     {
+      "stopId": "A16N",
+      "arrival": {
+       "time": 1793291143
+      },
+      "departure": {
+       "time": 1793291143
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793291233
+      },
+      "departure": {
+       "time": 1793291233
+      }
+     },
+     {
+      "stopId": "A14N",
+      "arrival": {
+       "time": 1793291353
+      },
+      "departure": {
+       "time": 1793291353
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793291503
+      },
+      "departure": {
+       "time": 1793291503
+      }
+     },
+     {
+      "stopId": "A11N",
+      "arrival": {
+       "time": 1793291623
+      },
+      "departure": {
+       "time": 1793291623
+      }
+     },
+     {
+      "stopId": "A10N",
+      "arrival": {
+       "time": 1793291713
+      },
+      "departure": {
+       "time": 1793291713
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793291803
+      },
+      "departure": {
+       "time": 1793291803
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "066750_C..S04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793288777
+      },
+      "departure": {
+       "time": 1793288777
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793288957
+      },
+      "departure": {
+       "time": 1793288957
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793289107
+      },
+      "departure": {
+       "time": 1793289107
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793289197
+      },
+      "departure": {
+       "time": 1793289197
+      }
+     },
+     {
+      "stopId": "A43S",
+      "arrival": {
+       "time": 1793289317
+      },
+      "departure": {
+       "time": 1793289317
+      }
+     },
+     {
+      "stopId": "A44S",
+      "arrival": {
+       "time": 1793289407
+      },
+      "departure": {
+       "time": 1793289407
+      }
+     },
+     {
+      "stopId": "A45S",
+      "arrival": {
+       "time": 1793289527
+      },
+      "departure": {
+       "time": 1793289527
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793289587
+      },
+      "departure": {
+       "time": 1793289587
+      }
+     },
+     {
+      "stopId": "A47S",
+      "arrival": {
+       "time": 1793289677
+      },
+      "departure": {
+       "time": 1793289677
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793289797
+      },
+      "departure": {
+       "time": 1793289797
+      }
+     },
+     {
+      "stopId": "A49S",
+      "arrival": {
+       "time": 1793289917
+      },
+      "departure": {
+       "time": 1793289917
+      }
+     },
+     {
+      "stopId": "A50S",
+      "arrival": {
+       "time": 1793290007
+      },
+      "departure": {
+       "time": 1793290007
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793290127
+      },
+      "departure": {
+       "time": 1793290127
+      }
+     },
+     {
+      "stopId": "A52S",
+      "arrival": {
+       "time": 1793290277
+      },
+      "departure": {
+       "time": 1793290277
+      }
+     },
+     {
+      "stopId": "A53S",
+      "arrival": {
+       "time": 1793290367
+      },
+      "departure": {
+       "time": 1793290367
+      }
+     },
+     {
+      "stopId": "A54S",
+      "arrival": {
+       "time": 1793290457
+      },
+      "departure": {
+       "time": 1793290457
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793290547
+      },
+      "departure": {
+       "time": 1793290547
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "065800_A..N55R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793288780
+      },
+      "departure": {
+       "time": 1793288780
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793288930
+      },
+      "departure": {
+       "time": 1793288930
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793289230
+      },
+      "departure": {
+       "time": 1793289230
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793289350
+      },
+      "departure": {
+       "time": 1793289350
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793289470
+      },
+      "departure": {
+       "time": 1793289470
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793289650
+      },
+      "departure": {
+       "time": 1793289650
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793289740
+      },
+      "departure": {
+       "time": 1793289740
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793289860
+      },
+      "departure": {
+       "time": 1793289860
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793290010
+      },
+      "departure": {
+       "time": 1793290010
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793290130
+      },
+      "departure": {
+       "time": 1793290130
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793290340
+      },
+      "departure": {
+       "time": 1793290340
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793290400
+      },
+      "departure": {
+       "time": 1793290400
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793290670
+      },
+      "departure": {
+       "time": 1793290670
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793291120
+      },
+      "departure": {
+       "time": 1793291120
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793291300
+      },
+      "departure": {
+       "time": 1793291300
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793291525
+      },
+      "departure": {
+       "time": 1793291525
+      }
+     },
+     {
+      "stopId": "A07N",
+      "arrival": {
+       "time": 1793291660
+      },
+      "departure": {
+       "time": 1793291660
+      }
+     },
+     {
+      "stopId": "A06N",
+      "arrival": {
+       "time": 1793291720
+      },
+      "departure": {
+       "time": 1793291720
+      }
+     },
+     {
+      "stopId": "A05N",
+      "arrival": {
+       "time": 1793291840
+      },
+      "departure": {
+       "time": 1793291840
+      }
+     },
+     {
+      "stopId": "A03N",
+      "arrival": {
+       "time": 1793292020
+      },
+      "departure": {
+       "time": 1793292020
+      }
+     },
+     {
+      "stopId": "A02N",
+      "arrival": {
+       "time": 1793292170
+      },
+      "departure": {
+       "time": 1793292170
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067100_A..S58R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A31S",
+      "arrival": {
+       "time": 1793288700
+      },
+      "departure": {
+       "time": 1793288700
+      }
+     },
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793288773
+      },
+      "departure": {
+       "time": 1793288773
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793288923
+      },
+      "departure": {
+       "time": 1793288923
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793289043
+      },
+      "departure": {
+       "time": 1793289043
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793289133
+      },
+      "departure": {
+       "time": 1793289133
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793289313
+      },
+      "departure": {
+       "time": 1793289313
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793289463
+      },
+      "departure": {
+       "time": 1793289463
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793289553
+      },
+      "departure": {
+       "time": 1793289553
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793289823
+      },
+      "departure": {
+       "time": 1793289823
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793289973
+      },
+      "departure": {
+       "time": 1793289973
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793290183
+      },
+      "departure": {
+       "time": 1793290183
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793290483
+      },
+      "departure": {
+       "time": 1793290483
+      }
+     },
+     {
+      "stopId": "A57S",
+      "arrival": {
+       "time": 1793290603
+      },
+      "departure": {
+       "time": 1793290603
+      }
+     },
+     {
+      "stopId": "A59S",
+      "arrival": {
+       "time": 1793290693
+      },
+      "departure": {
+       "time": 1793290693
+      }
+     },
+     {
+      "stopId": "A60S",
+      "arrival": {
+       "time": 1793290813
+      },
+      "departure": {
+       "time": 1793290813
+      }
+     },
+     {
+      "stopId": "A61S",
+      "arrival": {
+       "time": 1793290903
+      },
+      "departure": {
+       "time": 1793290903
+      }
+     },
+     {
+      "stopId": "H02S",
+      "arrival": {
+       "time": 1793291113
+      },
+      "departure": {
+       "time": 1793291113
+      }
+     },
+     {
+      "stopId": "H03S",
+      "arrival": {
+       "time": 1793291293
+      },
+      "departure": {
+       "time": 1793291293
+      }
+     },
+     {
+      "stopId": "H04S",
+      "arrival": {
+       "time": 1793291803
+      },
+      "departure": {
+       "time": 1793291803
+      }
+     },
+     {
+      "stopId": "H06S",
+      "arrival": {
+       "time": 1793292118
+      },
+      "departure": {
+       "time": 1793292118
+      }
+     },
+     {
+      "stopId": "H07S",
+      "arrival": {
+       "time": 1793292328
+      },
+      "departure": {
+       "time": 1793292328
+      }
+     },
+     {
+      "stopId": "H08S",
+      "arrival": {
+       "time": 1793292523
+      },
+      "departure": {
+       "time": 1793292523
+      }
+     },
+     {
+      "stopId": "H09S",
+      "arrival": {
+       "time": 1793292613
+      },
+      "departure": {
+       "time": 1793292613
+      }
+     },
+     {
+      "stopId": "H10S",
+      "arrival": {
+       "time": 1793292733
+      },
+      "departure": {
+       "time": 1793292733
+      }
+     },
+     {
+      "stopId": "H11S",
+      "arrival": {
+       "time": 1793292823
+      },
+      "departure": {
+       "time": 1793292823
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067550_C..S04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A33S",
+      "arrival": {
+       "time": 1793288805
+      },
+      "departure": {
+       "time": 1793288805
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793288895
+      },
+      "departure": {
+       "time": 1793288895
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793289045
+      },
+      "departure": {
+       "time": 1793289045
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793289135
+      },
+      "departure": {
+       "time": 1793289135
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793289315
+      },
+      "departure": {
+       "time": 1793289315
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793289465
+      },
+      "departure": {
+       "time": 1793289465
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793289555
+      },
+      "departure": {
+       "time": 1793289555
+      }
+     },
+     {
+      "stopId": "A43S",
+      "arrival": {
+       "time": 1793289675
+      },
+      "departure": {
+       "time": 1793289675
+      }
+     },
+     {
+      "stopId": "A44S",
+      "arrival": {
+       "time": 1793289765
+      },
+      "departure": {
+       "time": 1793289765
+      }
+     },
+     {
+      "stopId": "A45S",
+      "arrival": {
+       "time": 1793289885
+      },
+      "departure": {
+       "time": 1793289885
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793289945
+      },
+      "departure": {
+       "time": 1793289945
+      }
+     },
+     {
+      "stopId": "A47S",
+      "arrival": {
+       "time": 1793290035
+      },
+      "departure": {
+       "time": 1793290035
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793290155
+      },
+      "departure": {
+       "time": 1793290155
+      }
+     },
+     {
+      "stopId": "A49S",
+      "arrival": {
+       "time": 1793290275
+      },
+      "departure": {
+       "time": 1793290275
+      }
+     },
+     {
+      "stopId": "A50S",
+      "arrival": {
+       "time": 1793290365
+      },
+      "departure": {
+       "time": 1793290365
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793290485
+      },
+      "departure": {
+       "time": 1793290485
+      }
+     },
+     {
+      "stopId": "A52S",
+      "arrival": {
+       "time": 1793290635
+      },
+      "departure": {
+       "time": 1793290635
+      }
+     },
+     {
+      "stopId": "A53S",
+      "arrival": {
+       "time": 1793290725
+      },
+      "departure": {
+       "time": 1793290725
+      }
+     },
+     {
+      "stopId": "A54S",
+      "arrival": {
+       "time": 1793290815
+      },
+      "departure": {
+       "time": 1793290815
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793290905
+      },
+      "departure": {
+       "time": 1793290905
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "069400_C..N04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A49N",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793288775
+      },
+      "departure": {
+       "time": 1793288775
+      }
+     },
+     {
+      "stopId": "A47N",
+      "arrival": {
+       "time": 1793288895
+      },
+      "departure": {
+       "time": 1793288895
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793288985
+      },
+      "departure": {
+       "time": 1793288985
+      }
+     },
+     {
+      "stopId": "A45N",
+      "arrival": {
+       "time": 1793289045
+      },
+      "departure": {
+       "time": 1793289045
+      }
+     },
+     {
+      "stopId": "A44N",
+      "arrival": {
+       "time": 1793289165
+      },
+      "departure": {
+       "time": 1793289165
+      }
+     },
+     {
+      "stopId": "A43N",
+      "arrival": {
+       "time": 1793289255
+      },
+      "departure": {
+       "time": 1793289255
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793289375
+      },
+      "departure": {
+       "time": 1793289375
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793289495
+      },
+      "departure": {
+       "time": 1793289495
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793289615
+      },
+      "departure": {
+       "time": 1793289615
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793289795
+      },
+      "departure": {
+       "time": 1793289795
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793289885
+      },
+      "departure": {
+       "time": 1793289885
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793290005
+      },
+      "departure": {
+       "time": 1793290005
+      }
+     },
+     {
+      "stopId": "A33N",
+      "arrival": {
+       "time": 1793290125
+      },
+      "departure": {
+       "time": 1793290125
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793290275
+      },
+      "departure": {
+       "time": 1793290275
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793290425
+      },
+      "departure": {
+       "time": 1793290425
+      }
+     },
+     {
+      "stopId": "A30N",
+      "arrival": {
+       "time": 1793290515
+      },
+      "departure": {
+       "time": 1793290515
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793290605
+      },
+      "departure": {
+       "time": 1793290605
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793290695
+      },
+      "departure": {
+       "time": 1793290695
+      }
+     },
+     {
+      "stopId": "A25N",
+      "arrival": {
+       "time": 1793290815
+      },
+      "departure": {
+       "time": 1793290815
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793290995
+      },
+      "departure": {
+       "time": 1793290995
+      }
+     },
+     {
+      "stopId": "A22N",
+      "arrival": {
+       "time": 1793291115
+      },
+      "departure": {
+       "time": 1793291115
+      }
+     },
+     {
+      "stopId": "A21N",
+      "arrival": {
+       "time": 1793291205
+      },
+      "departure": {
+       "time": 1793291205
+      }
+     },
+     {
+      "stopId": "A20N",
+      "arrival": {
+       "time": 1793291295
+      },
+      "departure": {
+       "time": 1793291295
+      }
+     },
+     {
+      "stopId": "A19N",
+      "arrival": {
+       "time": 1793291415
+      },
+      "departure": {
+       "time": 1793291415
+      }
+     },
+     {
+      "stopId": "A18N",
+      "arrival": {
+       "time": 1793291475
+      },
+      "departure": {
+       "time": 1793291475
+      }
+     },
+     {
+      "stopId": "A17N",
+      "arrival": {
+       "time": 1793291565
+      },
+      "departure": {
+       "time": 1793291565
+      }
+     },
+     {
+      "stopId": "A16N",
+      "arrival": {
+       "time": 1793291655
+      },
+      "departure": {
+       "time": 1793291655
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793291745
+      },
+      "departure": {
+       "time": 1793291745
+      }
+     },
+     {
+      "stopId": "A14N",
+      "arrival": {
+       "time": 1793291865
+      },
+      "departure": {
+       "time": 1793291865
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793292015
+      },
+      "departure": {
+       "time": 1793292015
+      }
+     },
+     {
+      "stopId": "A11N",
+      "arrival": {
+       "time": 1793292135
+      },
+      "departure": {
+       "time": 1793292135
+      }
+     },
+     {
+      "stopId": "A10N",
+      "arrival": {
+       "time": 1793292225
+      },
+      "departure": {
+       "time": 1793292225
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793292315
+      },
+      "departure": {
+       "time": 1793292315
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067950_A..S57R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A28S",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A31S",
+      "arrival": {
+       "time": 1793288870
+      },
+      "departure": {
+       "time": 1793288870
+      }
+     },
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793288990
+      },
+      "departure": {
+       "time": 1793288990
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793289140
+      },
+      "departure": {
+       "time": 1793289140
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793289260
+      },
+      "departure": {
+       "time": 1793289260
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793289350
+      },
+      "departure": {
+       "time": 1793289350
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793289530
+      },
+      "departure": {
+       "time": 1793289530
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793289680
+      },
+      "departure": {
+       "time": 1793289680
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793289770
+      },
+      "departure": {
+       "time": 1793289770
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793290040
+      },
+      "departure": {
+       "time": 1793290040
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793290190
+      },
+      "departure": {
+       "time": 1793290190
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793290400
+      },
+      "departure": {
+       "time": 1793290400
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793290700
+      },
+      "departure": {
+       "time": 1793290700
+      }
+     },
+     {
+      "stopId": "A57S",
+      "arrival": {
+       "time": 1793290820
+      },
+      "departure": {
+       "time": 1793290820
+      }
+     },
+     {
+      "stopId": "A59S",
+      "arrival": {
+       "time": 1793290910
+      },
+      "departure": {
+       "time": 1793290910
+      }
+     },
+     {
+      "stopId": "A60S",
+      "arrival": {
+       "time": 1793291030
+      },
+      "departure": {
+       "time": 1793291030
+      }
+     },
+     {
+      "stopId": "A61S",
+      "arrival": {
+       "time": 1793291120
+      },
+      "departure": {
+       "time": 1793291120
+      }
+     },
+     {
+      "stopId": "A63S",
+      "arrival": {
+       "time": 1793291330
+      },
+      "departure": {
+       "time": 1793291330
+      }
+     },
+     {
+      "stopId": "A64S",
+      "arrival": {
+       "time": 1793291570
+      },
+      "departure": {
+       "time": 1793291570
+      }
+     },
+     {
+      "stopId": "A65S",
+      "arrival": {
+       "time": 1793291660
+      },
+      "departure": {
+       "time": 1793291660
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "069583_A..N54R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A60N",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A59N",
+      "arrival": {
+       "time": 1793288773
+      },
+      "departure": {
+       "time": 1793288773
+      }
+     },
+     {
+      "stopId": "A57N",
+      "arrival": {
+       "time": 1793288863
+      },
+      "departure": {
+       "time": 1793288863
+      }
+     },
+     {
+      "stopId": "A55N",
+      "arrival": {
+       "time": 1793288998
+      },
+      "departure": {
+       "time": 1793288998
+      }
+     },
+     {
+      "stopId": "A51N",
+      "arrival": {
+       "time": 1793289313
+      },
+      "departure": {
+       "time": 1793289313
+      }
+     },
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793289523
+      },
+      "departure": {
+       "time": 1793289523
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793289673
+      },
+      "departure": {
+       "time": 1793289673
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793289973
+      },
+      "departure": {
+       "time": 1793289973
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793290093
+      },
+      "departure": {
+       "time": 1793290093
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793290213
+      },
+      "departure": {
+       "time": 1793290213
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793290393
+      },
+      "departure": {
+       "time": 1793290393
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793290483
+      },
+      "departure": {
+       "time": 1793290483
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793290603
+      },
+      "departure": {
+       "time": 1793290603
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793290753
+      },
+      "departure": {
+       "time": 1793290753
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793290873
+      },
+      "departure": {
+       "time": 1793290873
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793291083
+      },
+      "departure": {
+       "time": 1793291083
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793291143
+      },
+      "departure": {
+       "time": 1793291143
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793291443
+      },
+      "departure": {
+       "time": 1793291443
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793291893
+      },
+      "departure": {
+       "time": 1793291893
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793292073
+      },
+      "departure": {
+       "time": 1793292073
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793292298
+      },
+      "departure": {
+       "time": 1793292298
+      }
+     },
+     {
+      "stopId": "A07N",
+      "arrival": {
+       "time": 1793292433
+      },
+      "departure": {
+       "time": 1793292433
+      }
+     },
+     {
+      "stopId": "A06N",
+      "arrival": {
+       "time": 1793292493
+      },
+      "departure": {
+       "time": 1793292493
+      }
+     },
+     {
+      "stopId": "A05N",
+      "arrival": {
+       "time": 1793292613
+      },
+      "departure": {
+       "time": 1793292613
+      }
+     },
+     {
+      "stopId": "A03N",
+      "arrival": {
+       "time": 1793292778
+      },
+      "departure": {
+       "time": 1793292778
+      }
+     },
+     {
+      "stopId": "A02N",
+      "arrival": {
+       "time": 1793292913
+      },
+      "departure": {
+       "time": 1793292913
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "070100_C..N04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A55N",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A54N",
+      "arrival": {
+       "time": 1793288773
+      },
+      "departure": {
+       "time": 1793288773
+      }
+     },
+     {
+      "stopId": "A53N",
+      "arrival": {
+       "time": 1793288893
+      },
+      "departure": {
+       "time": 1793288893
+      }
+     },
+     {
+      "stopId": "A52N",
+      "arrival": {
+       "time": 1793288983
+      },
+      "departure": {
+       "time": 1793288983
+      }
+     },
+     {
+      "stopId": "A51N",
+      "arrival": {
+       "time": 1793289103
+      },
+      "departure": {
+       "time": 1793289103
+      }
+     },
+     {
+      "stopId": "A50N",
+      "arrival": {
+       "time": 1793289193
+      },
+      "departure": {
+       "time": 1793289193
+      }
+     },
+     {
+      "stopId": "A49N",
+      "arrival": {
+       "time": 1793289283
+      },
+      "departure": {
+       "time": 1793289283
+      }
+     },
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793289403
+      },
+      "departure": {
+       "time": 1793289403
+      }
+     },
+     {
+      "stopId": "A47N",
+      "arrival": {
+       "time": 1793289523
+      },
+      "departure": {
+       "time": 1793289523
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793289613
+      },
+      "departure": {
+       "time": 1793289613
+      }
+     },
+     {
+      "stopId": "A45N",
+      "arrival": {
+       "time": 1793289673
+      },
+      "departure": {
+       "time": 1793289673
+      }
+     },
+     {
+      "stopId": "A44N",
+      "arrival": {
+       "time": 1793289793
+      },
+      "departure": {
+       "time": 1793289793
+      }
+     },
+     {
+      "stopId": "A43N",
+      "arrival": {
+       "time": 1793289883
+      },
+      "departure": {
+       "time": 1793289883
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793290003
+      },
+      "departure": {
+       "time": 1793290003
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793290123
+      },
+      "departure": {
+       "time": 1793290123
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793290243
+      },
+      "departure": {
+       "time": 1793290243
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793290423
+      },
+      "departure": {
+       "time": 1793290423
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793290513
+      },
+      "departure": {
+       "time": 1793290513
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793290633
+      },
+      "departure": {
+       "time": 1793290633
+      }
+     },
+     {
+      "stopId": "A33N",
+      "arrival": {
+       "time": 1793290753
+      },
+      "departure": {
+       "time": 1793290753
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793290903
+      },
+      "departure": {
+       "time": 1793290903
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793291053
+      },
+      "departure": {
+       "time": 1793291053
+      }
+     },
+     {
+      "stopId": "A30N",
+      "arrival": {
+       "time": 1793291143
+      },
+      "departure": {
+       "time": 1793291143
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793291233
+      },
+      "departure": {
+       "time": 1793291233
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793291323
+      },
+      "departure": {
+       "time": 1793291323
+      }
+     },
+     {
+      "stopId": "A25N",
+      "arrival": {
+       "time": 1793291443
+      },
+      "departure": {
+       "time": 1793291443
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793291623
+      },
+      "departure": {
+       "time": 1793291623
+      }
+     },
+     {
+      "stopId": "A22N",
+      "arrival": {
+       "time": 1793291743
+      },
+      "departure": {
+       "time": 1793291743
+      }
+     },
+     {
+      "stopId": "A21N",
+      "arrival": {
+       "time": 1793291833
+      },
+      "departure": {
+       "time": 1793291833
+      }
+     },
+     {
+      "stopId": "A20N",
+      "arrival": {
+       "time": 1793291923
+      },
+      "departure": {
+       "time": 1793291923
+      }
+     },
+     {
+      "stopId": "A19N",
+      "arrival": {
+       "time": 1793292043
+      },
+      "departure": {
+       "time": 1793292043
+      }
+     },
+     {
+      "stopId": "A18N",
+      "arrival": {
+       "time": 1793292103
+      },
+      "departure": {
+       "time": 1793292103
+      }
+     },
+     {
+      "stopId": "A17N",
+      "arrival": {
+       "time": 1793292193
+      },
+      "departure": {
+       "time": 1793292193
+      }
+     },
+     {
+      "stopId": "A16N",
+      "arrival": {
+       "time": 1793292283
+      },
+      "departure": {
+       "time": 1793292283
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793292373
+      },
+      "departure": {
+       "time": 1793292373
+      }
+     },
+     {
+      "stopId": "A14N",
+      "arrival": {
+       "time": 1793292493
+      },
+      "departure": {
+       "time": 1793292493
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793292643
+      },
+      "departure": {
+       "time": 1793292643
+      }
+     },
+     {
+      "stopId": "A11N",
+      "arrival": {
+       "time": 1793292763
+      },
+      "departure": {
+       "time": 1793292763
+      }
+     },
+     {
+      "stopId": "A10N",
+      "arrival": {
+       "time": 1793292853
+      },
+      "departure": {
+       "time": 1793292853
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793292943
+      },
+      "departure": {
+       "time": 1793292943
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067300_A..N55R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A61N",
+      "arrival": {
+       "time": 1793288705
+      },
+      "departure": {
+       "time": 1793288705
+      }
+     },
+     {
+      "stopId": "A60N",
+      "arrival": {
+       "time": 1793288850
+      },
+      "departure": {
+       "time": 1793288850
+      }
+     },
+     {
+      "stopId": "A59N",
+      "arrival": {
+       "time": 1793288940
+      },
+      "departure": {
+       "time": 1793288940
+      }
+     },
+     {
+      "stopId": "A57N",
+      "arrival": {
+       "time": 1793289030
+      },
+      "departure": {
+       "time": 1793289030
+      }
+     },
+     {
+      "stopId": "A55N",
+      "arrival": {
+       "time": 1793289165
+      },
+      "departure": {
+       "time": 1793289165
+      }
+     },
+     {
+      "stopId": "A51N",
+      "arrival": {
+       "time": 1793289480
+      },
+      "departure": {
+       "time": 1793289480
+      }
+     },
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793289690
+      },
+      "departure": {
+       "time": 1793289690
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793289840
+      },
+      "departure": {
+       "time": 1793289840
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793290140
+      },
+      "departure": {
+       "time": 1793290140
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793290260
+      },
+      "departure": {
+       "time": 1793290260
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793290380
+      },
+      "departure": {
+       "time": 1793290380
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793290560
+      },
+      "departure": {
+       "time": 1793290560
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793290650
+      },
+      "departure": {
+       "time": 1793290650
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793290770
+      },
+      "departure": {
+       "time": 1793290770
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793290920
+      },
+      "departure": {
+       "time": 1793290920
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793291040
+      },
+      "departure": {
+       "time": 1793291040
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793291250
+      },
+      "departure": {
+       "time": 1793291250
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793291310
+      },
+      "departure": {
+       "time": 1793291310
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793291520
+      },
+      "departure": {
+       "time": 1793291520
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793291970
+      },
+      "departure": {
+       "time": 1793291970
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793292150
+      },
+      "departure": {
+       "time": 1793292150
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793292405
+      },
+      "departure": {
+       "time": 1793292405
+      }
+     },
+     {
+      "stopId": "A07N",
+      "arrival": {
+       "time": 1793292570
+      },
+      "departure": {
+       "time": 1793292570
+      }
+     },
+     {
+      "stopId": "A06N",
+      "arrival": {
+       "time": 1793292630
+      },
+      "departure": {
+       "time": 1793292630
+      }
+     },
+     {
+      "stopId": "A05N",
+      "arrival": {
+       "time": 1793292750
+      },
+      "departure": {
+       "time": 1793292750
+      }
+     },
+     {
+      "stopId": "A03N",
+      "arrival": {
+       "time": 1793292945
+      },
+      "departure": {
+       "time": 1793292945
+      }
+     },
+     {
+      "stopId": "A02N",
+      "arrival": {
+       "time": 1793293110
+      },
+      "departure": {
+       "time": 1793293110
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "068450_C..S04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A24S",
+      "arrival": {
+       "time": 1793288773
+      },
+      "departure": {
+       "time": 1793288773
+      }
+     },
+     {
+      "stopId": "A25S",
+      "arrival": {
+       "time": 1793288938
+      },
+      "departure": {
+       "time": 1793288938
+      }
+     },
+     {
+      "stopId": "A27S",
+      "arrival": {
+       "time": 1793289133
+      },
+      "departure": {
+       "time": 1793289133
+      }
+     },
+     {
+      "stopId": "A28S",
+      "arrival": {
+       "time": 1793289223
+      },
+      "departure": {
+       "time": 1793289223
+      }
+     },
+     {
+      "stopId": "A30S",
+      "arrival": {
+       "time": 1793289313
+      },
+      "departure": {
+       "time": 1793289313
+      }
+     },
+     {
+      "stopId": "A31S",
+      "arrival": {
+       "time": 1793289403
+      },
+      "departure": {
+       "time": 1793289403
+      }
+     },
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793289553
+      },
+      "departure": {
+       "time": 1793289553
+      }
+     },
+     {
+      "stopId": "A33S",
+      "arrival": {
+       "time": 1793289673
+      },
+      "departure": {
+       "time": 1793289673
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793289763
+      },
+      "departure": {
+       "time": 1793289763
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793289913
+      },
+      "departure": {
+       "time": 1793289913
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793290003
+      },
+      "departure": {
+       "time": 1793290003
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793290183
+      },
+      "departure": {
+       "time": 1793290183
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793290333
+      },
+      "departure": {
+       "time": 1793290333
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793290423
+      },
+      "departure": {
+       "time": 1793290423
+      }
+     },
+     {
+      "stopId": "A43S",
+      "arrival": {
+       "time": 1793290543
+      },
+      "departure": {
+       "time": 1793290543
+      }
+     },
+     {
+      "stopId": "A44S",
+      "arrival": {
+       "time": 1793290633
+      },
+      "departure": {
+       "time": 1793290633
+      }
+     },
+     {
+      "stopId": "A45S",
+      "arrival": {
+       "time": 1793290753
+      },
+      "departure": {
+       "time": 1793290753
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793290813
+      },
+      "departure": {
+       "time": 1793290813
+      }
+     },
+     {
+      "stopId": "A47S",
+      "arrival": {
+       "time": 1793290903
+      },
+      "departure": {
+       "time": 1793290903
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793291023
+      },
+      "departure": {
+       "time": 1793291023
+      }
+     },
+     {
+      "stopId": "A49S",
+      "arrival": {
+       "time": 1793291143
+      },
+      "departure": {
+       "time": 1793291143
+      }
+     },
+     {
+      "stopId": "A50S",
+      "arrival": {
+       "time": 1793291233
+      },
+      "departure": {
+       "time": 1793291233
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793291353
+      },
+      "departure": {
+       "time": 1793291353
+      }
+     },
+     {
+      "stopId": "A52S",
+      "arrival": {
+       "time": 1793291503
+      },
+      "departure": {
+       "time": 1793291503
+      }
+     },
+     {
+      "stopId": "A53S",
+      "arrival": {
+       "time": 1793291593
+      },
+      "departure": {
+       "time": 1793291593
+      }
+     },
+     {
+      "stopId": "A54S",
+      "arrival": {
+       "time": 1793291683
+      },
+      "departure": {
+       "time": 1793291683
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793291773
+      },
+      "departure": {
+       "time": 1793291773
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "068800_A..S58R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A15S",
+      "arrival": {
+       "time": 1793288700
+      },
+      "departure": {
+       "time": 1793288700
+      }
+     },
+     {
+      "stopId": "A24S",
+      "arrival": {
+       "time": 1793289085
+      },
+      "departure": {
+       "time": 1793289085
+      }
+     },
+     {
+      "stopId": "A27S",
+      "arrival": {
+       "time": 1793289280
+      },
+      "departure": {
+       "time": 1793289280
+      }
+     },
+     {
+      "stopId": "A28S",
+      "arrival": {
+       "time": 1793289385
+      },
+      "departure": {
+       "time": 1793289385
+      }
+     },
+     {
+      "stopId": "A31S",
+      "arrival": {
+       "time": 1793289565
+      },
+      "departure": {
+       "time": 1793289565
+      }
+     },
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793289685
+      },
+      "departure": {
+       "time": 1793289685
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793289835
+      },
+      "departure": {
+       "time": 1793289835
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793289955
+      },
+      "departure": {
+       "time": 1793289955
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793290045
+      },
+      "departure": {
+       "time": 1793290045
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793290225
+      },
+      "departure": {
+       "time": 1793290225
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793290375
+      },
+      "departure": {
+       "time": 1793290375
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793290465
+      },
+      "departure": {
+       "time": 1793290465
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793290735
+      },
+      "departure": {
+       "time": 1793290735
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793290885
+      },
+      "departure": {
+       "time": 1793290885
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793291095
+      },
+      "departure": {
+       "time": 1793291095
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793291395
+      },
+      "departure": {
+       "time": 1793291395
+      }
+     },
+     {
+      "stopId": "A57S",
+      "arrival": {
+       "time": 1793291515
+      },
+      "departure": {
+       "time": 1793291515
+      }
+     },
+     {
+      "stopId": "A59S",
+      "arrival": {
+       "time": 1793291605
+      },
+      "departure": {
+       "time": 1793291605
+      }
+     },
+     {
+      "stopId": "A60S",
+      "arrival": {
+       "time": 1793291725
+      },
+      "departure": {
+       "time": 1793291725
+      }
+     },
+     {
+      "stopId": "A61S",
+      "arrival": {
+       "time": 1793291815
+      },
+      "departure": {
+       "time": 1793291815
+      }
+     },
+     {
+      "stopId": "H02S",
+      "arrival": {
+       "time": 1793292025
+      },
+      "departure": {
+       "time": 1793292025
+      }
+     },
+     {
+      "stopId": "H03S",
+      "arrival": {
+       "time": 1793292205
+      },
+      "departure": {
+       "time": 1793292205
+      }
+     },
+     {
+      "stopId": "H04S",
+      "arrival": {
+       "time": 1793292715
+      },
+      "departure": {
+       "time": 1793292715
+      }
+     },
+     {
+      "stopId": "H06S",
+      "arrival": {
+       "time": 1793293015
+      },
+      "departure": {
+       "time": 1793293015
+      }
+     },
+     {
+      "stopId": "H07S",
+      "arrival": {
+       "time": 1793293195
+      },
+      "departure": {
+       "time": 1793293195
+      }
+     },
+     {
+      "stopId": "H08S",
+      "arrival": {
+       "time": 1793293375
+      },
+      "departure": {
+       "time": 1793293375
+      }
+     },
+     {
+      "stopId": "H09S",
+      "arrival": {
+       "time": 1793293465
+      },
+      "departure": {
+       "time": 1793293465
+      }
+     },
+     {
+      "stopId": "H10S",
+      "arrival": {
+       "time": 1793293585
+      },
+      "departure": {
+       "time": 1793293585
+      }
+     },
+     {
+      "stopId": "H11S",
+      "arrival": {
+       "time": 1793293675
+      },
+      "departure": {
+       "time": 1793293675
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "070950_C..N04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A55N",
+      "arrival": {
+       "time": 1793288970
+      },
+      "departure": {
+       "time": 1793288970
+      }
+     },
+     {
+      "stopId": "A54N",
+      "arrival": {
+       "time": 1793289060
+      },
+      "departure": {
+       "time": 1793289060
+      }
+     },
+     {
+      "stopId": "A53N",
+      "arrival": {
+       "time": 1793289180
+      },
+      "departure": {
+       "time": 1793289180
+      }
+     },
+     {
+      "stopId": "A52N",
+      "arrival": {
+       "time": 1793289270
+      },
+      "departure": {
+       "time": 1793289270
+      }
+     },
+     {
+      "stopId": "A51N",
+      "arrival": {
+       "time": 1793289405
+      },
+      "departure": {
+       "time": 1793289405
+      }
+     },
+     {
+      "stopId": "A50N",
+      "arrival": {
+       "time": 1793289510
+      },
+      "departure": {
+       "time": 1793289510
+      }
+     },
+     {
+      "stopId": "A49N",
+      "arrival": {
+       "time": 1793289600
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793289720
+      },
+      "departure": {
+       "time": 1793289720
+      }
+     },
+     {
+      "stopId": "A47N",
+      "arrival": {
+       "time": 1793289840
+      },
+      "departure": {
+       "time": 1793289840
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793289930
+      },
+      "departure": {
+       "time": 1793289930
+      }
+     },
+     {
+      "stopId": "A45N",
+      "arrival": {
+       "time": 1793289990
+      },
+      "departure": {
+       "time": 1793289990
+      }
+     },
+     {
+      "stopId": "A44N",
+      "arrival": {
+       "time": 1793290110
+      },
+      "departure": {
+       "time": 1793290110
+      }
+     },
+     {
+      "stopId": "A43N",
+      "arrival": {
+       "time": 1793290200
+      },
+      "departure": {
+       "time": 1793290200
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793290320
+      },
+      "departure": {
+       "time": 1793290320
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793290440
+      },
+      "departure": {
+       "time": 1793290440
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793290560
+      },
+      "departure": {
+       "time": 1793290560
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793290740
+      },
+      "departure": {
+       "time": 1793290740
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793290830
+      },
+      "departure": {
+       "time": 1793290830
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793290950
+      },
+      "departure": {
+       "time": 1793290950
+      }
+     },
+     {
+      "stopId": "A33N",
+      "arrival": {
+       "time": 1793291070
+      },
+      "departure": {
+       "time": 1793291070
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793291220
+      },
+      "departure": {
+       "time": 1793291220
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793291370
+      },
+      "departure": {
+       "time": 1793291370
+      }
+     },
+     {
+      "stopId": "A30N",
+      "arrival": {
+       "time": 1793291460
+      },
+      "departure": {
+       "time": 1793291460
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793291550
+      },
+      "departure": {
+       "time": 1793291550
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793291640
+      },
+      "departure": {
+       "time": 1793291640
+      }
+     },
+     {
+      "stopId": "A25N",
+      "arrival": {
+       "time": 1793291745
+      },
+      "departure": {
+       "time": 1793291745
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793291910
+      },
+      "departure": {
+       "time": 1793291910
+      }
+     },
+     {
+      "stopId": "A22N",
+      "arrival": {
+       "time": 1793292030
+      },
+      "departure": {
+       "time": 1793292030
+      }
+     },
+     {
+      "stopId": "A21N",
+      "arrival": {
+       "time": 1793292120
+      },
+      "departure": {
+       "time": 1793292120
+      }
+     },
+     {
+      "stopId": "A20N",
+      "arrival": {
+       "time": 1793292210
+      },
+      "departure": {
+       "time": 1793292210
+      }
+     },
+     {
+      "stopId": "A19N",
+      "arrival": {
+       "time": 1793292330
+      },
+      "departure": {
+       "time": 1793292330
+      }
+     },
+     {
+      "stopId": "A18N",
+      "arrival": {
+       "time": 1793292390
+      },
+      "departure": {
+       "time": 1793292390
+      }
+     },
+     {
+      "stopId": "A17N",
+      "arrival": {
+       "time": 1793292480
+      },
+      "departure": {
+       "time": 1793292480
+      }
+     },
+     {
+      "stopId": "A16N",
+      "arrival": {
+       "time": 1793292570
+      },
+      "departure": {
+       "time": 1793292570
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793292660
+      },
+      "departure": {
+       "time": 1793292660
+      }
+     },
+     {
+      "stopId": "A14N",
+      "arrival": {
+       "time": 1793292780
+      },
+      "departure": {
+       "time": 1793292780
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793292930
+      },
+      "departure": {
+       "time": 1793292930
+      }
+     },
+     {
+      "stopId": "A11N",
+      "arrival": {
+       "time": 1793293050
+      },
+      "departure": {
+       "time": 1793293050
+      }
+     },
+     {
+      "stopId": "A10N",
+      "arrival": {
+       "time": 1793293140
+      },
+      "departure": {
+       "time": 1793293140
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793293230
+      },
+      "departure": {
+       "time": 1793293230
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "069150_C..S04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A17S",
+      "arrival": {
+       "time": 1793288695
+      },
+      "departure": {
+       "time": 1793288695
+      }
+     },
+     {
+      "stopId": "A18S",
+      "arrival": {
+       "time": 1793288706
+      },
+      "departure": {
+       "time": 1793288706
+      }
+     },
+     {
+      "stopId": "A19S",
+      "arrival": {
+       "time": 1793288796
+      },
+      "departure": {
+       "time": 1793288796
+      }
+     },
+     {
+      "stopId": "A20S",
+      "arrival": {
+       "time": 1793288916
+      },
+      "departure": {
+       "time": 1793288916
+      }
+     },
+     {
+      "stopId": "A21S",
+      "arrival": {
+       "time": 1793288976
+      },
+      "departure": {
+       "time": 1793288976
+      }
+     },
+     {
+      "stopId": "A22S",
+      "arrival": {
+       "time": 1793289096
+      },
+      "departure": {
+       "time": 1793289096
+      }
+     },
+     {
+      "stopId": "A24S",
+      "arrival": {
+       "time": 1793289216
+      },
+      "departure": {
+       "time": 1793289216
+      }
+     },
+     {
+      "stopId": "A25S",
+      "arrival": {
+       "time": 1793289351
+      },
+      "departure": {
+       "time": 1793289351
+      }
+     },
+     {
+      "stopId": "A27S",
+      "arrival": {
+       "time": 1793289516
+      },
+      "departure": {
+       "time": 1793289516
+      }
+     },
+     {
+      "stopId": "A28S",
+      "arrival": {
+       "time": 1793289606
+      },
+      "departure": {
+       "time": 1793289606
+      }
+     },
+     {
+      "stopId": "A30S",
+      "arrival": {
+       "time": 1793289696
+      },
+      "departure": {
+       "time": 1793289696
+      }
+     },
+     {
+      "stopId": "A31S",
+      "arrival": {
+       "time": 1793289786
+      },
+      "departure": {
+       "time": 1793289786
+      }
+     },
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793289936
+      },
+      "departure": {
+       "time": 1793289936
+      }
+     },
+     {
+      "stopId": "A33S",
+      "arrival": {
+       "time": 1793290056
+      },
+      "departure": {
+       "time": 1793290056
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793290146
+      },
+      "departure": {
+       "time": 1793290146
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793290296
+      },
+      "departure": {
+       "time": 1793290296
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793290386
+      },
+      "departure": {
+       "time": 1793290386
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793290566
+      },
+      "departure": {
+       "time": 1793290566
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793290716
+      },
+      "departure": {
+       "time": 1793290716
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793290806
+      },
+      "departure": {
+       "time": 1793290806
+      }
+     },
+     {
+      "stopId": "A43S",
+      "arrival": {
+       "time": 1793290926
+      },
+      "departure": {
+       "time": 1793290926
+      }
+     },
+     {
+      "stopId": "A44S",
+      "arrival": {
+       "time": 1793291016
+      },
+      "departure": {
+       "time": 1793291016
+      }
+     },
+     {
+      "stopId": "A45S",
+      "arrival": {
+       "time": 1793291136
+      },
+      "departure": {
+       "time": 1793291136
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793291196
+      },
+      "departure": {
+       "time": 1793291196
+      }
+     },
+     {
+      "stopId": "A47S",
+      "arrival": {
+       "time": 1793291286
+      },
+      "departure": {
+       "time": 1793291286
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793291406
+      },
+      "departure": {
+       "time": 1793291406
+      }
+     },
+     {
+      "stopId": "A49S",
+      "arrival": {
+       "time": 1793291526
+      },
+      "departure": {
+       "time": 1793291526
+      }
+     },
+     {
+      "stopId": "A50S",
+      "arrival": {
+       "time": 1793291616
+      },
+      "departure": {
+       "time": 1793291616
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793291736
+      },
+      "departure": {
+       "time": 1793291736
+      }
+     },
+     {
+      "stopId": "A52S",
+      "arrival": {
+       "time": 1793291886
+      },
+      "departure": {
+       "time": 1793291886
+      }
+     },
+     {
+      "stopId": "A53S",
+      "arrival": {
+       "time": 1793291976
+      },
+      "departure": {
+       "time": 1793291976
+      }
+     },
+     {
+      "stopId": "A54S",
+      "arrival": {
+       "time": 1793292066
+      },
+      "departure": {
+       "time": 1793292066
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793292156
+      },
+      "departure": {
+       "time": 1793292156
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "069500_A..S57R",
+     "routeId": "A"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A09S",
+      "arrival": {
+       "time": 1793288709
+      },
+      "departure": {
+       "time": 1793288709
+      }
+     },
+     {
+      "stopId": "A12S",
+      "arrival": {
+       "time": 1793288899
+      },
+      "departure": {
+       "time": 1793288899
+      }
+     },
+     {
+      "stopId": "A15S",
+      "arrival": {
+       "time": 1793289109
+      },
+      "departure": {
+       "time": 1793289109
+      }
+     },
+     {
+      "stopId": "A24S",
+      "arrival": {
+       "time": 1793289589
+      },
+      "departure": {
+       "time": 1793289589
+      }
+     },
+     {
+      "stopId": "A27S",
+      "arrival": {
+       "time": 1793289754
+      },
+      "departure": {
+       "time": 1793289754
+      }
+     },
+     {
+      "stopId": "A28S",
+      "arrival": {
+       "time": 1793289829
+      },
+      "departure": {
+       "time": 1793289829
+      }
+     },
+     {
+      "stopId": "A31S",
+      "arrival": {
+       "time": 1793290009
+      },
+      "departure": {
+       "time": 1793290009
+      }
+     },
+     {
+      "stopId": "A32S",
+      "arrival": {
+       "time": 1793290129
+      },
+      "departure": {
+       "time": 1793290129
+      }
+     },
+     {
+      "stopId": "A34S",
+      "arrival": {
+       "time": 1793290279
+      },
+      "departure": {
+       "time": 1793290279
+      }
+     },
+     {
+      "stopId": "A36S",
+      "arrival": {
+       "time": 1793290399
+      },
+      "departure": {
+       "time": 1793290399
+      }
+     },
+     {
+      "stopId": "A38S",
+      "arrival": {
+       "time": 1793290489
+      },
+      "departure": {
+       "time": 1793290489
+      }
+     },
+     {
+      "stopId": "A40S",
+      "arrival": {
+       "time": 1793290669
+      },
+      "departure": {
+       "time": 1793290669
+      }
+     },
+     {
+      "stopId": "A41S",
+      "arrival": {
+       "time": 1793290819
+      },
+      "departure": {
+       "time": 1793290819
+      }
+     },
+     {
+      "stopId": "A42S",
+      "arrival": {
+       "time": 1793290909
+      },
+      "departure": {
+       "time": 1793290909
+      }
+     },
+     {
+      "stopId": "A46S",
+      "arrival": {
+       "time": 1793291179
+      },
+      "departure": {
+       "time": 1793291179
+      }
+     },
+     {
+      "stopId": "A48S",
+      "arrival": {
+       "time": 1793291329
+      },
+      "departure": {
+       "time": 1793291329
+      }
+     },
+     {
+      "stopId": "A51S",
+      "arrival": {
+       "time": 1793291539
+      },
+      "departure": {
+       "time": 1793291539
+      }
+     },
+     {
+      "stopId": "A55S",
+      "arrival": {
+       "time": 1793291839
+      },
+      "departure": {
+       "time": 1793291839
+      }
+     },
+     {
+      "stopId": "A57S",
+      "arrival": {
+       "time": 1793291959
+      },
+      "departure": {
+       "time": 1793291959
+      }
+     },
+     {
+      "stopId": "A59S",
+      "arrival": {
+       "time": 1793292049
+      },
+      "departure": {
+       "time": 1793292049
+      }
+     },
+     {
+      "stopId": "A60S",
+      "arrival": {
+       "time": 1793292169
+      },
+      "departure": {
+       "time": 1793292169
+      }
+     },
+     {
+      "stopId": "A61S",
+      "arrival": {
+       "time": 1793292259
+      },
+      "departure": {
+       "time": 1793292259
+      }
+     },
+     {
+      "stopId": "A63S",
+      "arrival": {
+       "time": 1793292469
+      },
+      "departure": {
+       "time": 1793292469
+      }
+     },
+     {
+      "stopId": "A64S",
+      "arrival": {
+       "time": 1793292709
+      },
+      "departure": {
+       "time": 1793292709
+      }
+     },
+     {
+      "stopId": "A65S",
+      "arrival": {
+       "time": 1793292799
+      },
+      "departure": {
+       "time": 1793292799
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "071650_C..N04R",
+     "routeId": "C"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "A55N",
+      "arrival": {
+       "time": 1793289390
+      },
+      "departure": {
+       "time": 1793289390
+      }
+     },
+     {
+      "stopId": "A54N",
+      "arrival": {
+       "time": 1793289480
+      },
+      "departure": {
+       "time": 1793289480
+      }
+     },
+     {
+      "stopId": "A53N",
+      "arrival": {
+       "time": 1793289600
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "A52N",
+      "arrival": {
+       "time": 1793289690
+      },
+      "departure": {
+       "time": 1793289690
+      }
+     },
+     {
+      "stopId": "A51N",
+      "arrival": {
+       "time": 1793289810
+      },
+      "departure": {
+       "time": 1793289810
+      }
+     },
+     {
+      "stopId": "A50N",
+      "arrival": {
+       "time": 1793289900
+      },
+      "departure": {
+       "time": 1793289900
+      }
+     },
+     {
+      "stopId": "A49N",
+      "arrival": {
+       "time": 1793289990
+      },
+      "departure": {
+       "time": 1793289990
+      }
+     },
+     {
+      "stopId": "A48N",
+      "arrival": {
+       "time": 1793290110
+      },
+      "departure": {
+       "time": 1793290110
+      }
+     },
+     {
+      "stopId": "A47N",
+      "arrival": {
+       "time": 1793290230
+      },
+      "departure": {
+       "time": 1793290230
+      }
+     },
+     {
+      "stopId": "A46N",
+      "arrival": {
+       "time": 1793290320
+      },
+      "departure": {
+       "time": 1793290320
+      }
+     },
+     {
+      "stopId": "A45N",
+      "arrival": {
+       "time": 1793290380
+      },
+      "departure": {
+       "time": 1793290380
+      }
+     },
+     {
+      "stopId": "A44N",
+      "arrival": {
+       "time": 1793290500
+      },
+      "departure": {
+       "time": 1793290500
+      }
+     },
+     {
+      "stopId": "A43N",
+      "arrival": {
+       "time": 1793290590
+      },
+      "departure": {
+       "time": 1793290590
+      }
+     },
+     {
+      "stopId": "A42N",
+      "arrival": {
+       "time": 1793290710
+      },
+      "departure": {
+       "time": 1793290710
+      }
+     },
+     {
+      "stopId": "A41N",
+      "arrival": {
+       "time": 1793290830
+      },
+      "departure": {
+       "time": 1793290830
+      }
+     },
+     {
+      "stopId": "A40N",
+      "arrival": {
+       "time": 1793290950
+      },
+      "departure": {
+       "time": 1793290950
+      }
+     },
+     {
+      "stopId": "A38N",
+      "arrival": {
+       "time": 1793291130
+      },
+      "departure": {
+       "time": 1793291130
+      }
+     },
+     {
+      "stopId": "A36N",
+      "arrival": {
+       "time": 1793291220
+      },
+      "departure": {
+       "time": 1793291220
+      }
+     },
+     {
+      "stopId": "A34N",
+      "arrival": {
+       "time": 1793291340
+      },
+      "departure": {
+       "time": 1793291340
+      }
+     },
+     {
+      "stopId": "A33N",
+      "arrival": {
+       "time": 1793291460
+      },
+      "departure": {
+       "time": 1793291460
+      }
+     },
+     {
+      "stopId": "A32N",
+      "arrival": {
+       "time": 1793291610
+      },
+      "departure": {
+       "time": 1793291610
+      }
+     },
+     {
+      "stopId": "A31N",
+      "arrival": {
+       "time": 1793291760
+      },
+      "departure": {
+       "time": 1793291760
+      }
+     },
+     {
+      "stopId": "A30N",
+      "arrival": {
+       "time": 1793291850
+      },
+      "departure": {
+       "time": 1793291850
+      }
+     },
+     {
+      "stopId": "A28N",
+      "arrival": {
+       "time": 1793291940
+      },
+      "departure": {
+       "time": 1793291940
+      }
+     },
+     {
+      "stopId": "A27N",
+      "arrival": {
+       "time": 1793292030
+      },
+      "departure": {
+       "time": 1793292030
+      }
+     },
+     {
+      "stopId": "A25N",
+      "arrival": {
+       "time": 1793292135
+      },
+      "departure": {
+       "time": 1793292135
+      }
+     },
+     {
+      "stopId": "A24N",
+      "arrival": {
+       "time": 1793292300
+      },
+      "departure": {
+       "time": 1793292300
+      }
+     },
+     {
+      "stopId": "A22N",
+      "arrival": {
+       "time": 1793292420
+      },
+      "departure": {
+       "time": 1793292420
+      }
+     },
+     {
+      "stopId": "A21N",
+      "arrival": {
+       "time": 1793292510
+      },
+      "departure": {
+       "time": 1793292510
+      }
+     },
+     {
+      "stopId": "A20N",
+      "arrival": {
+       "time": 1793292600
+      },
+      "departure": {
+       "time": 1793292600
+      }
+     },
+     {
+      "stopId": "A19N",
+      "arrival": {
+       "time": 1793292720
+      },
+      "departure": {
+       "time": 1793292720
+      }
+     },
+     {
+      "stopId": "A18N",
+      "arrival": {
+       "time": 1793292780
+      },
+      "departure": {
+       "time": 1793292780
+      }
+     },
+     {
+      "stopId": "A17N",
+      "arrival": {
+       "time": 1793292870
+      },
+      "departure": {
+       "time": 1793292870
+      }
+     },
+     {
+      "stopId": "A16N",
+      "arrival": {
+       "time": 1793292960
+      },
+      "departure": {
+       "time": 1793292960
+      }
+     },
+     {
+      "stopId": "A15N",
+      "arrival": {
+       "time": 1793293050
+      },
+      "departure": {
+       "time": 1793293050
+      }
+     },
+     {
+      "stopId": "A14N",
+      "arrival": {
+       "time": 1793293170
+      },
+      "departure": {
+       "time": 1793293170
+      }
+     },
+     {
+      "stopId": "A12N",
+      "arrival": {
+       "time": 1793293320
+      },
+      "departure": {
+       "time": 1793293320
+      }
+     },
+     {
+      "stopId": "A11N",
+      "arrival": {
+       "time": 1793293440
+      },
+      "departure": {
+       "time": 1793293440
+      }
+     },
+     {
+      "stopId": "A10N",
+      "arrival": {
+       "time": 1793293530
+      },
+      "departure": {
+       "time": 1793293530
+      }
+     },
+     {
+      "stopId": "A09N",
+      "arrival": {
+       "time": 1793293620
+      },
+      "departure": {
+       "time": 1793293620
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

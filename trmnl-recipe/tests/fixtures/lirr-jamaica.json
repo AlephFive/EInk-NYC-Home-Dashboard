@@ -1,0 +1,2067 @@
+{
+ "_comment": "Captured from the lirr feed, pruned to trips calling at 102. Times are rebased on load — see tests/fixtures/load.ts. Regenerate with: node scripts/captureFixture.mjs lirr-jamaica lirr 102",
+ "capturedAt": "2026-10-29T15:45:29.173Z",
+ "feed": "lirr",
+ "stopIds": [
+  "102"
+ ],
+ "entity": [
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_809",
+     "routeId": "6"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "113",
+      "departure": {
+       "time": 1793265291
+      }
+     },
+     {
+      "stopId": "99",
+      "arrival": {
+       "time": 1793265538
+      },
+      "departure": {
+       "time": 1793265538
+      }
+     },
+     {
+      "stopId": "155",
+      "arrival": {
+       "time": 1793265808
+      },
+      "departure": {
+       "time": 1793265808
+      }
+     },
+     {
+      "stopId": "51",
+      "arrival": {
+       "time": 1793265928
+      },
+      "departure": {
+       "time": 1793265928
+      }
+     },
+     {
+      "stopId": "31",
+      "arrival": {
+       "time": 1793266033
+      },
+      "departure": {
+       "time": 1793266033
+      }
+     },
+     {
+      "stopId": "125",
+      "arrival": {
+       "time": 1793266183
+      },
+      "departure": {
+       "time": 1793266183
+      }
+     },
+     {
+      "stopId": "211",
+      "arrival": {
+       "time": 1793266388
+      },
+      "departure": {
+       "time": 1793266388
+      }
+     },
+     {
+      "stopId": "180",
+      "arrival": {
+       "time": 1793266583
+      },
+      "departure": {
+       "time": 1793266583
+      }
+     },
+     {
+      "stopId": "122",
+      "arrival": {
+       "time": 1793266728
+      },
+      "departure": {
+       "time": 1793266728
+      }
+     },
+     {
+      "stopId": "119",
+      "arrival": {
+       "time": 1793266868
+      },
+      "departure": {
+       "time": 1793266868
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793267248
+      },
+      "departure": {
+       "time": 1793267248
+      }
+     },
+     {
+      "stopId": "107",
+      "arrival": {
+       "time": 1793267583
+      },
+      "departure": {
+       "time": 1793267583
+      }
+     },
+     {
+      "stopId": "349",
+      "arrival": {
+       "time": 1793268367
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1920",
+     "routeId": "4"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793282544
+      }
+     },
+     {
+      "stopId": "214",
+      "arrival": {
+       "time": 1793283066
+      },
+      "departure": {
+       "time": 1793283066
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793283634
+      },
+      "departure": {
+       "time": 1793283634
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793285202
+      },
+      "departure": {
+       "time": 1793285202
+      }
+     },
+     {
+      "stopId": "20",
+      "arrival": {
+       "time": 1793285475
+      },
+      "departure": {
+       "time": 1793285475
+      }
+     },
+     {
+      "stopId": "59",
+      "arrival": {
+       "time": 1793285736
+      },
+      "departure": {
+       "time": 1793285736
+      }
+     },
+     {
+      "stopId": "220",
+      "arrival": {
+       "time": 1793286069
+      },
+      "departure": {
+       "time": 1793286069
+      }
+     },
+     {
+      "stopId": "44",
+      "arrival": {
+       "time": 1793286342
+      },
+      "departure": {
+       "time": 1793286342
+      }
+     },
+     {
+      "stopId": "29",
+      "arrival": {
+       "time": 1793286589
+      },
+      "departure": {
+       "time": 1793286589
+      }
+     },
+     {
+      "stopId": "33",
+      "arrival": {
+       "time": 1793286844
+      },
+      "departure": {
+       "time": 1793286844
+      }
+     },
+     {
+      "stopId": "179",
+      "arrival": {
+       "time": 1793287341
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1520",
+     "routeId": "10"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793283002
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793284250
+      },
+      "departure": {
+       "time": 1793284250
+      }
+     },
+     {
+      "stopId": "152",
+      "arrival": {
+       "time": 1793284982
+      },
+      "departure": {
+       "time": 1793284982
+      }
+     },
+     {
+      "stopId": "127",
+      "arrival": {
+       "time": 1793285116
+      },
+      "departure": {
+       "time": 1793285116
+      }
+     },
+     {
+      "stopId": "132",
+      "arrival": {
+       "time": 1793285267
+      },
+      "departure": {
+       "time": 1793285267
+      }
+     },
+     {
+      "stopId": "39",
+      "arrival": {
+       "time": 1793285473
+      },
+      "departure": {
+       "time": 1793285473
+      }
+     },
+     {
+      "stopId": "213",
+      "arrival": {
+       "time": 1793285613
+      },
+      "departure": {
+       "time": 1793285613
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793285879
+      },
+      "departure": {
+       "time": 1793285879
+      }
+     },
+     {
+      "stopId": "205",
+      "arrival": {
+       "time": 1793286297
+      },
+      "departure": {
+       "time": 1793286297
+      }
+     },
+     {
+      "stopId": "40",
+      "arrival": {
+       "time": 1793286600
+      },
+      "departure": {
+       "time": 1793286600
+      }
+     },
+     {
+      "stopId": "91",
+      "arrival": {
+       "time": 1793286963
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_141",
+     "routeId": "1"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "27"
+     },
+     {
+      "stopId": "117",
+      "arrival": {
+       "time": 1793281641
+      },
+      "departure": {
+       "time": 1793281641
+      }
+     },
+     {
+      "stopId": "38",
+      "arrival": {
+       "time": 1793281816
+      },
+      "departure": {
+       "time": 1793281816
+      }
+     },
+     {
+      "stopId": "8",
+      "arrival": {
+       "time": 1793281966
+      },
+      "departure": {
+       "time": 1793281966
+      }
+     },
+     {
+      "stopId": "135",
+      "arrival": {
+       "time": 1793282146
+      },
+      "departure": {
+       "time": 1793282146
+      }
+     },
+     {
+      "stopId": "136",
+      "arrival": {
+       "time": 1793282266
+      },
+      "departure": {
+       "time": 1793282266
+      }
+     },
+     {
+      "stopId": "187",
+      "arrival": {
+       "time": 1793282440
+      },
+      "departure": {
+       "time": 1793282440
+      }
+     },
+     {
+      "stopId": "215",
+      "arrival": {
+       "time": 1793282616
+      },
+      "departure": {
+       "time": 1793282616
+      }
+     },
+     {
+      "stopId": "16",
+      "arrival": {
+       "time": 1793282776
+      },
+      "departure": {
+       "time": 1793282776
+      }
+     },
+     {
+      "stopId": "226",
+      "arrival": {
+       "time": 1793282956
+      },
+      "departure": {
+       "time": 1793282956
+      }
+     },
+     {
+      "stopId": "64",
+      "arrival": {
+       "time": 1793283140
+      },
+      "departure": {
+       "time": 1793283140
+      }
+     },
+     {
+      "stopId": "225",
+      "arrival": {
+       "time": 1793283326
+      },
+      "departure": {
+       "time": 1793283326
+      }
+     },
+     {
+      "stopId": "183",
+      "arrival": {
+       "time": 1793283527
+      },
+      "departure": {
+       "time": 1793283527
+      }
+     },
+     {
+      "stopId": "125",
+      "arrival": {
+       "time": 1793283726
+      },
+      "departure": {
+       "time": 1793283726
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793284496
+      },
+      "departure": {
+       "time": 1793284496
+      }
+     },
+     {
+      "stopId": "237",
+      "arrival": {
+       "time": 1793285575
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1529",
+     "routeId": "10"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "91",
+      "departure": {
+       "time": 1793282533
+      }
+     },
+     {
+      "stopId": "40",
+      "arrival": {
+       "time": 1793282783
+      },
+      "departure": {
+       "time": 1793282783
+      }
+     },
+     {
+      "stopId": "205",
+      "arrival": {
+       "time": 1793283080
+      },
+      "departure": {
+       "time": 1793283080
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793283494
+      },
+      "departure": {
+       "time": 1793283494
+      }
+     },
+     {
+      "stopId": "213",
+      "arrival": {
+       "time": 1793283812
+      },
+      "departure": {
+       "time": 1793283812
+      }
+     },
+     {
+      "stopId": "132",
+      "arrival": {
+       "time": 1793284088
+      },
+      "departure": {
+       "time": 1793284088
+      }
+     },
+     {
+      "stopId": "152",
+      "arrival": {
+       "time": 1793284316
+      },
+      "departure": {
+       "time": 1793284316
+      }
+     },
+     {
+      "stopId": "63",
+      "arrival": {
+       "time": 1793284481
+      },
+      "departure": {
+       "time": 1793284481
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793285023
+      },
+      "departure": {
+       "time": 1793285023
+      }
+     },
+     {
+      "stopId": "107",
+      "arrival": {
+       "time": 1793285404
+      },
+      "departure": {
+       "time": 1793285404
+      }
+     },
+     {
+      "stopId": "55",
+      "arrival": {
+       "time": 1793285548
+      },
+      "departure": {
+       "time": 1793285548
+      }
+     },
+     {
+      "stopId": "237",
+      "arrival": {
+       "time": 1793286239
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1922_1",
+     "routeId": "4"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793283950
+      }
+     },
+     {
+      "stopId": "214",
+      "arrival": {
+       "time": 1793284559
+      },
+      "departure": {
+       "time": 1793284559
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793285207
+      },
+      "departure": {
+       "time": 1793285207
+      }
+     },
+     {
+      "stopId": "132",
+      "arrival": {
+       "time": 1793286036
+      },
+      "departure": {
+       "time": 1793286036
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793286478
+      },
+      "departure": {
+       "time": 1793286478
+      }
+     },
+     {
+      "stopId": "20",
+      "arrival": {
+       "time": 1793286865
+      },
+      "departure": {
+       "time": 1793286865
+      }
+     },
+     {
+      "stopId": "59",
+      "arrival": {
+       "time": 1793287137
+      },
+      "departure": {
+       "time": 1793287137
+      }
+     },
+     {
+      "stopId": "165",
+      "arrival": {
+       "time": 1793287355
+      },
+      "departure": {
+       "time": 1793287355
+      }
+     },
+     {
+      "stopId": "220",
+      "arrival": {
+       "time": 1793287779
+      },
+      "departure": {
+       "time": 1793287779
+      }
+     },
+     {
+      "stopId": "44",
+      "arrival": {
+       "time": 1793288046
+      },
+      "departure": {
+       "time": 1793288046
+      }
+     },
+     {
+      "stopId": "29",
+      "arrival": {
+       "time": 1793288276
+      },
+      "departure": {
+       "time": 1793288276
+      }
+     },
+     {
+      "stopId": "33",
+      "arrival": {
+       "time": 1793288512
+      },
+      "departure": {
+       "time": 1793288512
+      }
+     },
+     {
+      "stopId": "179",
+      "arrival": {
+       "time": 1793288992
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_138",
+     "routeId": "1"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793284397
+      }
+     },
+     {
+      "stopId": "55",
+      "arrival": {
+       "time": 1793285259
+      },
+      "departure": {
+       "time": 1793285259
+      }
+     },
+     {
+      "stopId": "107",
+      "arrival": {
+       "time": 1793285423
+      },
+      "departure": {
+       "time": 1793285423
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793285744
+      },
+      "departure": {
+       "time": 1793285744
+      }
+     },
+     {
+      "stopId": "125",
+      "arrival": {
+       "time": 1793286536
+      },
+      "departure": {
+       "time": 1793286536
+      }
+     },
+     {
+      "stopId": "183",
+      "arrival": {
+       "time": 1793286716
+      },
+      "departure": {
+       "time": 1793286716
+      }
+     },
+     {
+      "stopId": "225",
+      "arrival": {
+       "time": 1793286932
+      },
+      "departure": {
+       "time": 1793286932
+      }
+     },
+     {
+      "stopId": "64",
+      "arrival": {
+       "time": 1793287100
+      },
+      "departure": {
+       "time": 1793287100
+      }
+     },
+     {
+      "stopId": "226",
+      "arrival": {
+       "time": 1793287274
+      },
+      "departure": {
+       "time": 1793287274
+      }
+     },
+     {
+      "stopId": "16",
+      "arrival": {
+       "time": 1793287439
+      },
+      "departure": {
+       "time": 1793287439
+      }
+     },
+     {
+      "stopId": "215",
+      "arrival": {
+       "time": 1793287598
+      },
+      "departure": {
+       "time": 1793287598
+      }
+     },
+     {
+      "stopId": "187",
+      "arrival": {
+       "time": 1793287751
+      },
+      "departure": {
+       "time": 1793287751
+      }
+     },
+     {
+      "stopId": "136",
+      "arrival": {
+       "time": 1793287949
+      },
+      "departure": {
+       "time": 1793287949
+      }
+     },
+     {
+      "stopId": "135",
+      "arrival": {
+       "time": 1793288072
+      },
+      "departure": {
+       "time": 1793288072
+      }
+     },
+     {
+      "stopId": "8",
+      "arrival": {
+       "time": 1793288270
+      },
+      "departure": {
+       "time": 1793288270
+      }
+     },
+     {
+      "stopId": "38",
+      "arrival": {
+       "time": 1793288408
+      },
+      "departure": {
+       "time": 1793288408
+      }
+     },
+     {
+      "stopId": "117",
+      "arrival": {
+       "time": 1793288579
+      },
+      "departure": {
+       "time": 1793288579
+      }
+     },
+     {
+      "stopId": "27",
+      "arrival": {
+       "time": 1793288939
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1716",
+     "routeId": "8"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "349",
+      "departure": {
+       "time": 1793284673
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793285971
+      },
+      "departure": {
+       "time": 1793285971
+      }
+     },
+     {
+      "stopId": "184",
+      "arrival": {
+       "time": 1793286385
+      },
+      "departure": {
+       "time": 1793286385
+      }
+     },
+     {
+      "stopId": "219",
+      "arrival": {
+       "time": 1793286961
+      },
+      "departure": {
+       "time": 1793286961
+      }
+     },
+     {
+      "stopId": "142",
+      "arrival": {
+       "time": 1793287096
+      },
+      "departure": {
+       "time": 1793287096
+      }
+     },
+     {
+      "stopId": "124",
+      "arrival": {
+       "time": 1793287272
+      },
+      "departure": {
+       "time": 1793287272
+      }
+     },
+     {
+      "stopId": "85",
+      "arrival": {
+       "time": 1793287402
+      },
+      "departure": {
+       "time": 1793287402
+      }
+     },
+     {
+      "stopId": "216",
+      "arrival": {
+       "time": 1793287591
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_143",
+     "routeId": "1"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "27"
+     },
+     {
+      "stopId": "117",
+      "arrival": {
+       "time": 1793283654
+      },
+      "departure": {
+       "time": 1793283654
+      }
+     },
+     {
+      "stopId": "38",
+      "arrival": {
+       "time": 1793283834
+      },
+      "departure": {
+       "time": 1793283834
+      }
+     },
+     {
+      "stopId": "8",
+      "arrival": {
+       "time": 1793283989
+      },
+      "departure": {
+       "time": 1793283989
+      }
+     },
+     {
+      "stopId": "135",
+      "arrival": {
+       "time": 1793284189
+      },
+      "departure": {
+       "time": 1793284189
+      }
+     },
+     {
+      "stopId": "136",
+      "arrival": {
+       "time": 1793284329
+      },
+      "departure": {
+       "time": 1793284329
+      }
+     },
+     {
+      "stopId": "64",
+      "arrival": {
+       "time": 1793284869
+      },
+      "departure": {
+       "time": 1793284869
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793285999
+      },
+      "departure": {
+       "time": 1793285999
+      }
+     },
+     {
+      "stopId": "214",
+      "arrival": {
+       "time": 1793286589
+      },
+      "departure": {
+       "time": 1793286589
+      }
+     },
+     {
+      "stopId": "237",
+      "arrival": {
+       "time": 1793287109
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1522_1",
+     "routeId": "10"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793284754
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793286156
+      },
+      "departure": {
+       "time": 1793286156
+      }
+     },
+     {
+      "stopId": "63",
+      "arrival": {
+       "time": 1793286792
+      },
+      "departure": {
+       "time": 1793286792
+      }
+     },
+     {
+      "stopId": "152",
+      "arrival": {
+       "time": 1793286986
+      },
+      "departure": {
+       "time": 1793286986
+      }
+     },
+     {
+      "stopId": "132",
+      "arrival": {
+       "time": 1793287186
+      },
+      "departure": {
+       "time": 1793287186
+      }
+     },
+     {
+      "stopId": "213",
+      "arrival": {
+       "time": 1793287440
+      },
+      "departure": {
+       "time": 1793287440
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793287725
+      },
+      "departure": {
+       "time": 1793287725
+      }
+     },
+     {
+      "stopId": "205",
+      "arrival": {
+       "time": 1793288155
+      },
+      "departure": {
+       "time": 1793288155
+      }
+     },
+     {
+      "stopId": "40",
+      "arrival": {
+       "time": 1793288464
+      },
+      "departure": {
+       "time": 1793288464
+      }
+     },
+     {
+      "stopId": "91",
+      "arrival": {
+       "time": 1793288884
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1929",
+     "routeId": "4"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "179"
+     },
+     {
+      "stopId": "33",
+      "arrival": {
+       "time": 1793283005
+      },
+      "departure": {
+       "time": 1793283005
+      }
+     },
+     {
+      "stopId": "29",
+      "arrival": {
+       "time": 1793283302
+      },
+      "departure": {
+       "time": 1793283302
+      }
+     },
+     {
+      "stopId": "44",
+      "arrival": {
+       "time": 1793283542
+      },
+      "departure": {
+       "time": 1793283542
+      }
+     },
+     {
+      "stopId": "220",
+      "arrival": {
+       "time": 1793283839
+      },
+      "departure": {
+       "time": 1793283839
+      }
+     },
+     {
+      "stopId": "59",
+      "arrival": {
+       "time": 1793284204
+      },
+      "departure": {
+       "time": 1793284204
+      }
+     },
+     {
+      "stopId": "20",
+      "arrival": {
+       "time": 1793284532
+      },
+      "departure": {
+       "time": 1793284532
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793284937
+      },
+      "departure": {
+       "time": 1793284937
+      }
+     },
+     {
+      "stopId": "132",
+      "arrival": {
+       "time": 1793285441
+      },
+      "departure": {
+       "time": 1793285441
+      }
+     },
+     {
+      "stopId": "86",
+      "arrival": {
+       "time": 1793285897
+      },
+      "departure": {
+       "time": 1793285897
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793286287
+      },
+      "departure": {
+       "time": 1793286287
+      }
+     },
+     {
+      "stopId": "237",
+      "arrival": {
+       "time": 1793287290
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_822",
+     "routeId": "6"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793285132
+      }
+     },
+     {
+      "stopId": "214",
+      "arrival": {
+       "time": 1793285705
+      },
+      "departure": {
+       "time": 1793285705
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793286373
+      },
+      "departure": {
+       "time": 1793286373
+      }
+     },
+     {
+      "stopId": "119",
+      "arrival": {
+       "time": 1793286804
+      },
+      "departure": {
+       "time": 1793286804
+      }
+     },
+     {
+      "stopId": "122",
+      "arrival": {
+       "time": 1793286929
+      },
+      "departure": {
+       "time": 1793286929
+      }
+     },
+     {
+      "stopId": "180",
+      "arrival": {
+       "time": 1793287054
+      },
+      "departure": {
+       "time": 1793287054
+      }
+     },
+     {
+      "stopId": "211",
+      "arrival": {
+       "time": 1793287310
+      },
+      "departure": {
+       "time": 1793287310
+      }
+     },
+     {
+      "stopId": "125",
+      "arrival": {
+       "time": 1793287560
+      },
+      "departure": {
+       "time": 1793287560
+      }
+     },
+     {
+      "stopId": "31",
+      "arrival": {
+       "time": 1793287703
+      },
+      "departure": {
+       "time": 1793287703
+      }
+     },
+     {
+      "stopId": "51",
+      "arrival": {
+       "time": 1793287835
+      },
+      "departure": {
+       "time": 1793287835
+      }
+     },
+     {
+      "stopId": "155",
+      "arrival": {
+       "time": 1793287953
+      },
+      "departure": {
+       "time": 1793287953
+      }
+     },
+     {
+      "stopId": "99",
+      "arrival": {
+       "time": 1793288234
+      },
+      "departure": {
+       "time": 1793288234
+      }
+     },
+     {
+      "stopId": "113",
+      "arrival": {
+       "time": 1793288608
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_722_2",
+     "routeId": "2"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "349",
+      "departure": {
+       "time": 1793285663
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793286599
+      },
+      "departure": {
+       "time": 1793286599
+      }
+     },
+     {
+      "stopId": "359",
+      "arrival": {
+       "time": 1793287562
+      },
+      "departure": {
+       "time": 1793287562
+      }
+     },
+     {
+      "stopId": "23",
+      "arrival": {
+       "time": 1793287689
+      },
+      "departure": {
+       "time": 1793287689
+      }
+     },
+     {
+      "stopId": "63",
+      "arrival": {
+       "time": 1793287865
+      },
+      "departure": {
+       "time": 1793287865
+      }
+     },
+     {
+      "stopId": "195",
+      "arrival": {
+       "time": 1793288107
+      },
+      "departure": {
+       "time": 1793288107
+      }
+     },
+     {
+      "stopId": "149",
+      "arrival": {
+       "time": 1793288246
+      },
+      "departure": {
+       "time": 1793288246
+      }
+     },
+     {
+      "stopId": "68",
+      "arrival": {
+       "time": 1793288433
+      },
+      "departure": {
+       "time": 1793288433
+      }
+     },
+     {
+      "stopId": "36",
+      "arrival": {
+       "time": 1793288634
+      },
+      "departure": {
+       "time": 1793288634
+      }
+     },
+     {
+      "stopId": "84",
+      "arrival": {
+       "time": 1793288874
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1291",
+     "routeId": "1"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "136"
+     },
+     {
+      "stopId": "187",
+      "arrival": {
+       "time": 1793284711
+      },
+      "departure": {
+       "time": 1793284711
+      }
+     },
+     {
+      "stopId": "215",
+      "arrival": {
+       "time": 1793284879
+      },
+      "departure": {
+       "time": 1793284879
+      }
+     },
+     {
+      "stopId": "16",
+      "arrival": {
+       "time": 1793285059
+      },
+      "departure": {
+       "time": 1793285059
+      }
+     },
+     {
+      "stopId": "226",
+      "arrival": {
+       "time": 1793285233
+      },
+      "departure": {
+       "time": 1793285233
+      }
+     },
+     {
+      "stopId": "64",
+      "arrival": {
+       "time": 1793285461
+      },
+      "departure": {
+       "time": 1793285461
+      }
+     },
+     {
+      "stopId": "225",
+      "arrival": {
+       "time": 1793285673
+      },
+      "departure": {
+       "time": 1793285673
+      }
+     },
+     {
+      "stopId": "183",
+      "arrival": {
+       "time": 1793285937
+      },
+      "departure": {
+       "time": 1793285937
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793286786
+      },
+      "departure": {
+       "time": 1793286786
+      }
+     },
+     {
+      "stopId": "107",
+      "arrival": {
+       "time": 1793287149
+      },
+      "departure": {
+       "time": 1793287149
+      }
+     },
+     {
+      "stopId": "55",
+      "arrival": {
+       "time": 1793287350
+      },
+      "departure": {
+       "time": 1793287350
+      }
+     },
+     {
+      "stopId": "349",
+      "arrival": {
+       "time": 1793288107
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_837",
+     "routeId": "6"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "113",
+      "departure": {
+       "time": 1793285192
+      }
+     },
+     {
+      "stopId": "99",
+      "arrival": {
+       "time": 1793285496
+      },
+      "departure": {
+       "time": 1793285496
+      }
+     },
+     {
+      "stopId": "155",
+      "arrival": {
+       "time": 1793285756
+      },
+      "departure": {
+       "time": 1793285756
+      }
+     },
+     {
+      "stopId": "51",
+      "arrival": {
+       "time": 1793285861
+      },
+      "departure": {
+       "time": 1793285861
+      }
+     },
+     {
+      "stopId": "31",
+      "arrival": {
+       "time": 1793285961
+      },
+      "departure": {
+       "time": 1793285961
+      }
+     },
+     {
+      "stopId": "125",
+      "arrival": {
+       "time": 1793286111
+      },
+      "departure": {
+       "time": 1793286111
+      }
+     },
+     {
+      "stopId": "211",
+      "arrival": {
+       "time": 1793286326
+      },
+      "departure": {
+       "time": 1793286326
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793286896
+      },
+      "departure": {
+       "time": 1793286896
+      }
+     },
+     {
+      "stopId": "214",
+      "arrival": {
+       "time": 1793287771
+      },
+      "departure": {
+       "time": 1793287771
+      }
+     },
+     {
+      "stopId": "237",
+      "arrival": {
+       "time": 1793288258
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_627",
+     "routeId": "10"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "164"
+     },
+     {
+      "stopId": "14",
+      "arrival": {
+       "time": 1793282982
+      },
+      "departure": {
+       "time": 1793282982
+      }
+     },
+     {
+      "stopId": "193",
+      "arrival": {
+       "time": 1793286047
+      },
+      "departure": {
+       "time": 1793286047
+      }
+     },
+     {
+      "stopId": "202",
+      "arrival": {
+       "time": 1793286346
+      },
+      "departure": {
+       "time": 1793286346
+      }
+     },
+     {
+      "stopId": "111",
+      "arrival": {
+       "time": 1793286992
+      },
+      "departure": {
+       "time": 1793286992
+      }
+     },
+     {
+      "stopId": "153"
+     },
+     {
+      "stopId": "78"
+     },
+     {
+      "stopId": "91",
+      "departure": {
+       "time": 1793284860
+      }
+     },
+     {
+      "stopId": "92"
+     },
+     {
+      "stopId": "132"
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793287141
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1924",
+     "routeId": "4"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "237",
+      "departure": {
+       "time": 1793286128
+      }
+     },
+     {
+      "stopId": "214",
+      "arrival": {
+       "time": 1793286675
+      },
+      "departure": {
+       "time": 1793286675
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793287244
+      },
+      "departure": {
+       "time": 1793287244
+      }
+     },
+     {
+      "stopId": "92",
+      "arrival": {
+       "time": 1793288590
+      }
+     },
+     {
+      "stopId": "20",
+      "arrival": {
+       "time": 1793288910
+      },
+      "departure": {
+       "time": 1793289000
+      }
+     },
+     {
+      "stopId": "59",
+      "arrival": {
+       "time": 1793289240
+      },
+      "departure": {
+       "time": 1793289240
+      }
+     },
+     {
+      "stopId": "220",
+      "arrival": {
+       "time": 1793289600
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "44",
+      "arrival": {
+       "time": 1793289900
+      },
+      "departure": {
+       "time": 1793289900
+      }
+     },
+     {
+      "stopId": "29",
+      "arrival": {
+       "time": 1793290200
+      },
+      "departure": {
+       "time": 1793290200
+      }
+     },
+     {
+      "stopId": "33",
+      "arrival": {
+       "time": 1793290440
+      },
+      "departure": {
+       "time": 1793290440
+      }
+     },
+     {
+      "stopId": "179",
+      "arrival": {
+       "time": 1793290920
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1294",
+     "routeId": "1"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "349",
+      "departure": {
+       "time": 1793286422
+      }
+     },
+     {
+      "stopId": "55",
+      "arrival": {
+       "time": 1793287179
+      },
+      "departure": {
+       "time": 1793287179
+      }
+     },
+     {
+      "stopId": "107",
+      "arrival": {
+       "time": 1793287351
+      },
+      "departure": {
+       "time": 1793287351
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793287692
+      },
+      "departure": {
+       "time": 1793287692
+      }
+     },
+     {
+      "stopId": "183",
+      "arrival": {
+       "time": 1793288672
+      },
+      "departure": {
+       "time": 1793288700
+      }
+     },
+     {
+      "stopId": "225",
+      "arrival": {
+       "time": 1793288880
+      },
+      "departure": {
+       "time": 1793288880
+      }
+     },
+     {
+      "stopId": "64",
+      "arrival": {
+       "time": 1793289060
+      },
+      "departure": {
+       "time": 1793289060
+      }
+     },
+     {
+      "stopId": "226",
+      "arrival": {
+       "time": 1793289240
+      },
+      "departure": {
+       "time": 1793289240
+      }
+     },
+     {
+      "stopId": "16",
+      "arrival": {
+       "time": 1793289420
+      },
+      "departure": {
+       "time": 1793289420
+      }
+     },
+     {
+      "stopId": "215",
+      "arrival": {
+       "time": 1793289600
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "187",
+      "arrival": {
+       "time": 1793289780
+      },
+      "departure": {
+       "time": 1793289780
+      }
+     },
+     {
+      "stopId": "136",
+      "arrival": {
+       "time": 1793289900
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_1719",
+     "routeId": "8"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "216",
+      "departure": {
+       "time": 1793285787
+      }
+     },
+     {
+      "stopId": "85",
+      "arrival": {
+       "time": 1793285791
+      },
+      "departure": {
+       "time": 1793285791
+      }
+     },
+     {
+      "stopId": "124",
+      "arrival": {
+       "time": 1793285921
+      },
+      "departure": {
+       "time": 1793285921
+      }
+     },
+     {
+      "stopId": "142",
+      "arrival": {
+       "time": 1793286096
+      },
+      "departure": {
+       "time": 1793286096
+      }
+     },
+     {
+      "stopId": "219",
+      "arrival": {
+       "time": 1793286246
+      },
+      "departure": {
+       "time": 1793286246
+      }
+     },
+     {
+      "stopId": "184",
+      "arrival": {
+       "time": 1793286896
+      },
+      "departure": {
+       "time": 1793286896
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793287701
+      }
+     },
+     {
+      "stopId": "349",
+      "arrival": {
+       "time": 1793288794
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "GO202_26_2876",
+     "routeId": "12"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "241",
+      "departure": {
+       "time": 1793286648
+      }
+     },
+     {
+      "stopId": "148",
+      "arrival": {
+       "time": 1793286989
+      },
+      "departure": {
+       "time": 1793286989
+      }
+     },
+     {
+      "stopId": "50",
+      "arrival": {
+       "time": 1793287254
+      },
+      "departure": {
+       "time": 1793287254
+      }
+     },
+     {
+      "stopId": "102",
+      "arrival": {
+       "time": 1793287746
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

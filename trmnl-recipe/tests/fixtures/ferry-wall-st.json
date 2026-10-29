@@ -1,0 +1,106 @@
+{
+ "_comment": "Captured from the ferry feed, pruned to trips calling at 87. Times are rebased on load — see tests/fixtures/load.ts. Regenerate with: node scripts/captureFixture.mjs ferry-wall-st ferry 87",
+ "capturedAt": "2026-10-29T15:45:29.532Z",
+ "feed": "ferry",
+ "stopIds": [
+  "87"
+ ],
+ "entity": [
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "1981"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "87",
+      "departure": {
+       "time": 1793288104
+      }
+     },
+     {
+      "stopId": "115",
+      "arrival": {
+       "time": 1793288776
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "618"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "114",
+      "departure": {
+       "time": 1793288349
+      }
+     },
+     {
+      "stopId": "87",
+      "arrival": {
+       "time": 1793289185
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "1499"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "87",
+      "arrival": {
+       "time": 1793289953
+      },
+      "departure": {
+       "time": 1793290320
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "1902"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "87",
+      "arrival": {
+       "time": 1793290743
+      },
+      "departure": {
+       "time": 1793290980
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "929"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "87",
+      "arrival": {
+       "time": 1793291846
+      },
+      "departure": {
+       "time": 1793291846
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

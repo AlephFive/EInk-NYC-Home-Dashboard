@@ -151,6 +151,30 @@ Each transit type is isolated in `src/utils/{transitType}/`:
   - `getFerrySchedule.ts` still holds the old static timetable, which the
     dashboard's own ferry card reads. New callers use the live feed.
 
+### Test fixtures
+
+The card builders and feed extractors are tested against **captured feeds**
+(`trmnl-recipe/tests/fixtures/`), not live network calls. Each fixture is a
+real response pruned to the trips calling at one stop, kept to 20 trips and
+to the six fields the code reads — a raw `a_division` capture is 184KB of
+416 trips, of which ~24 touch any station.
+
+- **Capture:** `npm run capture -- <name> <feed> <stopId>` from `trmnl-recipe`
+- **Load:** `loadFeed("subway-vernon")` in `tests/fixtures/load.ts`
+- **Edit:** `editFeed(feed, trip => ...)` for cases the network did not
+  happen to produce — a terminating train, a trip with no departure
+
+**Times are rebased on load**, by `(now - capturedAt)`. Without it every
+fixture is stale the moment it is written, the walk-time filter drops all of
+it, and the test passes by asserting on an empty card. That is not
+hypothetical: it is how the ferry card shipped rendering zero rows while its
+feed was healthy. Fixtures pin *shape* — which trips exist, where they stop,
+which carry a departure — never values.
+
+The suite runs under `--experimental-transform-types`, not `--strip-types`:
+the generated protobuf declares TypeScript enums that strip-only mode
+rejects outright, which is why the extractors had no tests before this.
+
 ### Protobuf Setup
 
 GTFS-realtime data uses Protocol Buffers:

@@ -1,0 +1,3123 @@
+{
+ "_comment": "Captured from the a_division feed, pruned to trips calling at 721. Times are rebased on load — see tests/fixtures/load.ts. Regenerate with: node scripts/captureFixture.mjs subway-vernon a_division 721",
+ "capturedAt": "2026-10-29T15:45:28.237Z",
+ "feed": "a_division",
+ "stopIds": [
+  "721"
+ ],
+ "entity": [
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "066600_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793288732
+      },
+      "departure": {
+       "time": 1793288752
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793288792
+      },
+      "departure": {
+       "time": 1793288812
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793289092
+      },
+      "departure": {
+       "time": 1793289112
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793289182
+      },
+      "departure": {
+       "time": 1793289202
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793289272
+      },
+      "departure": {
+       "time": 1793289292
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793289432
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067100_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793288719
+      },
+      "departure": {
+       "time": 1793288739
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793288839
+      },
+      "departure": {
+       "time": 1793288859
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793288899
+      },
+      "departure": {
+       "time": 1793288919
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793289199
+      },
+      "departure": {
+       "time": 1793289219
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793289289
+      },
+      "departure": {
+       "time": 1793289309
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793289379
+      },
+      "departure": {
+       "time": 1793289399
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793289539
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "070100_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793288756
+      },
+      "departure": {
+       "time": 1793288776
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793289026
+      },
+      "departure": {
+       "time": 1793289046
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793289086
+      },
+      "departure": {
+       "time": 1793289106
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793289206
+      },
+      "departure": {
+       "time": 1793289226
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793289296
+      },
+      "departure": {
+       "time": 1793289316
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793289446
+      },
+      "departure": {
+       "time": 1793289466
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793289506
+      },
+      "departure": {
+       "time": 1793289526
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793289596
+      },
+      "departure": {
+       "time": 1793289616
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793289746
+      },
+      "departure": {
+       "time": 1793289766
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793289886
+      },
+      "departure": {
+       "time": 1793289946
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793290016
+      },
+      "departure": {
+       "time": 1793290036
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793290106
+      },
+      "departure": {
+       "time": 1793290126
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793290166
+      },
+      "departure": {
+       "time": 1793290186
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793290256
+      },
+      "departure": {
+       "time": 1793290276
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793290346
+      },
+      "departure": {
+       "time": 1793290366
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793290516
+      },
+      "departure": {
+       "time": 1793290816
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793290946
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "067600_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793288538
+      },
+      "departure": {
+       "time": 1793288838
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793288908
+      },
+      "departure": {
+       "time": 1793288928
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793289028
+      },
+      "departure": {
+       "time": 1793289048
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793289088
+      },
+      "departure": {
+       "time": 1793289108
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793289388
+      },
+      "departure": {
+       "time": 1793289408
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793289478
+      },
+      "departure": {
+       "time": 1793289498
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793289568
+      },
+      "departure": {
+       "time": 1793289588
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793289728
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "070600_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793288760
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793288890
+      },
+      "departure": {
+       "time": 1793288910
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793288980
+      },
+      "departure": {
+       "time": 1793289000
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793289070
+      },
+      "departure": {
+       "time": 1793289090
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793289340
+      },
+      "departure": {
+       "time": 1793289360
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793289400
+      },
+      "departure": {
+       "time": 1793289420
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793289520
+      },
+      "departure": {
+       "time": 1793289540
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793289610
+      },
+      "departure": {
+       "time": 1793289630
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793289760
+      },
+      "departure": {
+       "time": 1793289780
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793289820
+      },
+      "departure": {
+       "time": 1793289840
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793289910
+      },
+      "departure": {
+       "time": 1793289930
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793290060
+      },
+      "departure": {
+       "time": 1793290080
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793290200
+      },
+      "departure": {
+       "time": 1793290260
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793290330
+      },
+      "departure": {
+       "time": 1793290350
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793290420
+      },
+      "departure": {
+       "time": 1793290440
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793290480
+      },
+      "departure": {
+       "time": 1793290500
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793290570
+      },
+      "departure": {
+       "time": 1793290590
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793290660
+      },
+      "departure": {
+       "time": 1793290680
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793290830
+      },
+      "departure": {
+       "time": 1793291130
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793291260
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "068100_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793288743
+      },
+      "departure": {
+       "time": 1793288763
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793288913
+      },
+      "departure": {
+       "time": 1793289213
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793289283
+      },
+      "departure": {
+       "time": 1793289303
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793289403
+      },
+      "departure": {
+       "time": 1793289423
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793289463
+      },
+      "departure": {
+       "time": 1793289483
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793289763
+      },
+      "departure": {
+       "time": 1793289783
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793289853
+      },
+      "departure": {
+       "time": 1793289873
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793289943
+      },
+      "departure": {
+       "time": 1793289963
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793290103
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "068600_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793288700
+      },
+      "departure": {
+       "time": 1793288720
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793288760
+      },
+      "departure": {
+       "time": 1793288780
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793288850
+      },
+      "departure": {
+       "time": 1793288870
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793289020
+      },
+      "departure": {
+       "time": 1793289320
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793289390
+      },
+      "departure": {
+       "time": 1793289410
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793289510
+      },
+      "departure": {
+       "time": 1793289530
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793289570
+      },
+      "departure": {
+       "time": 1793289590
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793289870
+      },
+      "departure": {
+       "time": 1793289890
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793289960
+      },
+      "departure": {
+       "time": 1793289980
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793290050
+      },
+      "departure": {
+       "time": 1793290070
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793290210
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "071100_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793289060
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793289190
+      },
+      "departure": {
+       "time": 1793289210
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793289280
+      },
+      "departure": {
+       "time": 1793289300
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793289370
+      },
+      "departure": {
+       "time": 1793289390
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793289640
+      },
+      "departure": {
+       "time": 1793289660
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793289700
+      },
+      "departure": {
+       "time": 1793289720
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793289820
+      },
+      "departure": {
+       "time": 1793289840
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793289910
+      },
+      "departure": {
+       "time": 1793289930
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793290060
+      },
+      "departure": {
+       "time": 1793290080
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793290120
+      },
+      "departure": {
+       "time": 1793290140
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793290210
+      },
+      "departure": {
+       "time": 1793290230
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793290360
+      },
+      "departure": {
+       "time": 1793290380
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793290500
+      },
+      "departure": {
+       "time": 1793290560
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793290630
+      },
+      "departure": {
+       "time": 1793290650
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793290720
+      },
+      "departure": {
+       "time": 1793290740
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793290780
+      },
+      "departure": {
+       "time": 1793290800
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793290870
+      },
+      "departure": {
+       "time": 1793290890
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793290960
+      },
+      "departure": {
+       "time": 1793290980
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793291130
+      },
+      "departure": {
+       "time": 1793291430
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793291560
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "069100_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793288791
+      },
+      "departure": {
+       "time": 1793288811
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793288851
+      },
+      "departure": {
+       "time": 1793288871
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793288911
+      },
+      "departure": {
+       "time": 1793288931
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793289001
+      },
+      "departure": {
+       "time": 1793289021
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793289171
+      },
+      "departure": {
+       "time": 1793289471
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793289541
+      },
+      "departure": {
+       "time": 1793289561
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793289661
+      },
+      "departure": {
+       "time": 1793289681
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793289721
+      },
+      "departure": {
+       "time": 1793289741
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793290021
+      },
+      "departure": {
+       "time": 1793290041
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793290111
+      },
+      "departure": {
+       "time": 1793290131
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793290201
+      },
+      "departure": {
+       "time": 1793290221
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793290361
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "071600_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793289360
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793289490
+      },
+      "departure": {
+       "time": 1793289510
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793289580
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793289670
+      },
+      "departure": {
+       "time": 1793289690
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793289940
+      },
+      "departure": {
+       "time": 1793289960
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793290000
+      },
+      "departure": {
+       "time": 1793290020
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793290120
+      },
+      "departure": {
+       "time": 1793290140
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793290210
+      },
+      "departure": {
+       "time": 1793290230
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793290360
+      },
+      "departure": {
+       "time": 1793290380
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793290420
+      },
+      "departure": {
+       "time": 1793290440
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793290510
+      },
+      "departure": {
+       "time": 1793290530
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793290660
+      },
+      "departure": {
+       "time": 1793290680
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793290800
+      },
+      "departure": {
+       "time": 1793290860
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793290930
+      },
+      "departure": {
+       "time": 1793290950
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793291020
+      },
+      "departure": {
+       "time": 1793291040
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793291080
+      },
+      "departure": {
+       "time": 1793291100
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793291170
+      },
+      "departure": {
+       "time": 1793291190
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793291260
+      },
+      "departure": {
+       "time": 1793291280
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793291430
+      },
+      "departure": {
+       "time": 1793291730
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793291860
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "069600_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "709S",
+      "arrival": {
+       "time": 1793288699
+      },
+      "departure": {
+       "time": 1793288719
+      }
+     },
+     {
+      "stopId": "710S",
+      "arrival": {
+       "time": 1793288789
+      },
+      "departure": {
+       "time": 1793288809
+      }
+     },
+     {
+      "stopId": "711S",
+      "arrival": {
+       "time": 1793288849
+      },
+      "departure": {
+       "time": 1793288869
+      }
+     },
+     {
+      "stopId": "712S",
+      "arrival": {
+       "time": 1793288939
+      },
+      "departure": {
+       "time": 1793288959
+      }
+     },
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793289059
+      },
+      "departure": {
+       "time": 1793289079
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793289119
+      },
+      "departure": {
+       "time": 1793289139
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793289179
+      },
+      "departure": {
+       "time": 1793289199
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793289269
+      },
+      "departure": {
+       "time": 1793289289
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793289439
+      },
+      "departure": {
+       "time": 1793289739
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793289809
+      },
+      "departure": {
+       "time": 1793289829
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793289929
+      },
+      "departure": {
+       "time": 1793289949
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793289989
+      },
+      "departure": {
+       "time": 1793290009
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793290289
+      },
+      "departure": {
+       "time": 1793290309
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793290379
+      },
+      "departure": {
+       "time": 1793290399
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793290469
+      },
+      "departure": {
+       "time": 1793290489
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793290629
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "072100_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793289660
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793289790
+      },
+      "departure": {
+       "time": 1793289810
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793289880
+      },
+      "departure": {
+       "time": 1793289900
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793289970
+      },
+      "departure": {
+       "time": 1793289990
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793290240
+      },
+      "departure": {
+       "time": 1793290260
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793290300
+      },
+      "departure": {
+       "time": 1793290320
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793290420
+      },
+      "departure": {
+       "time": 1793290440
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793290510
+      },
+      "departure": {
+       "time": 1793290530
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793290660
+      },
+      "departure": {
+       "time": 1793290680
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793290720
+      },
+      "departure": {
+       "time": 1793290740
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793290810
+      },
+      "departure": {
+       "time": 1793290830
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793290960
+      },
+      "departure": {
+       "time": 1793290980
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793291100
+      },
+      "departure": {
+       "time": 1793291160
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793291230
+      },
+      "departure": {
+       "time": 1793291250
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793291320
+      },
+      "departure": {
+       "time": 1793291340
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793291380
+      },
+      "departure": {
+       "time": 1793291400
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793291470
+      },
+      "departure": {
+       "time": 1793291490
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793291560
+      },
+      "departure": {
+       "time": 1793291580
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793291730
+      },
+      "departure": {
+       "time": 1793292030
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793292160
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "070100_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "705S",
+      "arrival": {
+       "time": 1793288728
+      },
+      "departure": {
+       "time": 1793288748
+      }
+     },
+     {
+      "stopId": "706S",
+      "arrival": {
+       "time": 1793288818
+      },
+      "departure": {
+       "time": 1793288838
+      }
+     },
+     {
+      "stopId": "707S",
+      "arrival": {
+       "time": 1793288908
+      },
+      "departure": {
+       "time": 1793288928
+      }
+     },
+     {
+      "stopId": "708S",
+      "arrival": {
+       "time": 1793288998
+      },
+      "departure": {
+       "time": 1793289018
+      }
+     },
+     {
+      "stopId": "709S",
+      "arrival": {
+       "time": 1793289088
+      },
+      "departure": {
+       "time": 1793289108
+      }
+     },
+     {
+      "stopId": "710S",
+      "arrival": {
+       "time": 1793289178
+      },
+      "departure": {
+       "time": 1793289198
+      }
+     },
+     {
+      "stopId": "711S",
+      "arrival": {
+       "time": 1793289238
+      },
+      "departure": {
+       "time": 1793289258
+      }
+     },
+     {
+      "stopId": "712S",
+      "arrival": {
+       "time": 1793289328
+      },
+      "departure": {
+       "time": 1793289348
+      }
+     },
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793289448
+      },
+      "departure": {
+       "time": 1793289468
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793289508
+      },
+      "departure": {
+       "time": 1793289528
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793289568
+      },
+      "departure": {
+       "time": 1793289588
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793289658
+      },
+      "departure": {
+       "time": 1793289678
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793289828
+      },
+      "departure": {
+       "time": 1793290128
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793290198
+      },
+      "departure": {
+       "time": 1793290218
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793290318
+      },
+      "departure": {
+       "time": 1793290338
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793290378
+      },
+      "departure": {
+       "time": 1793290398
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793290678
+      },
+      "departure": {
+       "time": 1793290698
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793290768
+      },
+      "departure": {
+       "time": 1793290788
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793290858
+      },
+      "departure": {
+       "time": 1793290878
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793291018
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "072600_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793289960
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793290090
+      },
+      "departure": {
+       "time": 1793290110
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793290180
+      },
+      "departure": {
+       "time": 1793290200
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793290270
+      },
+      "departure": {
+       "time": 1793290290
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793290540
+      },
+      "departure": {
+       "time": 1793290560
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793290600
+      },
+      "departure": {
+       "time": 1793290620
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793290720
+      },
+      "departure": {
+       "time": 1793290740
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793290810
+      },
+      "departure": {
+       "time": 1793290830
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793290960
+      },
+      "departure": {
+       "time": 1793290980
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793291020
+      },
+      "departure": {
+       "time": 1793291040
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793291110
+      },
+      "departure": {
+       "time": 1793291130
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793291260
+      },
+      "departure": {
+       "time": 1793291280
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793291400
+      },
+      "departure": {
+       "time": 1793291460
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793291530
+      },
+      "departure": {
+       "time": 1793291550
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793291620
+      },
+      "departure": {
+       "time": 1793291640
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793291680
+      },
+      "departure": {
+       "time": 1793291700
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793291770
+      },
+      "departure": {
+       "time": 1793291790
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793291860
+      },
+      "departure": {
+       "time": 1793291880
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793292030
+      },
+      "departure": {
+       "time": 1793292330
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793292460
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "070600_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "701S",
+      "departure": {
+       "time": 1793288760
+      }
+     },
+     {
+      "stopId": "702S",
+      "arrival": {
+       "time": 1793288890
+      },
+      "departure": {
+       "time": 1793288910
+      }
+     },
+     {
+      "stopId": "705S",
+      "arrival": {
+       "time": 1793288980
+      },
+      "departure": {
+       "time": 1793289000
+      }
+     },
+     {
+      "stopId": "706S",
+      "arrival": {
+       "time": 1793289070
+      },
+      "departure": {
+       "time": 1793289090
+      }
+     },
+     {
+      "stopId": "707S",
+      "arrival": {
+       "time": 1793289160
+      },
+      "departure": {
+       "time": 1793289180
+      }
+     },
+     {
+      "stopId": "708S",
+      "arrival": {
+       "time": 1793289250
+      },
+      "departure": {
+       "time": 1793289270
+      }
+     },
+     {
+      "stopId": "709S",
+      "arrival": {
+       "time": 1793289340
+      },
+      "departure": {
+       "time": 1793289360
+      }
+     },
+     {
+      "stopId": "710S",
+      "arrival": {
+       "time": 1793289430
+      },
+      "departure": {
+       "time": 1793289450
+      }
+     },
+     {
+      "stopId": "711S",
+      "arrival": {
+       "time": 1793289490
+      },
+      "departure": {
+       "time": 1793289510
+      }
+     },
+     {
+      "stopId": "712S",
+      "arrival": {
+       "time": 1793289580
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793289700
+      },
+      "departure": {
+       "time": 1793289720
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793289760
+      },
+      "departure": {
+       "time": 1793289780
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793289820
+      },
+      "departure": {
+       "time": 1793289840
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793289910
+      },
+      "departure": {
+       "time": 1793289930
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793290080
+      },
+      "departure": {
+       "time": 1793290380
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793290450
+      },
+      "departure": {
+       "time": 1793290470
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793290570
+      },
+      "departure": {
+       "time": 1793290590
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793290630
+      },
+      "departure": {
+       "time": 1793290650
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793290930
+      },
+      "departure": {
+       "time": 1793290950
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793291020
+      },
+      "departure": {
+       "time": 1793291040
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793291110
+      },
+      "departure": {
+       "time": 1793291130
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793291270
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "073100_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793290260
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793290390
+      },
+      "departure": {
+       "time": 1793290410
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793290480
+      },
+      "departure": {
+       "time": 1793290500
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793290570
+      },
+      "departure": {
+       "time": 1793290590
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793290840
+      },
+      "departure": {
+       "time": 1793290860
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793290900
+      },
+      "departure": {
+       "time": 1793290920
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793291020
+      },
+      "departure": {
+       "time": 1793291040
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793291110
+      },
+      "departure": {
+       "time": 1793291130
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793291260
+      },
+      "departure": {
+       "time": 1793291280
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793291320
+      },
+      "departure": {
+       "time": 1793291340
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793291410
+      },
+      "departure": {
+       "time": 1793291430
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793291560
+      },
+      "departure": {
+       "time": 1793291580
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793291700
+      },
+      "departure": {
+       "time": 1793291760
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793291830
+      },
+      "departure": {
+       "time": 1793291850
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793291920
+      },
+      "departure": {
+       "time": 1793291940
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793291980
+      },
+      "departure": {
+       "time": 1793292000
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793292070
+      },
+      "departure": {
+       "time": 1793292090
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793292160
+      },
+      "departure": {
+       "time": 1793292180
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793292330
+      },
+      "departure": {
+       "time": 1793292630
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793292760
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "071100_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "701S",
+      "departure": {
+       "time": 1793289060
+      }
+     },
+     {
+      "stopId": "702S",
+      "arrival": {
+       "time": 1793289190
+      },
+      "departure": {
+       "time": 1793289210
+      }
+     },
+     {
+      "stopId": "705S",
+      "arrival": {
+       "time": 1793289280
+      },
+      "departure": {
+       "time": 1793289300
+      }
+     },
+     {
+      "stopId": "706S",
+      "arrival": {
+       "time": 1793289370
+      },
+      "departure": {
+       "time": 1793289390
+      }
+     },
+     {
+      "stopId": "707S",
+      "arrival": {
+       "time": 1793289460
+      },
+      "departure": {
+       "time": 1793289480
+      }
+     },
+     {
+      "stopId": "708S",
+      "arrival": {
+       "time": 1793289550
+      },
+      "departure": {
+       "time": 1793289570
+      }
+     },
+     {
+      "stopId": "709S",
+      "arrival": {
+       "time": 1793289640
+      },
+      "departure": {
+       "time": 1793289660
+      }
+     },
+     {
+      "stopId": "710S",
+      "arrival": {
+       "time": 1793289730
+      },
+      "departure": {
+       "time": 1793289750
+      }
+     },
+     {
+      "stopId": "711S",
+      "arrival": {
+       "time": 1793289790
+      },
+      "departure": {
+       "time": 1793289810
+      }
+     },
+     {
+      "stopId": "712S",
+      "arrival": {
+       "time": 1793289880
+      },
+      "departure": {
+       "time": 1793289900
+      }
+     },
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793290000
+      },
+      "departure": {
+       "time": 1793290020
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793290060
+      },
+      "departure": {
+       "time": 1793290080
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793290120
+      },
+      "departure": {
+       "time": 1793290140
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793290210
+      },
+      "departure": {
+       "time": 1793290230
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793290380
+      },
+      "departure": {
+       "time": 1793290680
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793290750
+      },
+      "departure": {
+       "time": 1793290770
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793290870
+      },
+      "departure": {
+       "time": 1793290890
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793290930
+      },
+      "departure": {
+       "time": 1793290950
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793291230
+      },
+      "departure": {
+       "time": 1793291250
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793291320
+      },
+      "departure": {
+       "time": 1793291340
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793291410
+      },
+      "departure": {
+       "time": 1793291430
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793291570
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "073600_7..N",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "726N",
+      "departure": {
+       "time": 1793290560
+      }
+     },
+     {
+      "stopId": "725N",
+      "arrival": {
+       "time": 1793290690
+      },
+      "departure": {
+       "time": 1793290710
+      }
+     },
+     {
+      "stopId": "724N",
+      "arrival": {
+       "time": 1793290780
+      },
+      "departure": {
+       "time": 1793290800
+      }
+     },
+     {
+      "stopId": "723N",
+      "arrival": {
+       "time": 1793290870
+      },
+      "departure": {
+       "time": 1793290890
+      }
+     },
+     {
+      "stopId": "721N",
+      "arrival": {
+       "time": 1793291140
+      },
+      "departure": {
+       "time": 1793291160
+      }
+     },
+     {
+      "stopId": "720N",
+      "arrival": {
+       "time": 1793291200
+      },
+      "departure": {
+       "time": 1793291220
+      }
+     },
+     {
+      "stopId": "719N",
+      "arrival": {
+       "time": 1793291320
+      },
+      "departure": {
+       "time": 1793291340
+      }
+     },
+     {
+      "stopId": "718N",
+      "arrival": {
+       "time": 1793291410
+      },
+      "departure": {
+       "time": 1793291430
+      }
+     },
+     {
+      "stopId": "716N",
+      "arrival": {
+       "time": 1793291560
+      },
+      "departure": {
+       "time": 1793291580
+      }
+     },
+     {
+      "stopId": "715N",
+      "arrival": {
+       "time": 1793291620
+      },
+      "departure": {
+       "time": 1793291640
+      }
+     },
+     {
+      "stopId": "714N",
+      "arrival": {
+       "time": 1793291710
+      },
+      "departure": {
+       "time": 1793291730
+      }
+     },
+     {
+      "stopId": "712N",
+      "arrival": {
+       "time": 1793291860
+      },
+      "departure": {
+       "time": 1793291880
+      }
+     },
+     {
+      "stopId": "710N",
+      "arrival": {
+       "time": 1793292000
+      },
+      "departure": {
+       "time": 1793292060
+      }
+     },
+     {
+      "stopId": "709N",
+      "arrival": {
+       "time": 1793292130
+      },
+      "departure": {
+       "time": 1793292150
+      }
+     },
+     {
+      "stopId": "708N",
+      "arrival": {
+       "time": 1793292220
+      },
+      "departure": {
+       "time": 1793292240
+      }
+     },
+     {
+      "stopId": "707N",
+      "arrival": {
+       "time": 1793292280
+      },
+      "departure": {
+       "time": 1793292300
+      }
+     },
+     {
+      "stopId": "706N",
+      "arrival": {
+       "time": 1793292370
+      },
+      "departure": {
+       "time": 1793292390
+      }
+     },
+     {
+      "stopId": "705N",
+      "arrival": {
+       "time": 1793292460
+      },
+      "departure": {
+       "time": 1793292480
+      }
+     },
+     {
+      "stopId": "702N",
+      "arrival": {
+       "time": 1793292630
+      },
+      "departure": {
+       "time": 1793292930
+      }
+     },
+     {
+      "stopId": "701N",
+      "arrival": {
+       "time": 1793293060
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "071600_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "701S",
+      "departure": {
+       "time": 1793289360
+      }
+     },
+     {
+      "stopId": "702S",
+      "arrival": {
+       "time": 1793289490
+      },
+      "departure": {
+       "time": 1793289510
+      }
+     },
+     {
+      "stopId": "705S",
+      "arrival": {
+       "time": 1793289580
+      },
+      "departure": {
+       "time": 1793289600
+      }
+     },
+     {
+      "stopId": "706S",
+      "arrival": {
+       "time": 1793289670
+      },
+      "departure": {
+       "time": 1793289690
+      }
+     },
+     {
+      "stopId": "707S",
+      "arrival": {
+       "time": 1793289760
+      },
+      "departure": {
+       "time": 1793289780
+      }
+     },
+     {
+      "stopId": "708S",
+      "arrival": {
+       "time": 1793289850
+      },
+      "departure": {
+       "time": 1793289870
+      }
+     },
+     {
+      "stopId": "709S",
+      "arrival": {
+       "time": 1793289940
+      },
+      "departure": {
+       "time": 1793289960
+      }
+     },
+     {
+      "stopId": "710S",
+      "arrival": {
+       "time": 1793290030
+      },
+      "departure": {
+       "time": 1793290050
+      }
+     },
+     {
+      "stopId": "711S",
+      "arrival": {
+       "time": 1793290090
+      },
+      "departure": {
+       "time": 1793290110
+      }
+     },
+     {
+      "stopId": "712S",
+      "arrival": {
+       "time": 1793290180
+      },
+      "departure": {
+       "time": 1793290200
+      }
+     },
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793290300
+      },
+      "departure": {
+       "time": 1793290320
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793290360
+      },
+      "departure": {
+       "time": 1793290380
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793290420
+      },
+      "departure": {
+       "time": 1793290440
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793290510
+      },
+      "departure": {
+       "time": 1793290530
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793290680
+      },
+      "departure": {
+       "time": 1793290980
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793291050
+      },
+      "departure": {
+       "time": 1793291070
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793291170
+      },
+      "departure": {
+       "time": 1793291190
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793291230
+      },
+      "departure": {
+       "time": 1793291250
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793291530
+      },
+      "departure": {
+       "time": 1793291550
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793291620
+      },
+      "departure": {
+       "time": 1793291640
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793291710
+      },
+      "departure": {
+       "time": 1793291730
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793291870
+      }
+     }
+    ]
+   }
+  },
+  {
+   "tripUpdate": {
+    "trip": {
+     "tripId": "072100_7..S",
+     "routeId": "7"
+    },
+    "stopTimeUpdate": [
+     {
+      "stopId": "701S",
+      "departure": {
+       "time": 1793289660
+      }
+     },
+     {
+      "stopId": "702S",
+      "arrival": {
+       "time": 1793289790
+      },
+      "departure": {
+       "time": 1793289810
+      }
+     },
+     {
+      "stopId": "705S",
+      "arrival": {
+       "time": 1793289880
+      },
+      "departure": {
+       "time": 1793289900
+      }
+     },
+     {
+      "stopId": "706S",
+      "arrival": {
+       "time": 1793289970
+      },
+      "departure": {
+       "time": 1793289990
+      }
+     },
+     {
+      "stopId": "707S",
+      "arrival": {
+       "time": 1793290060
+      },
+      "departure": {
+       "time": 1793290080
+      }
+     },
+     {
+      "stopId": "708S",
+      "arrival": {
+       "time": 1793290150
+      },
+      "departure": {
+       "time": 1793290170
+      }
+     },
+     {
+      "stopId": "709S",
+      "arrival": {
+       "time": 1793290240
+      },
+      "departure": {
+       "time": 1793290260
+      }
+     },
+     {
+      "stopId": "710S",
+      "arrival": {
+       "time": 1793290330
+      },
+      "departure": {
+       "time": 1793290350
+      }
+     },
+     {
+      "stopId": "711S",
+      "arrival": {
+       "time": 1793290390
+      },
+      "departure": {
+       "time": 1793290410
+      }
+     },
+     {
+      "stopId": "712S",
+      "arrival": {
+       "time": 1793290480
+      },
+      "departure": {
+       "time": 1793290500
+      }
+     },
+     {
+      "stopId": "713S",
+      "arrival": {
+       "time": 1793290600
+      },
+      "departure": {
+       "time": 1793290620
+      }
+     },
+     {
+      "stopId": "714S",
+      "arrival": {
+       "time": 1793290660
+      },
+      "departure": {
+       "time": 1793290680
+      }
+     },
+     {
+      "stopId": "715S",
+      "arrival": {
+       "time": 1793290720
+      },
+      "departure": {
+       "time": 1793290740
+      }
+     },
+     {
+      "stopId": "716S",
+      "arrival": {
+       "time": 1793290810
+      },
+      "departure": {
+       "time": 1793290830
+      }
+     },
+     {
+      "stopId": "718S",
+      "arrival": {
+       "time": 1793290980
+      },
+      "departure": {
+       "time": 1793291280
+      }
+     },
+     {
+      "stopId": "719S",
+      "arrival": {
+       "time": 1793291350
+      },
+      "departure": {
+       "time": 1793291370
+      }
+     },
+     {
+      "stopId": "720S",
+      "arrival": {
+       "time": 1793291470
+      },
+      "departure": {
+       "time": 1793291490
+      }
+     },
+     {
+      "stopId": "721S",
+      "arrival": {
+       "time": 1793291530
+      },
+      "departure": {
+       "time": 1793291550
+      }
+     },
+     {
+      "stopId": "723S",
+      "arrival": {
+       "time": 1793291830
+      },
+      "departure": {
+       "time": 1793291850
+      }
+     },
+     {
+      "stopId": "724S",
+      "arrival": {
+       "time": 1793291920
+      },
+      "departure": {
+       "time": 1793291940
+      }
+     },
+     {
+      "stopId": "725S",
+      "arrival": {
+       "time": 1793292010
+      },
+      "departure": {
+       "time": 1793292030
+      }
+     },
+     {
+      "stopId": "726S",
+      "arrival": {
+       "time": 1793292170
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
