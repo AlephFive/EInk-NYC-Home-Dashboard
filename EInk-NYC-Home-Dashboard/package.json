@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "gen:stations": "node scripts/buildSubwayStations.mjs",
+    "gen:ferry": "node scripts/buildFerryLookups.mjs",
     "gen:proto": "protoc --ts_proto_out=src/protocol/proto/generated --ts_proto_opt=esModuleInterop=true,env=browser --proto_path=src/protocol/proto src/protocol/proto/*.proto"
   },
   "dependencies": {
