@@ -38,6 +38,11 @@ import {
   getDirectionLabels,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup";
 import { mergeSorted, stopTimeOf } from "../../EInk-NYC-Home-Dashboard/src/utils/multiStop";
+import {
+  subwayRouteIds,
+  subwayRouteMatches,
+} from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
+import { subwayFeedKey } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup";
 import type { BoardSettings, CardSettings } from "./settings";
 
 /**
@@ -75,6 +80,8 @@ export interface Board {
   /** Generation time, ISO 8601. */
   t: string;
   c: BoardCard[];
+  /** Present and true when this is the demo board, not a configured one. */
+  d?: true;
 }
 
 /** Environment the Worker supplies. */
@@ -98,15 +105,41 @@ type SharedOptions = Omit<RowOptions, "walkTime"> & { fetchLimit: number };
  * Keyed by feed family rather than by card: the promise is created on first
  * use and reused, so a board with no railroad card never fetches one.
  */
-type FeedCache = Map<string, Promise<unknown>>;
+/**
+ * The shapes the two fetchers return, derived rather than redeclared so they
+ * cannot drift from the dashboard modules that produce them.
+ */
+type SubwayFeed = Awaited<ReturnType<typeof fetchMultipleTrainLines>>;
+type RailroadFeed = Awaited<ReturnType<typeof fetchMultipleRailroads>>;
 
+interface FeedCache {
+  /** Keyed by the sorted line set a card needs, since lines share feeds. */
+  subway: Map<string, Promise<SubwayFeed>>;
+  /** Keyed by railroad: LIRR and Metro-North are separate endpoints. */
+  railroad: Map<string, Promise<RailroadFeed>>;
+}
+
+const emptyFeedCache = (): FeedCache => ({
+  subway: new Map(),
+  railroad: new Map(),
+});
+
+/**
+ * Fetch a feed once per request, however many cards need it.
+ *
+ * Typed per family rather than through one `Map<string, Promise<unknown>>`:
+ * that needed an unchecked `as Promise<T>` on the hit path, so two callers
+ * using one key with different types would have compiled and failed at
+ * runtime. Nothing enforced the key namespacing that kept it safe — it was a
+ * convention in two string literals forty lines apart.
+ */
 function sharedFeed<T>(
-  cache: FeedCache,
+  cache: Map<string, Promise<T>>,
   key: string,
   load: () => Promise<T>
 ): Promise<T> {
   const existing = cache.get(key);
-  if (existing) return existing as Promise<T>;
+  if (existing) return existing;
   const created = load();
   cache.set(key, created);
   return created;
@@ -126,13 +159,52 @@ const toBoardRow = (row: DepartureRowData): BoardRow => [
 /**
  * How many rows a card gets.
  *
- * Deliberately a flat constant for now rather than the dashboard's
- * height-derived `cardCapacity.ts`: the TRMNL design framework measures
- * rendered height at runtime, so the final number is a phase 2 decision (see
- * the spec's §3.2). This value matches what a card sharing a column fits
- * today, so the payload measured in phase 1 stays representative.
+ * Deliberately generous, and deliberately *not* derived from card height the
+ * way the dashboard's `cardCapacity.ts` is. The TRMNL framework's Content
+ * Limiter measures the rendered height in the browser and trims what does not
+ * fit, so the panel decides — which means the backend does not have to know
+ * the layout at all, and a card that gets more room (alone in its column, or
+ * on a larger device) fills it without a round trip.
+ *
+ * Measured: a full-height column fits ~15 rows at 800x480, a split one ~7.
+ * Sending 16 covers the largest case with a little slack, and the payload
+ * stays well inside TRMNL's 5KB cap.
  */
-const ROWS_PER_COLUMN = 5;
+const ROWS_PER_COLUMN = 16;
+
+/**
+ * How long one card may spend waiting on upstream feeds.
+ *
+ * Cloudflare puts no timeout on `fetch`, and the MTA is a third party we do
+ * not control. Without a deadline a single stalled feed holds the whole
+ * request open until the platform kills it, and the panel renders nothing —
+ * the one outcome the per-card error handling exists to prevent.
+ *
+ * Cards run concurrently, so this is a per-card wall clock, not a budget
+ * divided among them. Ten seconds is far longer than a healthy feed takes
+ * (the measured fetches are well under one) and far shorter than a refresh
+ * interval, so a timed-out card reports itself and its neighbours still
+ * render.
+ */
+const CARD_DEADLINE_MS = 10_000;
+
+/**
+ * Reject if `work` has not settled within the card deadline.
+ *
+ * The timer is always cleared, including on the success path: a pending
+ * timer would keep the Worker's event loop alive after the response is sent.
+ */
+function withDeadline<T>(work: Promise<T>, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`${label} timed out after ${CARD_DEADLINE_MS / 1000}s`)),
+      CARD_DEADLINE_MS
+    );
+  });
+
+  return Promise.race([work, deadline]).finally(() => clearTimeout(timer));
+}
 
 /**
  * Whether ferry cards may render.
@@ -152,13 +224,53 @@ const FERRY_ENABLED = false;
  * serving each stop come from the station table, so the feed set is derived
  * rather than configured.
  */
+/**
+ * Whether a train belongs on a card that asked for particular routes.
+ *
+ * Matched on the label a rider reads, not the feed's route id, so "7" catches
+ * the 7X running express and "S" catches GS, FS and H. Asking for the 7 and
+ * being shown no express trains would be a surprising kind of correct.
+ */
+function routeFilterFor(routes: string[] | undefined) {
+  if (!routes || routes.length === 0) return undefined;
+  return (stop: { routeId?: string }): boolean =>
+    subwayRouteMatches(stop.routeId ?? "", routes);
+}
+
+/**
+ * The feed route ids to fetch for a card's stops.
+ *
+ * The station table signs routes the way a rider reads them, so every
+ * shuttle in it is `S` and the railway is `SIR` — neither of which the feeds
+ * ever report. Expanding each label to the ids behind it is what sends a
+ * Franklin Av card to the bdfm feed instead of a_division, where its trains
+ * do not exist.
+ */
 function subwayLinesFor(stopIds: string[]): string[] {
   const routes = new Set<string>();
   for (const stopId of stopIds) {
-    for (const route of getSubwayRoutes(stopId)) routes.add(route);
+    for (const route of getSubwayRoutes(stopId)) {
+      for (const id of subwayRouteIds(route)) routes.add(id);
+    }
   }
   return [...routes];
 }
+
+/**
+ * The bullets a card shows in its heading.
+ *
+ * A card narrowed to the 1/2/3 should not head itself with all twelve routes
+ * at Times Square — the heading would contradict every row beneath it.
+ */
+function bulletsFor(card: CardSettings, lines: string[]): string[] {
+  if (!card.routes || card.routes.length === 0) return lines;
+  const wanted = new Set(card.routes.map((route) => route.toUpperCase()));
+  const shown = lines.filter((line) => wanted.has(line.toUpperCase()));
+  // A route the station table does not list is still what the user asked
+  // for, so show it rather than an empty heading.
+  return shown.length > 0 ? shown : card.routes;
+}
+
 
 /** Build the two direction columns of a subway card. */
 async function subwayCard(
@@ -174,26 +286,32 @@ async function subwayCard(
     s: card.slot,
     y: card.transitType,
     n: card.title ?? getStationName(card.stopIds[0], "subway"),
-    b: lines,
+    b: bulletsFor(card, lines),
   };
 
   try {
-    // Keyed by the feed set this card needs, so two cards on the same lines
-    // share one fetch and one decode while cards on different lines do not.
-    const feed = await sharedFeed(feeds, `subway:${[...lines].sort().join(",")}`, () =>
+    // Keyed by the *feeds* these lines resolve to, not by the lines
+    // themselves. Decode is the Worker's dominant CPU cost — a_division alone
+    // measured 3.95ms warm against a 10ms budget — and distinct line sets
+    // routinely share a feed: 1/2/3, 4/5/6 and 7 are all a_division. Keying on
+    // the lines fetched and decoded it once per card instead of once per feed.
+    const feed = await sharedFeed(feeds.subway, subwayFeedKey(lines), () =>
       fetchMultipleTrainLines(lines)
     );
     const labels = getDirectionLabels(card.stopIds[0]);
 
     // South first, matching the dashboard's column order so the two surfaces
     // render the same board side by side.
+    const keep = routeFilterFor(card.routes);
+
     const directions = (["S", "N"] as const).map((direction) => {
-      const trains = mergeSorted(
+      const all = mergeSorted(
         card.stopIds.map((stopId) =>
           getUpcomingTrainsAtStation(feed.feedMessage, stopId, direction)
         ),
         stopTimeOf
       );
+      const trains = keep ? all.filter(keep) : all;
 
       const heading =
         direction === "N"
@@ -244,7 +362,7 @@ async function railroadCard(
   };
 
   try {
-    const feed = await sharedFeed(feeds, `railroad:${railroad}`, () =>
+    const feed = await sharedFeed(feeds.railroad, railroad, () =>
       fetchMultipleRailroads([railroad])
     );
 
@@ -405,19 +523,25 @@ export async function buildBoard(
   };
 
   // Shared per request, so concurrent cards reuse one decode per feed.
-  const feeds: FeedCache = new Map();
+  const feeds = emptyFeedCache();
 
   const cards = await Promise.all(
     settings.cards.map(async (card): Promise<BoardCard> => {
       try {
         switch (card.transitType) {
           case "subway":
-            return await subwayCard(card, shared, feeds);
+            return await withDeadline(
+              subwayCard(card, shared, feeds),
+              "Subway feed"
+            );
           case "railroad-lirr":
           case "railroad-mtn":
-            return await railroadCard(card, shared, feeds);
+            return await withDeadline(
+              railroadCard(card, shared, feeds),
+              "Railroad feed"
+            );
           case "bus":
-            return await busCard(card, shared, env);
+            return await withDeadline(busCard(card, shared, env), "Bus feed");
           case "ferry":
             return ferryCard(card, shared);
         }
@@ -434,5 +558,11 @@ export async function buildBoard(
     })
   );
 
-  return { t: new Date().toISOString(), c: cards.sort((a, b) => a.s - b.s) };
+  const board: Board = {
+    t: new Date().toISOString(),
+    c: cards.sort((a, b) => a.s - b.s),
+  };
+  // The panel says so, so a new installer knows these are not their stations.
+  if (settings.isDemo) board.d = true;
+  return board;
 }

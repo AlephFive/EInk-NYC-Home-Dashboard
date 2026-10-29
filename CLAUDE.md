@@ -219,11 +219,18 @@ upcoming departures in one response.
 groups subway lines into 8 feeds, and a feed returns every line in its group. It is
 effectively required on a subway card — omitting it means no feed is fetched.
 
+It accepts either a feed route id (`FS`) or the label a rider reads (`S`), because
+`subwayRouteIds()` expands a label before the lookup — see "Feed ids vs rider labels"
+below.
+
 ### API URLs and Mappings
 
 Static data files contain API configuration:
 
-- `src/staticData/subway/apis.json`: Maps subway lines to feed URLs
+- `src/staticData/subway/apis.json`: Maps subway lines to feed URLs. **`lineMappings`
+  is keyed on the feed's own route ids**, not on rider-facing labels — `GS`/`FS`/`H`
+  rather than `S`, `SI`/`SS` rather than `SIR`, and the express runs that exist
+  (`6X`, `7X`, `FX`) beside their locals. See "Feed ids vs rider labels".
 - `src/staticData/railroad/apis.json`: Railroad feed URLs
 - `src/staticData/bus/apis.json`: Bus API endpoint
 
@@ -280,10 +287,76 @@ across all cards:
 
 - **Fixed `ROW_HEIGHT`** (26px) is what keeps rows uniform. Content never dictates
   height, so a long destination cannot make one row taller than its neighbours.
-- **Badge shape** is `"bullet"` (18px circle) for subway's one-character routes and
+- **Badge shape** is `"bullet"` (18px circle) for subway routes and
   `"rect"` (capped at 76px, ellipsized) for named routes — bus lines, railroad branches.
   Railroad badges use `getRailroadRouteShortName()`, which strips the trailing "Branch"
   from `route_long_name`: "Babylon Branch" becomes "Babylon".
+- **Three MTA display rules** turn a feed route id into what a rider sees, all
+  in `utils/subway/routeLabel.ts`. `subwayRouteGlyph()` returns the glyph to
+  draw and whether to draw it as a diamond:
+  - **Every shuttle is S.** The feeds say `GS` (42nd St), `FS` (Franklin Av)
+    and `H` (Rockaway Park); all three are signed, mapped and announced as S.
+  - **An express drops its X and gains a diamond.** `6X` and `7X` are the two
+    that run; the MTA draws the shape instead, so the X must never reach the
+    panel as text.
+  - **The Staten Island Railway is SI.** The feed runs it as `SI` and `SS` and
+    the station table says `SIR`; all three normalise to `SI`. The R211 trains
+    now on the line carry a circular SI bullet like any other route, and two
+    characters fit a bullet where three do not.
+
+  The four TRMNL Liquid layouts reproduce this rule in markup because a
+  template cannot import it — TRMNL's Liquid has no partials, and `{% render %}`
+  / `{% include %}` fail *silently at render time* rather than breaking the
+  build. Their bullets hold one or two characters; three or more falls back to
+  a pill, so `Q101` and `Babylon` stay readable.
+
+  **`trmnl-recipe/tests/layouts.test.ts` guards the duplication**: it asserts
+  every layout carries the same rule, that no layout prints a raw feed route
+  id, and that **every class exists in the framework stylesheet** — `trmnlp
+  lint` only validates `label--*` sizes, so an invented class is inert and
+  usually looks close enough to ship. `transit.test.ts` covers the three rules
+  themselves and the ways they can fire on each other.
+
+#### Feed ids vs rider labels
+
+The forward direction above is **many-to-one**: `GS`, `FS` and `H` are all signed
+`S`. So going back fans out, and `subwayRouteIds()` is the reverse — **there is no
+single id to invert to**, which is exactly why it exists as a function rather than a
+lookup by hand.
+
+```
+subwayRouteIds("S")   -> ["GS", "FS", "H"]     three shuttles, three feeds
+subwayRouteIds("SIR") -> ["SI", "SS"]          the station table's spelling
+subwayRouteIds("7")   -> ["7", "7X"]           local plus its express
+subwayRouteIds("1")   -> ["1", "1X"]           guessed wide; 1X is inert
+```
+
+Two rules keep it honest:
+
+- **The express form comes from the `X` suffix, not a list.** It is the same rule
+  that *recognises* an express, so the two directions cannot drift. This guesses
+  wide — no `1X` runs — and that is deliberate: an id for an express that does not
+  exist is inert, because resolving an id to a feed skips whatever is unmapped and
+  filtering never consults this direction at all. Guessing wide yields an id nothing
+  matches; a stale hardcoded list yields a **real express silently missing from a
+  card**, which is the failure that actually hurts. (A `6X`/`7X` list had already
+  missed the `FX` running today.)
+- **Station-table spellings resolve but are never emitted.** `getSubwayRoutes("S31")`
+  returns `SIR`, so `SIR` has to resolve — but to `SI`/`SS`, never to itself.
+
+`subwayRouteMatches(routeId, labels)` is the pair to this for filtering: it
+normalises a train's feed id forward and compares, so a card narrowed to `7` accepts
+the `7X` and one narrowed to `S` accepts all three shuttles. Filtering uses the
+forward direction, fetching uses the reverse; both must agree, and a round-trip test
+asserts they do.
+
+**The bug this fixed:** `lineMappings` was keyed on labels, with invented `SR`/`SF`
+keys that nothing ever produced — the station table says `S` for all three shuttles.
+So `S` resolved to `a_division` and a **Franklin Av or Rockaway Park card fetched the
+wrong feed and silently showed nothing**. Rockaway happened to work only because the
+`A` also stops there and dragged in `ace`. Verified against live feeds: `ace` carries
+`H`, `bdfm` carries `FS` (and `FX`), `a_division` carries `GS`/`6X`/`7X`, `si`
+carries `SI`/`SS`.
 - **Destination** comes from `destinationStopId`, recorded by both `extractDataByStop()`
   implementations as the trip's final `stopTimeUpdate`. Resolve it with
   `getDestinationName()` in `stationLookup.ts`, which strips the subway's N/S suffix
@@ -426,6 +499,10 @@ isolation still works. `TransitCard` gathers its own `stopIds`, merges their lis
   since `lines` selects *feeds*: D/F come from `bdfm`, N/Q from `nqrw`. Omit a line and
   its trains simply never appear — `127` with `lines: ["1","2","3"]` returns 23
   departures per direction, but fetching only D/F/N/Q returns zero for it.
+- **The three shuttles share a label but not a feed.** The station table signs all of
+  them `S`, yet `GS` is in `a_division`, `FS` in `bdfm` and `H` in `ace`. Asking for
+  `S` fetches all three — see "Feed ids vs rider labels". This is why a label can
+  never be resolved to a single feed.
 - **`north_direction_label` / `south_direction_label`** in the station GeoJSON give MTA's
   own wayfinding text ("Manhattan", "Last Stop", "Hudson Yards"), which the cards use in
   place of "Northbound"/"Southbound". Note "Last Stop" is a *label*, not a reliable

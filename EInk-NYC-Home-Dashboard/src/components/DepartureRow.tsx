@@ -75,7 +75,13 @@ export function DepartureRow({
     >
       <span
         style={{
-          fontSize: "11px",
+          // SI, the Staten Island Railway, is the only two-character bullet
+          // in the system. At 11px it fits the 18px circle but crowds its
+          // curve, so it steps down — the same treatment the TRMNL panel's
+          // .bullet--pair gives it.
+          ...(badgeShape === "bullet" && badge.length > 1
+            ? { fontSize: "9px", letterSpacing: "-0.4px" }
+            : { fontSize: "11px" }),
           fontWeight: "bold",
           backgroundColor: fg,
           color: bg,

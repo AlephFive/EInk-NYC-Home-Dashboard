@@ -32,6 +32,7 @@ import { type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate } from "./s
 import { type EnrichedBusData } from "./bus";
 import { type FerryDeparture } from "./ferry";
 import { getDestinationName } from "./stationLookup";
+import { subwayRouteLabel } from "./subway/routeLabel";
 
 /** A train from either feed family. The two differ only in the `railroad` tag. */
 export type TrainStopTime =
@@ -167,7 +168,7 @@ export function trainRows(
       badge:
         railroad && stop.routeId
           ? getRailroadRouteShortName(stop.routeId, railroad)
-          : (stop.routeId ?? ""),
+          : subwayRouteLabel(stop.routeId ?? ""),
       badgeShape: railroad ? "rect" : "bullet",
       badgeWidth: railroad ? badgeWidth : undefined,
       point:

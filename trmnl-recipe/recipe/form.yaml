@@ -41,6 +41,18 @@
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
 
+- keyname: card1_routes
+  field_type: string
+  name: Only these lines
+  group: Card 1
+  optional: true
+  placeholder: All lines at this station
+  help_text: >
+    Comma-separated, e.g. "1,2,3". Leave blank for every line. Use the letter
+    or number you read on the train: S covers all three shuttles, and asking
+    for 7 includes the 7 express. Put the same station on two cards with
+    different lines to split a big complex.
+
 - keyname: card1_walk
   field_type: number
   name: Walk time (minutes)
@@ -85,6 +97,18 @@
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
+
+- keyname: card2_routes
+  field_type: string
+  name: Only these lines
+  group: Card 2
+  optional: true
+  placeholder: All lines at this station
+  help_text: >
+    Comma-separated, e.g. "1,2,3". Leave blank for every line. Use the letter
+    or number you read on the train: S covers all three shuttles, and asking
+    for 7 includes the 7 express. Put the same station on two cards with
+    different lines to split a big complex.
 
 - keyname: card2_walk
   field_type: number
@@ -131,6 +155,18 @@
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
 
+- keyname: card3_routes
+  field_type: string
+  name: Only these lines
+  group: Card 3
+  optional: true
+  placeholder: All lines at this station
+  help_text: >
+    Comma-separated, e.g. "1,2,3". Leave blank for every line. Use the letter
+    or number you read on the train: S covers all three shuttles, and asking
+    for 7 includes the 7 express. Put the same station on two cards with
+    different lines to split a big complex.
+
 - keyname: card3_walk
   field_type: number
   name: Walk time (minutes)
@@ -175,6 +211,18 @@
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
+
+- keyname: card4_routes
+  field_type: string
+  name: Only these lines
+  group: Card 4
+  optional: true
+  placeholder: All lines at this station
+  help_text: >
+    Comma-separated, e.g. "1,2,3". Leave blank for every line. Use the letter
+    or number you read on the train: S covers all three shuttles, and asking
+    for 7 includes the 7 express. Put the same station on two cards with
+    different lines to split a big complex.
 
 - keyname: card4_walk
   field_type: number
@@ -221,6 +269,18 @@
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
 
+- keyname: card5_routes
+  field_type: string
+  name: Only these lines
+  group: Card 5
+  optional: true
+  placeholder: All lines at this station
+  help_text: >
+    Comma-separated, e.g. "1,2,3". Leave blank for every line. Use the letter
+    or number you read on the train: S covers all three shuttles, and asking
+    for 7 includes the 7 express. Put the same station on two cards with
+    different lines to split a big complex.
+
 - keyname: card5_walk
   field_type: number
   name: Walk time (minutes)
@@ -265,6 +325,18 @@
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
+
+- keyname: card6_routes
+  field_type: string
+  name: Only these lines
+  group: Card 6
+  optional: true
+  placeholder: All lines at this station
+  help_text: >
+    Comma-separated, e.g. "1,2,3". Leave blank for every line. Use the letter
+    or number you read on the train: S covers all three shuttles, and asking
+    for 7 includes the 7 express. Put the same station on two cards with
+    different lines to split a big complex.
 
 - keyname: card6_walk
   field_type: number

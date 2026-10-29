@@ -7,7 +7,7 @@
  * the settings *are* the request.
  *
  * Card slots are encoded one parameter each, `c1`..`c6`, as
- * `type:stopIds:walkTime:title`. A flat string rather than JSON because it has
+ * `type:stopIds:walkTime:title`, with an optional `!routes` on the stop IDs. A flat string rather than JSON because it has
  * to survive being written into a URL by a Liquid template, where quoting JSON
  * is a reliable source of breakage.
  *
@@ -38,11 +38,22 @@ export interface CardSettings {
   walkTime: number;
   /** Overrides the station name as the card heading. */
   title?: string;
+  /**
+   * Show only these routes, as the rider names them — "7", "S", "A".
+   *
+   * Empty means every route the stop carries, which is the default and what
+   * most cards want. It earns its place at a complex: Times Square is five
+   * platform groups and twelve routes on one card, and someone who only
+   * rides the 1/2/3 does not want nine other lines competing for the rows.
+   */
+  routes?: string[];
 }
 
 /** A whole board, as one poll describes it. */
 export interface BoardSettings {
   cards: CardSettings[];
+  /** True when nothing was configured and the demo board stood in. */
+  isDemo: boolean;
   use24HourTime: boolean;
   urgentThresholdMinutes: number;
   showLeaveIn: boolean;
@@ -121,11 +132,25 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   // The picker may append "@<name>" to the ID list, carrying a display name
   // the server has no table for — bus stops, where `route_info.json` covers
   // only hand-added entries. An explicit title still wins over it.
-  const [idList = "", pickedName = ""] = ids.split("@");
+  // Routes are split off first. A stop name can contain almost anything —
+  // "BORDEN AV/5 ST" — so splitting "@" first would leave "!1,2,3" inside the
+  // name and lose the filter silently.
+  const [withName = "", routeList = ""] = ids.split("!");
+  const [idList = "", pickedName = ""] = withName.split("@");
+  const routes = routeList
+    .split(",")
+    .map((route) => route.trim().toUpperCase())
+    .filter(Boolean);
 
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
+  //
+  // Split on whitespace too. A query string decodes a literal "+" as a space,
+  // and whether TRMNL percent-encodes the stored value when it interpolates
+  // it into the polling URL is not under our control — so "127+725" may
+  // arrive as "127 725". Accepting both means a multi-ID station cannot
+  // silently collapse into one unusable id.
   const stopIds = idList
-    .split("+")
+    .split(/[+\s]+/)
     .map((id) => id.trim())
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
@@ -138,8 +163,49 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
     stopIds,
     walkTime: parseNumber(walk, DEFAULT_WALK_TIME),
     title: title === "" ? undefined : title,
+    routes: routes.length > 0 ? routes : undefined,
   };
 }
+
+/**
+ * The board a plugin shows before anyone has configured it.
+ *
+ * Two problems, one answer. A new installer would otherwise see a blank panel
+ * and have to guess that the fault is their own empty form. And the public
+ * recipe page renders a preview from whatever the author's own instance holds,
+ * which would publish the author's home stations to everyone browsing the
+ * directory.
+ *
+ * So an unconfigured board shows a demonstration instead: three well-known
+ * Manhattan stations nobody lives at, exercising all three transit types, with
+ * walk times that make the filtering visible. It is real live data — the
+ * stations exist and the feeds are current — so the preview shows what the
+ * plugin genuinely does rather than a mock-up of it.
+ */
+const DEMO_CARDS: CardSettings[] = [
+  {
+    slot: 1,
+    transitType: "subway",
+    // Times Square, all five platform groups, as the picker would supply them.
+    stopIds: ["127", "725", "902", "A27", "R16"],
+    walkTime: 5,
+    title: "Times Sq-42 St",
+  },
+  {
+    slot: 3,
+    transitType: "railroad-lirr",
+    stopIds: ["237"], // Penn Station
+    walkTime: 10,
+    title: "Penn Station",
+  },
+  {
+    slot: 5,
+    transitType: "railroad-mtn",
+    stopIds: ["1"], // Grand Central
+    walkTime: 10,
+    title: "Grand Central",
+  },
+];
 
 /**
  * Read a board out of a polling request's query string.
@@ -158,7 +224,9 @@ export function parseBoardSettings(url: URL): BoardSettings {
   }
 
   return {
-    cards,
+    // An unconfigured board demonstrates itself rather than rendering blank.
+    cards: cards.length > 0 ? cards : DEMO_CARDS,
+    isDemo: cards.length === 0,
     use24HourTime: parseBoolean(params.get("h24"), true),
     urgentThresholdMinutes: parseNumber(
       params.get("urgent") ?? undefined,

@@ -9,11 +9,13 @@
  */
 
 import { parseBoardSettings } from "./settings";
-import { buildBoard, type BuildEnv } from "./buildBoard";
+import { buildBoard, type BuildEnv, type Board } from "./buildBoard";
+import {
+  PAYLOAD_CAP_BYTES,
+  payloadBytes,
+  trimToPayloadCap,
+} from "./payload";
 import { searchStations, parsePickerKind } from "./pickers";
-
-/** TRMNL's payload ceiling; 10KB with TRMNL+. */
-const PAYLOAD_CAP_BYTES = 5 * 1024;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -119,8 +121,37 @@ function pickTransitType(body: Record<string, unknown>): string | undefined {
   return undefined;
 }
 
+/**
+ * How long a built demo board may be reused.
+ *
+ * The demo is the only board many users share: every unconfigured install and
+ * the public store preview request it with the same empty query, so one build
+ * serves all of them. Caching *user* boards is not possible — two users share
+ * a key only if they picked identical stations and identical walk times, and
+ * walk time is personal by definition.
+ *
+ * 60s, comfortably under the 15-minute poll interval, so a demo board is at
+ * most a minute stale while still collapsing a burst of store-preview traffic
+ * into one build. Short enough that the "live data only" rule still holds: a
+ * minute-old subway departure is a minute-old departure, not a timetable.
+ *
+ * Worth more than it looks. Building a board costs ~3-10ms of CPU against a
+ * 10ms budget; serving a cached one costs ~0.02ms to parse a few KB. Caching
+ * raw feed bytes, by contrast, saves only the fetch — which is I/O and is not
+ * billed as CPU — because the protobuf still has to be decoded on every hit.
+ * See spec 7.2.
+ */
+const DEMO_CACHE_SECONDS = 60;
+
+/** The cache entry for the demo board. Keyed on a URL, as the Cache API requires. */
+const DEMO_CACHE_KEY = "https://board.invalid/demo";
+
 export default {
-  async fetch(request: Request, env: BuildEnv): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: BuildEnv,
+    ctx?: ExecutionContext
+  ): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/health") {
@@ -139,13 +170,28 @@ export default {
       return json({ error: "Not found" }, 404);
     }
 
+    const settings = parseBoardSettings(url);
+
+    // The demo board is the same for everyone who has not configured a card,
+    // so it is built once and reused. `caches` is absent outside the Workers
+    // runtime (tests, `node --test`), hence the guard rather than a bare call.
+    const cache = typeof caches !== "undefined" ? caches.default : undefined;
+    if (settings.isDemo && cache) {
+      const hit = await cache.match(DEMO_CACHE_KEY);
+      if (hit) {
+        const headers = new Headers(hit.headers);
+        headers.set("x-board-cache", "hit");
+        return new Response(hit.body, { status: 200, headers });
+      }
+    }
+
     // `buildBoard` catches per card and is not supposed to reject, but the
     // whole design rule is that nothing blanks the board — and a Worker
     // exception renders as nothing at all, since the Liquid template never
     // runs. So the invariant is enforced here rather than trusted.
-    let board;
+    let board: Board;
     try {
-      board = await buildBoard(parseBoardSettings(url), env);
+      board = await buildBoard(settings, env);
     } catch (err) {
       board = {
         t: new Date().toISOString(),
@@ -159,6 +205,17 @@ export default {
         ],
       };
     }
+
+    // Trim before serialising if the board would exceed what TRMNL stores.
+    // Raising the per-card row count so the panel can decide what fits made
+    // this reachable: six busy subway cards measured at 90% of the cap, and
+    // going over does not fail loudly — TRMNL truncates, so the panel would
+    // simply render a board missing its last cards.
+    //
+    // Rows are dropped from the end of the longest column first, so the trim
+    // costs the departures furthest in the future and every card keeps its
+    // soonest ones.
+    trimToPayloadCap(board, PAYLOAD_CAP_BYTES);
 
     const body = JSON.stringify(board);
     const bytes = new TextEncoder().encode(body).length;
@@ -175,6 +232,31 @@ export default {
       "x-payload-cap-pct": ((bytes / PAYLOAD_CAP_BYTES) * 100).toFixed(1),
     };
 
+    // Only a *complete* demo board is worth storing. A board carrying a card
+    // error is a transient upstream failure, and caching it would pin that
+    // failure in front of every new installer for the full TTL.
+    const complete = board.c.every((card) => card.e === undefined);
+    if (settings.isDemo && cache && complete) {
+      const stored = new Response(body, {
+        status: 200,
+        headers: {
+          ...headers,
+          "cache-control": `max-age=${DEMO_CACHE_SECONDS}`,
+        },
+      });
+      // Handed to waitUntil so the write finishes after the response is
+      // sent. A bare `void cache.put(...)` is not enough: the runtime may
+      // cancel pending work once the handler returns, so the entry is never
+      // stored and every request reports a miss — which is exactly what the
+      // first version of this did.
+      if (ctx) {
+        ctx.waitUntil(cache.put(DEMO_CACHE_KEY, stored));
+      } else {
+        await cache.put(DEMO_CACHE_KEY, stored);
+      }
+    }
+
+    headers["x-board-cache"] = settings.isDemo ? "miss" : "bypass";
     return new Response(body, { status: 200, headers });
   },
 };

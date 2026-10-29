@@ -6,7 +6,12 @@
  * against that; decoding ~284KB of protobuf does. So this measures decode
  * alone, separated from the network time around it.
  *
- * Run with real feeds:  node --experimental-strip-types spikes/decodeCost.ts
+ * Run with real feeds:  npm run spike:cpu
+ *
+ * Needs `--experimental-transform-types`, not `--strip-types`: the generated
+ * protobuf declares real TypeScript enums, which strip-only mode rejects
+ * outright. (The test suite sidesteps this by never importing the decoder —
+ * see `utils/subway/feedLookup.ts`, split out for exactly that reason.)
  *
  * The numbers this prints decide whether the recipe can run on the free tier,
  * or needs the $5/month paid plan (50ms CPU) or a different host.

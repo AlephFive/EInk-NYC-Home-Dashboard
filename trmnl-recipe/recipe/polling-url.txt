@@ -25,12 +25,12 @@ It is part of the stored value and needs no handling here.
 
 ----------------------------------------------------------------------
 https://REPLACE_ME.workers.dev/api/board
-  ?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}
-  &c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}
-  &c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}
-  &c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}
-  &c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}
-  &c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}
+  ?c1={% if card1_type != 'off' %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}
+  &c2={% if card2_type != 'off' %}{{ card2_station }}{% if card2_routes != blank %}!{{ card2_routes }}{% endif %}:{{ card2_walk }}:{{ card2_title }}{% endif %}
+  &c3={% if card3_type != 'off' %}{{ card3_station }}{% if card3_routes != blank %}!{{ card3_routes }}{% endif %}:{{ card3_walk }}:{{ card3_title }}{% endif %}
+  &c4={% if card4_type != 'off' %}{{ card4_station }}{% if card4_routes != blank %}!{{ card4_routes }}{% endif %}:{{ card4_walk }}:{{ card4_title }}{% endif %}
+  &c5={% if card5_type != 'off' %}{{ card5_station }}{% if card5_routes != blank %}!{{ card5_routes }}{% endif %}:{{ card5_walk }}:{{ card5_title }}{% endif %}
+  &c6={% if card6_type != 'off' %}{{ card6_station }}{% if card6_routes != blank %}!{{ card6_routes }}{% endif %}:{{ card6_walk }}:{{ card6_title }}{% endif %}
   &h24={{ use_24_hour }}
   &urgent={{ urgent_threshold }}
   &leavein={{ show_leave_in }}
@@ -38,7 +38,7 @@ https://REPLACE_ME.workers.dev/api/board
 
 As one line, ready to paste after replacing the hostname:
 
-https://REPLACE_ME.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
+https://REPLACE_ME.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}{% if card2_routes != blank %}!{{ card2_routes }}{% endif %}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}{% if card3_routes != blank %}!{{ card3_routes }}{% endif %}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}{% if card4_routes != blank %}!{{ card4_routes }}{% endif %}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}{% if card5_routes != blank %}!{{ card5_routes }}{% endif %}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}{% if card6_routes != blank %}!{{ card6_routes }}{% endif %}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
 
 
 Refresh rate

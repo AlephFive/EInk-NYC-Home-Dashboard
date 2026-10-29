@@ -108,7 +108,10 @@ function SubwayBullets({ routes }: { routes: string[] }) {
         <span
           key={route}
           style={{
-            fontSize: "13px",
+            // SI is two characters where every other bullet is one; at 13px
+            // it crowds the circle, so it steps down to match the panel.
+            fontSize: route.length > 1 ? "10px" : "13px",
+            letterSpacing: route.length > 1 ? "-0.4px" : undefined,
             fontWeight: "bold",
             border: "2px solid #000",
             color: "#000",

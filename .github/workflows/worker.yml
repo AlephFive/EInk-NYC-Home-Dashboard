@@ -52,6 +52,10 @@ jobs:
       # The Worker runs in UTC. Every departure time would be hours wrong if a
       # timezone regression slipped in, and it is invisible when tested from a
       # machine that happens to be in New York — so the check runs under UTC.
+      - name: Test
+        run: npm test
+        working-directory: trmnl-recipe
+
       - name: Clock times stay local to the network, under a UTC runtime
         run: TZ=UTC node .github/scripts/checkTimeZone.mjs
 

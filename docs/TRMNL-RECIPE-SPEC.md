@@ -249,6 +249,16 @@ Per slot *N* in 1..6, all fields grouped under an accordion `Card N`:
   endpoint: https://<host>/api/stations
   help_text: Type part of a station name.
 
+- keyname: card1_routes
+  field_type: string
+  name: Lines (optional)
+  group: Card 1
+  optional: true
+  placeholder: 1,2,3
+  help_text: >
+    Comma separated, as a rider names them. Blank shows every line the stop
+    carries.
+
 - keyname: card1_walk_time
   field_type: number
   name: Walk time (minutes)
@@ -286,6 +296,33 @@ Board-level settings, group `Display`:
     The panel refreshes on an interval, so a countdown can be stale by up to
     that interval while a clock time never is.
 ```
+
+### 4.1.1 The line filter, and splitting a complex
+
+`cardN_routes` narrows a card to the routes named, matched on the **label a
+rider reads** rather than the feed's route id. So `7` catches the `7X` running
+express and `S` catches `GS`, `FS` and `H` — asking for the 7 and being shown
+no express trains would be a surprising kind of correct. Blank means every
+route, which is what most cards want.
+
+It earns its place at a complex. Times Square is twelve routes on one card,
+which is complete and nearly useless. The intended use is **the same station in
+two slots with a different filter on each** — `1,2,3` in card 1 and `N,Q,R,W`
+in card 2 — giving one column of red lines above one of yellow. No special
+support is needed; two ordinary cards do it. Set `cardN_title` on at least one,
+or both default to the same heading.
+
+The filter rides on the stop IDs as `!routes` in the slot encoding, and the
+polling URL omits the segment entirely when the field is blank — an empty `!`
+would parse as a filter matching nothing and silently empty the card.
+
+> **Both halves must ship together.** A field is only wired up when it appears
+> in *both* the form and the polling URL, and each half has broken
+> independently: `polling-url.txt` once read `cardN_routes` that `form.yaml`
+> never defined, and `settings.yml` once defined fields its own `polling_url`
+> never wrote. Neither is a type error and neither fails lint — the board
+> renders perfectly and the control does nothing. `tests/config.test.ts`
+> compares the two sources for exactly this.
 
 ### 4.2 Why `xhrSelectSearch` rather than `select`
 
@@ -501,6 +538,90 @@ Workers is the recommendation over Vercel/Netlify hobby tiers, whose terms are
 ambiguous about a publicly-listed plugin. One caveat to verify during the spike:
 Workers' CPU limit on the free plan, against protobuf decode of ~284KB across
 three feeds. Measured fetch time is 168ms; decode is unmeasured.
+
+### 7.2 Caching the feeds — deferred, not rejected
+
+**The MTA publishes whole-division snapshots.** One fetch of the `a_division`
+feed returns 10 routes, 349 stops and 5,310 stop-time updates — measured, not
+assumed. Eight feeds cover the entire subway. So every user watching any
+station on the 1 through 7 lines downloads byte-identical data, and caching
+the raw protobuf response would let one upstream fetch serve all of them.
+
+The Worker already shares a decoded feed **within** one request, so two LIRR
+cards on one board decode once. What is not built is sharing **across**
+requests.
+
+The mechanism is available: Workers' Cache API (`caches.default`) works on the
+free plan at 512MB per object, caches responses from third-party origins, and
+accepts an arbitrarily constructed `Response` — so what to cache is a real
+design choice rather than a given.
+
+**Correction (2026-10-29): caching raw feed bytes does not save CPU.** An
+earlier version of this section claimed a hit "skips the fetch *and* the ~4ms
+decode". It does not. A raw-bytes hit returns protobuf, which must still be
+decoded — and decode is the part billed against the 10ms CPU limit, while the
+fetch it *does* skip is I/O and is not billed at all. Measured on the
+`a_division` feed:
+
+| Cache shape | Cost on a hit | Verdict |
+|---|---|---|
+| Raw protobuf bytes | still 2.27ms to decode | saves I/O, not CPU |
+| Decoded feed as JSON | 3.02ms to `JSON.parse`, 7.1x larger (121KB → 859KB) | **slower than decoding** |
+| Finished board | 0.02ms to parse a ~2–5KB payload | 100–500x cheaper |
+
+Protobuf is already a fast binary format; JSON is not a shortcut around it.
+Only caching the **finished board** avoids the decode, and that key is the
+user's whole settings string.
+
+**Why it is not built yet.** The benefit only appears at scale, because polls
+are 15 minutes apart and any sane TTL expires between them:
+
+| Installs | Polls/min | Est. hit rate |
+|---|---|---|
+| 10 | 0.7 | ~0% |
+| 100 | 6.7 | ~85% |
+| 1,000 | 67 | ~99% |
+
+Two things make the real numbers better than that table: a Workers cache is
+per data centre, and an NYC transit plugin has users concentrated near NYC
+colos; and TRMNL staggers device refreshes rather than synchronising them.
+
+But at one install it does nothing measurable, which is the problem — it would
+be a cache whose correctness could not be demonstrated. This project has
+already shipped framework classes that looked right and silently did nothing
+(`nowrap`, `overflow--hidden`, `items--stretch`), and a cache that appears to
+work while never being hit is the same failure in a place that matters more.
+It also adds state to a deliberately stateless design: today the only
+correctness question is "did the feed answer?", and a cache adds "is this
+stale?".
+
+#### What the layers are actually worth
+
+| Layer | Key | Hit rate | Saves | Build? |
+|---|---|---|---|---|
+| **Demo board** | `isDemo` | very high | ~3–10ms CPU per hit | **yes, now** |
+| Raw feed bytes | feed URL | ~0% at 10 installs, high at 100+ | upstream fetches, not CPU | at ~100 installs |
+| Decoded feed | feed URL | — | nothing; it is slower | no |
+| Per-user board | settings string | ~0% | — | no |
+
+A per-user board cache cannot work: two users share a key only if they picked
+identical stations *and* identical walk times, and walk time is by definition
+personal. The one exception is the **demo board**, which every unconfigured
+install and the public store preview request with the same empty query — one
+key, one build, served to everyone. `settings.isDemo` already identifies it.
+
+Note also what caching does *not* change: **billable requests**. A cache hit
+is still a Worker request, because the poll already arrived. Caching moves CPU
+and upstream fetches, never the request count — so the 100,000/day free limit
+(~1,000 installs at a 15-minute poll) is unaffected by any of this.
+
+**Order of work:** cache the demo board now, since its key is already computed
+and its correctness is checkable at one install. **Add the raw-feed cache at
+roughly a hundred installs**, or sooner if the MTA rate-limits — their feeds
+are unauthenticated and built for public polling, so that seems unlikely. Use
+a TTL under the feed's own update interval: sampled every 10 seconds, the
+`a_division` feed changed on *every* sample, so ~30s is a ceiling and not a
+target. Verify the hit rate before trusting it.
 
 ### 7.1 The MTA key
 
