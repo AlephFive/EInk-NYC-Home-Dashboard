@@ -34,6 +34,17 @@ const NETWORK_TIME_ZONE = "America/New_York";
 /** NY Open Data's bus stop dataset. */
 const BUS_STOPS_ENDPOINT = "https://data.ny.gov/resource/2ucp-7wg5.json";
 
+/**
+ * How long the bus search may wait on NY Open Data.
+ *
+ * This is the only picker that leaves the Worker, and it runs on a keystroke
+ * against a third-party portal we do not control. Cloudflare applies no fetch
+ * timeout, so without this a stalled portal holds the request open and the
+ * dropdown spins rather than failing. Short, because a search box that has
+ * not answered in five seconds has already failed the user.
+ */
+const BUS_SEARCH_TIMEOUT_MS = 5_000;
+
 interface SubwayStation {
   gtfs_stop_id: string;
   stop_name: string;
@@ -182,7 +193,9 @@ async function searchBus(query: string): Promise<PickerOption[]> {
   // Generous, because several routes serve one stop and rows are per route.
   url.searchParams.set("$limit", "200");
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    signal: AbortSignal.timeout(BUS_SEARCH_TIMEOUT_MS),
+  });
   if (!response.ok) {
     throw new Error(
       `Bus stop search failed: ${response.status} ${response.statusText}`

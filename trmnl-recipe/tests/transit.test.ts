@@ -29,6 +29,7 @@ import {
   subwayRouteMatches,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
 import apis from "../../EInk-NYC-Home-Dashboard/src/staticData/subway/apis.json" with { type: "json" };
+import { subwayFeedKey } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup.ts";
 
 describe("a station can carry several lines on one ID", () => {
   test("Coney Island-Stillwell Av serves D, F, N and Q", () => {
@@ -438,6 +439,50 @@ describe("the Staten Island Railway", () => {
     // Feeds address platforms, so a terminus arrives as "S09S".
     assert.equal(getDestinationName("S09S", "subway"), "Tottenville");
     assert.equal(getDestinationName("S31N", "subway"), "St George");
+  });
+});
+
+describe("cards sharing a feed share one fetch", () => {
+  // Decoding protobuf is the Worker's dominant CPU cost — a_division alone
+  // measured 3.95ms warm against the free tier's 10ms budget — and the MTA
+  // groups ten routes into that one feed. So two cards whose lines differ but
+  // whose feeds coincide must not fetch it twice.
+  //
+  // This is invisible on the rendered board: duplicate fetches produce the
+  // correct output, just slowly. Only the cache key says whether it happened.
+
+  test("different lines on one feed share a key", () => {
+    // The A division: 1/2/3, 4/5/6 and 7 are three distinct line sets and
+    // one feed. Keying on the lines fetched and decoded it three times.
+    const keys = [["1", "2", "3"], ["4", "5", "6"], ["7"]].map(subwayFeedKey);
+    assert.equal(new Set(keys).size, 1, `expected one key, got ${keys}`);
+    assert.equal(keys[0], "a_division");
+  });
+
+  test("lines on different feeds do not share a key", () => {
+    // The converse: sharing too eagerly would serve a card from a feed its
+    // trains are not in, which is the Franklin Av bug in another costume.
+    assert.notEqual(subwayFeedKey(["1"]), subwayFeedKey(["A"]));
+    assert.notEqual(subwayFeedKey(["A"]), subwayFeedKey(["N"]));
+  });
+
+  test("the key is order-independent", () => {
+    assert.equal(subwayFeedKey(["7", "1"]), subwayFeedKey(["1", "7"]));
+  });
+
+  test("a shuttle's three feeds all appear in its key", () => {
+    // "S" spans a_division, bdfm and ace. A key naming only one would let a
+    // later card on bdfm reuse a feed fetched for the shuttle and miss trains.
+    const key = subwayFeedKey(["S"]);
+    for (const feed of ["a_division", "ace", "bdfm"]) {
+      assert.ok(key.includes(feed), `${feed} missing from "${key}"`);
+    }
+  });
+
+  test("a station's own route list keys to its feeds", () => {
+    // Coney Island carries D/F/N/Q on one stop ID, across two feeds.
+    const key = subwayFeedKey(getSubwayRoutes("D43"));
+    assert.equal(new Set(key.split(",")).size, 2, `expected two feeds: ${key}`);
   });
 });
 

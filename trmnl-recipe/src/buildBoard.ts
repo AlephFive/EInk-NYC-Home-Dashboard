@@ -42,6 +42,7 @@ import {
   subwayRouteIds,
   subwayRouteMatches,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
+import { subwayFeedKey } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup";
 import type { BoardSettings, CardSettings } from "./settings";
 
 /**
@@ -172,6 +173,40 @@ const toBoardRow = (row: DepartureRowData): BoardRow => [
 const ROWS_PER_COLUMN = 16;
 
 /**
+ * How long one card may spend waiting on upstream feeds.
+ *
+ * Cloudflare puts no timeout on `fetch`, and the MTA is a third party we do
+ * not control. Without a deadline a single stalled feed holds the whole
+ * request open until the platform kills it, and the panel renders nothing —
+ * the one outcome the per-card error handling exists to prevent.
+ *
+ * Cards run concurrently, so this is a per-card wall clock, not a budget
+ * divided among them. Ten seconds is far longer than a healthy feed takes
+ * (the measured fetches are well under one) and far shorter than a refresh
+ * interval, so a timed-out card reports itself and its neighbours still
+ * render.
+ */
+const CARD_DEADLINE_MS = 10_000;
+
+/**
+ * Reject if `work` has not settled within the card deadline.
+ *
+ * The timer is always cleared, including on the success path: a pending
+ * timer would keep the Worker's event loop alive after the response is sent.
+ */
+function withDeadline<T>(work: Promise<T>, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`${label} timed out after ${CARD_DEADLINE_MS / 1000}s`)),
+      CARD_DEADLINE_MS
+    );
+  });
+
+  return Promise.race([work, deadline]).finally(() => clearTimeout(timer));
+}
+
+/**
  * Whether ferry cards may render.
  *
  * Off: the ferry is schedule-based, and this board reports what live feeds
@@ -236,6 +271,7 @@ function bulletsFor(card: CardSettings, lines: string[]): string[] {
   return shown.length > 0 ? shown : card.routes;
 }
 
+
 /** Build the two direction columns of a subway card. */
 async function subwayCard(
   card: CardSettings,
@@ -254,9 +290,12 @@ async function subwayCard(
   };
 
   try {
-    // Keyed by the feed set this card needs, so two cards on the same lines
-    // share one fetch and one decode while cards on different lines do not.
-    const feed = await sharedFeed(feeds.subway, [...lines].sort().join(","), () =>
+    // Keyed by the *feeds* these lines resolve to, not by the lines
+    // themselves. Decode is the Worker's dominant CPU cost — a_division alone
+    // measured 3.95ms warm against a 10ms budget — and distinct line sets
+    // routinely share a feed: 1/2/3, 4/5/6 and 7 are all a_division. Keying on
+    // the lines fetched and decoded it once per card instead of once per feed.
+    const feed = await sharedFeed(feeds.subway, subwayFeedKey(lines), () =>
       fetchMultipleTrainLines(lines)
     );
     const labels = getDirectionLabels(card.stopIds[0]);
@@ -491,12 +530,18 @@ export async function buildBoard(
       try {
         switch (card.transitType) {
           case "subway":
-            return await subwayCard(card, shared, feeds);
+            return await withDeadline(
+              subwayCard(card, shared, feeds),
+              "Subway feed"
+            );
           case "railroad-lirr":
           case "railroad-mtn":
-            return await railroadCard(card, shared, feeds);
+            return await withDeadline(
+              railroadCard(card, shared, feeds),
+              "Railroad feed"
+            );
           case "bus":
-            return await busCard(card, shared, env);
+            return await withDeadline(busCard(card, shared, env), "Bus feed");
           case "ferry":
             return ferryCard(card, shared);
         }

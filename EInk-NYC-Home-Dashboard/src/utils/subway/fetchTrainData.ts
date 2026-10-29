@@ -3,25 +3,9 @@ import {
   TripUpdate_StopTimeUpdate,
 } from "../../protocol/proto/generated/gtfs-realtime";
 import apis from "../../staticData/subway/apis.json";
-import { subwayRouteIds } from "./routeLabel";
 
-/**
- * The feed an id belongs to, accepting either a feed route id (`FS`) or the
- * label a rider reads (`S`).
- *
- * `lineMappings` is keyed on the feed's own ids, because one label can span
- * three feeds — every shuttle is signed `S`, but GS, FS and H live in
- * a_division, bdfm and ace respectively. A label is therefore expanded
- * first, and resolves only when its ids agree on a feed.
- */
-function feedKeysFor(line: string): string[] {
-  const keys = new Set<string>();
-  for (const id of subwayRouteIds(line)) {
-    const key = apis.lineMappings[id as keyof typeof apis.lineMappings];
-    if (key) keys.add(key);
-  }
-  return [...keys];
-}
+import { feedKeysFor } from "./feedLookup";
+export { feedKeysFor };
 
 export interface TrainDataResponse {
   feedMessage: FeedMessage;
