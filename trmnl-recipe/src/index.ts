@@ -140,6 +140,18 @@ function pickTransitType(body: Record<string, unknown>): string | undefined {
  * raw feed bytes, by contrast, saves only the fetch — which is I/O and is not
  * billed as CPU — because the protobuf still has to be decoded on every hit.
  * See spec 7.2.
+ *
+ * **This does nothing on a `*.workers.dev` deployment.** Cloudflare's cache is
+ * zone-level, and workers.dev is one zone shared by every account, so
+ * `caches.default` there is a documented silent no-op: `put` resolves, `match`
+ * never hits, and nothing errors. Verified in production — five consecutive
+ * polls to the same colo all reported a miss, while the identical code hits on
+ * the first retry under `wrangler dev`.
+ *
+ * It starts working the moment the Worker is served from a custom domain,
+ * which is on the list for store submission anyway. Until then the code is
+ * correct and inert, and `x-board-cache` says `unavailable` rather than
+ * `miss` so the difference is visible rather than mysterious.
  */
 const DEMO_CACHE_SECONDS = 60;
 
@@ -176,8 +188,11 @@ export default {
     // so it is built once and reused. `caches` is absent outside the Workers
     // runtime (tests, `node --test`), hence the guard rather than a bare call.
     const cache = typeof caches !== "undefined" ? caches.default : undefined;
-    if (settings.isDemo && cache) {
-      const hit = await cache.match(DEMO_CACHE_KEY);
+    // workers.dev cannot cache (see DEMO_CACHE_SECONDS), so a miss there is
+    // not a cache that failed — it is a cache that was never available.
+    const cacheUsable = cache !== undefined && !url.hostname.endsWith(".workers.dev");
+    if (settings.isDemo && cacheUsable) {
+      const hit = await cache!.match(DEMO_CACHE_KEY);
       if (hit) {
         const headers = new Headers(hit.headers);
         headers.set("x-board-cache", "hit");
@@ -236,7 +251,7 @@ export default {
     // error is a transient upstream failure, and caching it would pin that
     // failure in front of every new installer for the full TTL.
     const complete = board.c.every((card) => card.e === undefined);
-    if (settings.isDemo && cache && complete) {
+    if (settings.isDemo && cacheUsable && complete) {
       const stored = new Response(body, {
         status: 200,
         headers: {
@@ -250,13 +265,17 @@ export default {
       // stored and every request reports a miss — which is exactly what the
       // first version of this did.
       if (ctx) {
-        ctx.waitUntil(cache.put(DEMO_CACHE_KEY, stored));
+        ctx.waitUntil(cache!.put(DEMO_CACHE_KEY, stored));
       } else {
-        await cache.put(DEMO_CACHE_KEY, stored);
+        await cache!.put(DEMO_CACHE_KEY, stored);
       }
     }
 
-    headers["x-board-cache"] = settings.isDemo ? "miss" : "bypass";
+    headers["x-board-cache"] = !settings.isDemo
+      ? "bypass"
+      : cacheUsable
+        ? "miss"
+        : "unavailable";
     return new Response(body, { status: 200, headers });
   },
 };

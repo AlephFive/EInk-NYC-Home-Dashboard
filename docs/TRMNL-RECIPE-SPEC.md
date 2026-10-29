@@ -615,6 +615,15 @@ is still a Worker request, because the poll already arrived. Caching moves CPU
 and upstream fetches, never the request count — so the 100,000/day free limit
 (~1,000 installs at a 15-minute poll) is unaffected by any of this.
 
+> **The Cache API does nothing on `*.workers.dev`.** Cloudflare's cache is
+> zone-level and workers.dev is a single zone shared across all accounts, so
+> `caches.default` there is a silent no-op — `put` resolves, `match` never
+> hits, nothing errors. Confirmed in production: five consecutive polls to one
+> colo all reported a miss, while the same code hits immediately under
+> `wrangler dev`. **Caching of any kind therefore requires a custom domain**,
+> which store submission wants regardless. Until then the demo cache is
+> correct and inert, and reports `x-board-cache: unavailable`.
+
 **Order of work:** cache the demo board now, since its key is already computed
 and its correctness is checkable at one install. **Add the raw-feed cache at
 roughly a hundred installs**, or sooner if the MTA rate-limits — their feeds
