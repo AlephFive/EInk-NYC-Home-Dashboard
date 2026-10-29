@@ -646,6 +646,60 @@ describe("railroad direction", () => {
     assert.equal(isCityBound(undefined, "lirr"), null);
   });
 
+  describe("the two railroads do not share a terminal list", () => {
+    // LIRR and Metro-North reuse stop IDs for different places, so the
+    // terminal lookup has to be scoped by railroad. If the two were ever
+    // merged, this is what would break — and it would break silently, as an
+    // arrow pointing the wrong way rather than an error.
+
+    test("stop 1 is Grand Central on Metro-North and Albertson on the LIRR", () => {
+      assert.equal(isCityBound("1", "mtn"), true, "Grand Central is city-bound");
+      assert.equal(
+        isCityBound("1", "lirr"),
+        false,
+        "Albertson is on Long Island, not in the city"
+      );
+    });
+
+    test("stop 349 is Grand Central on the LIRR and nothing on Metro-North", () => {
+      // The same station, a different ID on each railroad — Grand Central
+      // Madison is the LIRR's deep-level terminal beneath it.
+      assert.equal(isCityBound("349", "lirr"), true);
+      assert.equal(isCityBound("349", "mtn"), false);
+    });
+
+    test("Penn Station is an LIRR terminal only", () => {
+      // Metro-North does not serve it, so the ID means nothing there.
+      assert.equal(isCityBound("237", "lirr"), true);
+      assert.equal(isCityBound("237", "mtn"), false);
+    });
+  });
+
+  describe("every listed terminal is really one", () => {
+    // The list drives the arrow on every railroad row, so a wrong entry
+    // points a whole branch the wrong way.
+
+    test("the LIRR runs into five city terminals", () => {
+      // Penn Station, Grand Central, Atlantic Terminal, Long Island City and
+      // Hunterspoint Av. Deliberately excludes Yankees-E 153 St, which is a
+      // ballpark shuttle stop rather than a commuter terminal.
+      for (const id of ["237", "349", "241", "118", "90"]) {
+        assert.equal(isCityBound(id, "lirr"), true, `LIRR ${id} should be a terminal`);
+      }
+    });
+
+    test("Metro-North has exactly one", () => {
+      assert.equal(isCityBound("1", "mtn"), true);
+    });
+
+    test("an ordinary station is not a terminal on either railroad", () => {
+      // Jamaica is the LIRR's busiest station and still not a city terminal:
+      // trains pass through it in both directions.
+      assert.equal(isCityBound("102", "lirr"), false);
+      assert.equal(isCityBound("102", "mtn"), false);
+    });
+  });
+
   test("a branch name drops its 'Branch' suffix", () => {
     // "Babylon Branch" would not fit the badge, and the word carries nothing.
     const name = getRailroadRouteShortName("8", "lirr");
