@@ -80,6 +80,7 @@ custom_fields:
       - LIRR: lirr
       - Metro-North: mtn
       - Bus: bus
+      - Ferry: ferry
 
   - keyname: card1_station
     field_type: xhrSelectSearch
@@ -138,6 +139,7 @@ custom_fields:
       - LIRR: lirr
       - Metro-North: mtn
       - Bus: bus
+      - Ferry: ferry
 
   - keyname: card2_station
     field_type: xhrSelectSearch
@@ -196,6 +198,7 @@ custom_fields:
       - LIRR: lirr
       - Metro-North: mtn
       - Bus: bus
+      - Ferry: ferry
 
   - keyname: card3_station
     field_type: xhrSelectSearch
@@ -254,6 +257,7 @@ custom_fields:
       - LIRR: lirr
       - Metro-North: mtn
       - Bus: bus
+      - Ferry: ferry
 
   - keyname: card4_station
     field_type: xhrSelectSearch
@@ -312,6 +316,7 @@ custom_fields:
       - LIRR: lirr
       - Metro-North: mtn
       - Bus: bus
+      - Ferry: ferry
 
   - keyname: card5_station
     field_type: xhrSelectSearch
@@ -370,6 +375,7 @@ custom_fields:
       - LIRR: lirr
       - Metro-North: mtn
       - Bus: bus
+      - Ferry: ferry
 
   - keyname: card6_station
     field_type: xhrSelectSearch

@@ -98,9 +98,22 @@ describe("station search for the rail types", () => {
     assert.notEqual(Object.values(lirr[0])[0], Object.values(mtn[0])[0]);
   });
 
-  test("ferry returns nothing, deliberately", async () => {
-    // Still schedule-based, which conflicts with the live-data-only rule, so
-    // it is omitted from the form rather than shipped as stale timetables.
-    assert.deepEqual(await searchStations("ferry", "hunters point"), []);
+  test("ferry landings are searchable", async () => {
+    // Live since 2026-10-29, on NYC Ferry's own GTFS-realtime feed. It was
+    // omitted while schedule-based, because a printed timetable can only
+    // claim a departure rather than observe one.
+    const options = await searchStations("ferry", "hunters point");
+    assert.equal(options.length, 1);
+    assert.deepEqual(options[0], { "Hunters Point South": "ferry:4" });
+  });
+
+  test("a ferry landing is one stop ID", async () => {
+    // Flat, unlike the other searches: no complex to collapse the way subway
+    // platforms need, and no opposite-side ID the way a bus corner has. Every
+    // route calling there shares the landing.
+    const options = await searchStations("ferry", "wall st");
+    const value = Object.values(options[0])[0];
+    assert.match(value, /^ferry:\d+$/);
+    assert.ok(!value.includes("+"), "a landing should not merge stop IDs");
   });
 });

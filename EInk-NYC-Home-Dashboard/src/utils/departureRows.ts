@@ -30,7 +30,11 @@ import {
 } from "./railroad";
 import { type EnrichedStopTimeUpdate as SubwayEnrichedStopTimeUpdate } from "./subway";
 import { type EnrichedBusData } from "./bus";
-import { type FerryDeparture } from "./ferry";
+import {
+  type FerryDeparture,
+  type EnrichedFerryStopTime,
+  getFerryDestination,
+} from "./ferry";
 import { getDestinationName } from "./stationLookup";
 import { subwayRouteLabel } from "./subway/routeLabel";
 
@@ -201,7 +205,59 @@ export function busRows(
   }));
 }
 
-/** Rows for one ferry direction. */
+/**
+ * Rows for one landing's live sailings.
+ *
+ * One list rather than two direction columns, matching the railroad card.
+ * The feed names no "uptown" or "downtown" — a route like the Rockaway
+ * shuttle runs south and east — so splitting it would mean inventing
+ * labels the operator does not use. Each row names where its boat is
+ * going instead, which is the question a rider at a landing is asking.
+ */
+export function liveFerryRows(
+  sailings: EnrichedFerryStopTime[],
+  options: RowOptions
+): DepartureRowData[] {
+  // Sorted here rather than trusted from the caller: the feed lists trips in
+  // its own order, not by time, and a card whose second row leaves before its
+  // first is wrong in a way that looks like a data problem.
+  const byTime = [...sailings]
+    .filter(isBoardable)
+    .sort((a, b) => (a.departure?.time ?? 0) - (b.departure?.time ?? 0));
+
+  const reachable = reachableDepartures(
+    byTime,
+    (sailing) =>
+      sailing.departure?.time
+        ? new Date(sailing.departure.time * 1000)
+        : undefined,
+    options.walkTime,
+    options.limit
+  );
+
+  // One width for every badge in the card, so destinations line up in a
+  // column rather than stepping in and out. Route names are short — "ER",
+  // "RWS" — but not all the same length.
+  const badgeWidth = badgeWidthForLabels(
+    reachable.map((sailing) => sailing.routeId)
+  );
+
+  return reachable.map((sailing) => ({
+    key: `${sailing.tripId}-${sailing.departure?.time}`,
+    badge: sailing.routeId,
+    badgeShape: "rect" as const,
+    badgeWidth,
+    destination: getFerryDestination(sailing),
+    ...timingFields(
+      sailing.departure?.time
+        ? new Date(sailing.departure.time * 1000)
+        : undefined,
+      options
+    ),
+  }));
+}
+
+/** Rows for one ferry direction, from the static schedule. */
 export function ferryRows(
   ferries: FerryDeparture[],
   options: RowOptions

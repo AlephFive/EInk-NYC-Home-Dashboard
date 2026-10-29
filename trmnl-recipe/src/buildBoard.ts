@@ -23,11 +23,15 @@ import {
   getUpcomingTrainsAtStation as getRailroadTrainsAtStation,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/railroad";
 import { getUpcomingBusesAtStop } from "../../EInk-NYC-Home-Dashboard/src/utils/bus";
-import { getUpcomingFerryDepartures } from "../../EInk-NYC-Home-Dashboard/src/utils/ferry";
+import {
+  fetchFerryData,
+  extractFerryDataByStop,
+  getFerryStopName,
+} from "../../EInk-NYC-Home-Dashboard/src/utils/ferry";
 import {
   trainRows,
   busRows,
-  ferryRows,
+  liveFerryRows,
   type DepartureRowData,
   type RowOptions,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/departureRows";
@@ -111,17 +115,21 @@ type SharedOptions = Omit<RowOptions, "walkTime"> & { fetchLimit: number };
  */
 type SubwayFeed = Awaited<ReturnType<typeof fetchMultipleTrainLines>>;
 type RailroadFeed = Awaited<ReturnType<typeof fetchMultipleRailroads>>;
+type FerryFeed = Awaited<ReturnType<typeof fetchFerryData>>;
 
 interface FeedCache {
   /** Keyed by the sorted line set a card needs, since lines share feeds. */
   subway: Map<string, Promise<SubwayFeed>>;
   /** Keyed by railroad: LIRR and Metro-North are separate endpoints. */
   railroad: Map<string, Promise<RailroadFeed>>;
+  /** One feed covers every ferry route, so the key is constant. */
+  ferry: Map<string, Promise<FerryFeed>>;
 }
 
 const emptyFeedCache = (): FeedCache => ({
   subway: new Map(),
   railroad: new Map(),
+  ferry: new Map(),
 });
 
 /**
@@ -209,11 +217,12 @@ function withDeadline<T>(work: Promise<T>, label: string): Promise<T> {
 /**
  * Whether ferry cards may render.
  *
- * Off: the ferry is schedule-based, and this board reports what live feeds
- * say. Flip it when `getFerrySchedule.ts` is replaced by a real feed — see
- * the spec's open questions.
+ * On since 2026-10-29, when NYC Ferry's own GTFS-realtime feed replaced the
+ * static timetable. It was off while the ferry was schedule-based, because
+ * this board reports what live feeds say and a printed schedule can only
+ * claim a departure rather than observe one.
  */
-const FERRY_ENABLED = false;
+const FERRY_ENABLED = true;
 
 /**
  * Which protobuf feeds a set of subway stops needs.
@@ -472,24 +481,20 @@ async function busCard(
 }
 
 /**
- * Build a ferry card: uptown and downtown columns.
+ * Build a ferry card: one list of sailings from the landing.
  *
- * **Not reachable from the form, deliberately.** The ferry is still
- * schedule-based (`getFerrySchedule.ts`), which conflicts with the project's
- * live-data-only rule, so the form offers no Ferry option and the picker
- * returns nothing for it. The path is kept because the schedule lookup works
- * and `loadFerries` in the dashboard already has the per-stop shape a live
- * feed would need — but a hand-written ferry slot says so rather than
- * rendering a silently empty card that looks like "no boats due".
+ * NYC Ferry's own GTFS-realtime feed, joined against the static package for
+ * the route name and headsign the feed itself omits.
  */
-function ferryCard(
+async function ferryCard(
   card: CardSettings,
-  rowOptions: SharedOptions
-): BoardCard {
+  rowOptions: SharedOptions,
+  feeds: FeedCache
+): Promise<BoardCard> {
   const base: BoardCard = {
     s: card.slot,
     y: card.transitType,
-    n: card.title ?? card.stopIds[0],
+    n: card.title ?? getFerryStopName(card.stopIds[0]) ?? card.stopIds[0],
   };
 
   if (!FERRY_ENABLED) {
@@ -500,22 +505,31 @@ function ferryCard(
   }
 
   try {
-    const columns: BoardColumn[] = (["uptown", "downTown"] as const).map(
-      (direction) => ({
-        h: direction === "uptown" ? "Uptown" : "Downtown",
-        r: ferryRows(
-          getUpcomingFerryDepartures(
-            "ER",
-            card.stopIds[0],
-            direction,
-            undefined,
-            rowOptions.fetchLimit
-          ),
-          { ...rowOptions, walkTime: card.walkTime }
-        ).map(toBoardRow),
-      })
+    // One feed covers the whole system, so every ferry card on a board
+    // shares a single fetch and decode. The key is constant for that reason.
+    const feed = await sharedFeed(feeds.ferry, "ferry", fetchFerryData);
+
+    // One list, not two direction columns. The feed names no uptown or
+    // downtown — the Rockaway route runs south and east — so splitting it
+    // would mean inventing labels the operator does not use. Each row names
+    // where its boat is going instead.
+    const sailings = mergeSorted(
+      card.stopIds.map((stopId) => extractFerryDataByStop(feed, stopId)),
+      stopTimeOf
     );
-    return { ...base, k: columns };
+
+    return {
+      ...base,
+      k: [
+        {
+          h: "",
+          r: liveFerryRows(sailings, {
+            ...rowOptions,
+            walkTime: card.walkTime,
+          }).map(toBoardRow),
+        },
+      ],
+    };
   } catch (err) {
     return { ...base, e: toMessage(err) };
   }
@@ -562,7 +576,10 @@ export async function buildBoard(
           case "bus":
             return await withDeadline(busCard(card, shared, env), "Bus feed");
           case "ferry":
-            return ferryCard(card, shared);
+            return await withDeadline(
+              ferryCard(card, shared, feeds),
+              "Ferry feed"
+            );
         }
       } catch (err) {
         // A card type's own handler should have caught this; reaching here

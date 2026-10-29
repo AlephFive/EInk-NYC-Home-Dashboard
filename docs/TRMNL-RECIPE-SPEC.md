@@ -726,39 +726,28 @@ the recipe ships.
    `title` is the only one of the four that is purely cosmetic and already
    defaults to the station name (`TransitCard.tsx:309`). Dropping it saves six
    fields; keeping it helps users who merge stop IDs under one card.
-5. **Ferry.** Omitted from v1 — still schedule-based (`getFerrySchedule.ts`),
-   which conflicts with live-data-only.
+5. ~~**Ferry.**~~ **Live since 2026-10-29**, on NYC Ferry's own GTFS-RT feed
+   (`nycferry.connexionz.net`, HTTP not HTTPS). 51 landings, 7 routes, full
+   parity with the other types: picker, form option, live card.
 
-   **A live feed exists (investigated 2026-10-29).** NYC Ferry publishes
-   GTFS-RT and GTFS static through Connexionz:
+   Two feed-shape surprises, each of which produced an *empty* card rather
+   than a broken one:
 
-   ```
-   .../gtfsrealtime.aspx/tripupdate        GTFS-RT TripUpdate, protobuf
-   .../gtfsrealtime.aspx/vehicleposition   GTFS-RT VehiclePosition
-   .../gtfs.aspx                           GTFS static, 49KB zip (302 -> follow)
-   ```
+   - **`routeId` is empty on every trip.** Route name and headsign come from
+     the static GTFS package, pruned at build time into `trips.json` and
+     `stops.json` by `scripts/buildFerryLookups.mjs`.
+   - **A trip reports one leg, not a whole run.** The MTA feeds send the full
+     stop sequence ahead of a vehicle, so "this stop is the last entry" means
+     it terminates here. NYC Ferry sends a single departure/arrival pair, so
+     that rule marked *every* sailing terminal and `isBoardable()` discarded
+     all of them — 11 real departures, 0 surviving. A ferry sailing is
+     boardable when it has a departure time, and its destination comes from
+     the headsign.
 
-   Host: `nycferry.connexionz.net`. **Note it is HTTP, not HTTPS** — Workers
-   can fetch it, but it is worth confirming before depending on it.
+   The card is one list rather than two direction columns: the feed names no
+   uptown or downtown, and the Rockaway route runs south and east, so
+   splitting it would mean inventing labels the operator does not use.
 
-   What the static feed contains: **51 stops, 7 routes** (AS, ER, RES, RS,
-   RWS, SB, SG), 852 trips, 5,146 stop-times, service 04:34–22:08. The
-   current `schedule.json` covers only `ER`, so going live would widen ferry
-   coverage sevenfold and make the station picker work the way the other
-   types do.
-
-   **The realtime feed decoded cleanly and was healthy but empty**, sampled
-   at 22:43 local — `header.timestamp` current to the second,
-   `gtfsRealtimeVersion` 2.0, zero entities. That is consistent with the
-   22:08 last departure rather than a dead endpoint, but **it has not yet
-   been observed carrying a single entity**. Confirm during service hours
-   before building anything: an empty feed only proves the feed is empty.
-
-   Remaining work once that is confirmed: map the GTFS stop IDs into the
-   station picker, replace `getFerrySchedule.ts` with a feed fetch, flip
-   `FERRY_ENABLED` in `buildBoard.ts`, and add Ferry to the form's type
-   options. The card builder, row builder and per-stop error handling are
-   already in place and unused.
 6. **Metro-North terminal coverage.** `cityTerminals.json` holds only Grand
    Central for MTN, which is correct for this board but may mislabel direction
    for users near other terminals. Needs auditing before a public release.

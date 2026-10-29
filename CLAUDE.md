@@ -136,12 +136,20 @@ Each transit type is isolated in `src/utils/{transitType}/`:
     handling" below.
 
 - **Ferry** (`utils/ferry/`):
-  - Schedule-based (no API calls) — **intended to move to a live feed**. `loadFerries()`
-    in `utils/loadTransitData.ts` already handles ferry stops per-stop with error
-    capture, so swapping the schedule lookup for an API call needs no orchestration
-    changes.
-  - Static timetables in `getFerrySchedule.ts`
-  - Direction-aware (uptown/downtown)
+  - **Live GTFS-RT** since 2026-10-29 (`fetchFerryData.ts`), from NYC Ferry via
+    Connexionz. Served over **HTTP, not HTTPS** — no TLS endpoint is published.
+  - **The feed leaves `routeId` empty** and identifies stops by bare numbers, so
+    route names, headsigns and landing names come from the static GTFS package,
+    pruned at build time into `staticData/ferry/{trips,stops}.json` by
+    `scripts/buildFerryLookups.mjs` (`npm run gen:ferry`).
+  - **A trip reports one leg, not a whole run.** The MTA feeds send every stop
+    ahead of a vehicle, so the last entry is the terminus; NYC Ferry sends a
+    single departure/arrival pair. Inferring "terminates here" from the stop
+    sequence therefore marks *every* sailing terminal, and `isBoardable()`
+    discards the lot. A sailing is boardable when it has a departure time, and
+    its destination is the operator's headsign.
+  - `getFerrySchedule.ts` still holds the old static timetable, which the
+    dashboard's own ferry card reads. New callers use the live feed.
 
 ### Protobuf Setup
 

@@ -1,0 +1,7 @@
+{
+  "apiUrl": {
+    "tripUpdates": "http://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate",
+    "vehiclePositions": "http://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/vehicleposition"
+  },
+  "staticGtfs": "http://nycferry.connexionz.net/rtt/public/utility/gtfs.aspx"
+}

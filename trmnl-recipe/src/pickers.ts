@@ -21,6 +21,7 @@
 
 import subwayStations from "../../EInk-NYC-Home-Dashboard/src/staticData/subway/stations.json";
 import railroadStops from "../../EInk-NYC-Home-Dashboard/src/staticData/railroad/railroad_stops_lookup.json";
+import ferryStops from "../../EInk-NYC-Home-Dashboard/src/staticData/ferry/stops.json";
 
 /** TRMNL's option shape: one key, the label, mapping to the stored value. */
 export type PickerOption = Record<string, string>;
@@ -129,6 +130,22 @@ function searchSubway(query: string): PickerOption[] {
   for (const group of complexes.values()) addGroup(group);
 
   return options;
+}
+
+/**
+ * Ferry landings.
+ *
+ * Flat, unlike the other two searches. A landing is one stop ID serving every
+ * route that calls there — there is no complex to collapse the way subway
+ * platforms need, and no opposite-side ID the way a bus corner has.
+ *
+ * Reads `stops.json` directly rather than going through `utils/ferry`, which
+ * imports the generated protobuf decoder. The picker needs names, not a feed.
+ */
+function searchFerry(query: string): PickerOption[] {
+  return Object.entries(ferryStops as Record<string, string>)
+    .filter(([, name]) => name && matches(name, query))
+    .map(([id, name]) => ({ [name]: `ferry:${id}` }));
 }
 
 /** Railroad options, scoped to one railroad. */
@@ -275,9 +292,7 @@ export async function searchStations(
       options = await searchBus(trimmed);
       break;
     case "ferry":
-      // Ferry is still schedule-based and omitted from v1; see the spec's
-      // open questions.
-      options = [];
+      options = searchFerry(trimmed);
       break;
   }
 
