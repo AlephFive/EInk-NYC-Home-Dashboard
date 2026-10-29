@@ -50,6 +50,17 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
   if (request.method === "POST") {
     const body = await readBody(request);
     query = String(body.query ?? query ?? "");
+
+    // What TRMNL actually posts is undocumented, and the picker returning an
+    // empty dropdown in the real plugin is the only evidence we have. One
+    // line in `wrangler tail` while opening the field settles the shape.
+    console.log(
+      "picker",
+      JSON.stringify({
+        path: url.pathname,
+        keys: Object.keys(body).sort(),
+      })
+    );
     // The path wins. TRMNL posts *every* sibling setting, so the body carries
     // all six slots' types — and picking "the first key ending _type" out of
     // them returns card 1's type no matter which slot's picker is open. The
@@ -86,7 +97,22 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
 /** `/api/stations/subway` -> "subway". Undefined when the path carries none. */
 function pathKind(pathname: string): string | undefined {
   const match = /^\/api\/stations\/([^/]+)\/?$/.exec(pathname);
-  return match ? decodeURIComponent(match[1]) : undefined;
+  if (!match) return undefined;
+
+  const segment = decodeURIComponent(match[1]);
+
+  // An un-interpolated Liquid tag, which is what arrives when TRMNL does not
+  // substitute `{{cardN_type}}` into the endpoint — because `depends_on`
+  // requires an `xhrSelect` parent and ours is a plain `select`, so the
+  // reference is silently cleared.
+  //
+  // Returning the literal here is worse than returning nothing: it is
+  // truthy, so it short-circuits the `??` chain that would otherwise read
+  // the type out of the posted body, and the picker answers with an empty
+  // list. That is exactly the empty dropdown seen on the real plugin.
+  if (segment.includes("{{") || segment.includes("}}")) return undefined;
+
+  return segment;
 }
 
 /** Read a picker request body, whether JSON or form-encoded. */
