@@ -1,11 +1,20 @@
 /**
- * Bus stops, which behave unlike every other transit type here.
+ * The station pickers — what the form's search offers for each transit type.
  *
- * A subway or railroad station is one place with trains going both ways. A
- * bus stop is **one side of the street** — a single ID carries one direction
- * only, and the opposite direction is a different ID with the same name. Get
- * this wrong and the card shows half the service while looking complete,
- * which is worse than showing an error.
+ * Grouped here rather than per type because the thing under test is the same
+ * throughout: a picker must hand back an ID a card can actually use, and the
+ * ways that fails differ by network rather than by code path.
+ *
+ * Each type has its own trap, and all four have produced a card that looked
+ * complete and was not:
+ *
+ * - **Bus:** a stop ID is one side of the street. The opposite direction is a
+ *   different ID with the same name, so a corner needs both.
+ * - **Subway:** a complex spans several platform groups, and picking one
+ *   silently shows real trains of the wrong line.
+ * - **Railroad:** LIRR and Metro-North reuse stop IDs, so the tables must
+ *   stay separate.
+ * - **Ferry:** a landing is flat — one ID, every route — unlike all three.
  */
 
 import { test, describe } from "node:test";

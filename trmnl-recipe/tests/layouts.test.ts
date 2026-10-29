@@ -148,6 +148,61 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("a single-column card puts its rows on one line", () => {
+    // Width, not transit type: one column gets the card's whole ~253px, two
+    // get about 123px each, and badge plus time plus gaps leave six
+    // characters of that. So the rule keys on the column count — a subway
+    // terminal collapses to one direction and should read like a railroad
+    // card, which keying on `card.y` would miss.
+    const full = layouts.get("full")!;
+    assert.match(
+      full,
+      /\{%\s*assign column_count = card\.k \| size\s*%\}/,
+      "full.liquid does not measure the column count"
+    );
+    assert.ok(
+      full.includes("{% if one_line %}"),
+      "full.liquid does not branch on the column count"
+    );
+  });
+
+  test("every layout draws the direction arrow", () => {
+    // `‹` toward the city, `›` away. Single-angle quotes rather than ← →,
+    // which the panel's face draws inconsistently at this size.
+    for (const [name, liquid] of layouts) {
+      assert.ok(liquid.includes("r[4]"), `${name} ignores the direction field`);
+
+      // The assignments themselves, not just the glyphs — a comment
+      // mentioning an arrow would satisfy a bare `includes`.
+      assert.ok(
+        /assign arrow = "‹"/.test(liquid),
+        `${name} never assigns the inbound arrow`
+      );
+      assert.ok(
+        /assign arrow = "›"/.test(liquid),
+        `${name} never assigns the outbound arrow`
+      );
+      assert.ok(
+        liquid.includes("{{ arrow }}"),
+        `${name} assigns an arrow but never renders it`
+      );
+    }
+  });
+
+  test("the arrow survives a dropped destination", () => {
+    // A train to its branch's namesake has its destination blanked as
+    // redundant — "Ronkonkoma | Ronkonkoma" — but still has a direction.
+    // The old markup replaced the whole span with an empty spacer when the
+    // destination was blank, which lost the arrow on exactly the rows that
+    // most need it.
+    for (const [name, liquid] of layouts) {
+      assert.ok(
+        !liquid.includes('<span class="grow"></span>'),
+        `${name} still replaces a dropped destination with an empty spacer`
+      );
+    }
+  });
+
   test("the card heading uses the same rule as the departure rows", () => {
     // The bug this guards: three layouts printed `{{ route }}` raw in their
     // headings while their rows went through the rule, so one card could

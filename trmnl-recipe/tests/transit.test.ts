@@ -29,10 +29,6 @@ import {
   subwayRouteMatches,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
 import apis from "../../EInk-NYC-Home-Dashboard/src/staticData/subway/apis.json" with { type: "json" };
-import ferryTrips from "../../EInk-NYC-Home-Dashboard/src/staticData/ferry/trips.json" with { type: "json" };
-// The lookups directly, not through utils/ferry: that module imports the
-// generated protobuf decoder, whose enums the test loader cannot parse.
-import ferryStops from "../../EInk-NYC-Home-Dashboard/src/staticData/ferry/stops.json" with { type: "json" };
 import { subwayFeedKey, feedKeysFor } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup.ts";
 
 describe("a station can carry several lines on one ID", () => {
@@ -675,61 +671,6 @@ describe("direction labels come from the MTA's own wayfinding", () => {
     const labels = getDirectionLabels("701");
     if (labels?.northbound === "Last Stop" || labels?.southbound === "Last Stop") {
       assert.ok(true, "present, and deliberately not used as a terminal test");
-    }
-  });
-});
-
-describe("the ferry feed is shaped unlike the others", () => {
-  // Two assumptions carried over from the MTA feeds were wrong here, and each
-  // produced a card that was empty rather than broken — the hardest kind to
-  // notice, because "no boats due" is a legitimate answer.
-
-  const landings = ferryStops as Record<string, string>;
-
-  test("a landing resolves to a name", () => {
-    assert.equal(landings["87"], "Wall St/Pier 11");
-    assert.equal(landings["4"], "Hunters Point South");
-  });
-
-  test("an unknown landing resolves to nothing, not a guess", () => {
-    assert.equal(landings["99999"], undefined);
-  });
-
-  test("every landing in the table has a name", () => {
-    // The picker offers these by name; a blank one would be unpickable.
-    for (const [id, name] of Object.entries(landings)) {
-      assert.ok(name.trim().length > 0, `landing ${id} has no name`);
-    }
-  });
-
-  test("there are 51 landings across 7 routes", () => {
-    // Guards the generated lookups: a truncated regeneration would silently
-    // shrink the picker rather than fail.
-    assert.equal(Object.keys(landings).length, 51);
-    const routes = new Set(
-      Object.values(
-        ferryTrips as Record<string, { r: string; h: string }>
-      ).map((t) => t.r)
-    );
-    assert.deepEqual([...routes].sort(), [
-      "AS",
-      "ER",
-      "RES",
-      "RS",
-      "RWS",
-      "SB",
-      "SG",
-    ]);
-  });
-
-  test("every trip carries a route and a headsign", () => {
-    // The feed sends neither — routeId is empty and stops are bare numbers —
-    // so a trip missing either renders a row with no badge or no destination.
-    for (const [tripId, info] of Object.entries(
-      ferryTrips as Record<string, { r: string; h: string }>
-    )) {
-      assert.ok(info.r, `trip ${tripId} has no route`);
-      assert.ok(info.h, `trip ${tripId} has no headsign`);
     }
   });
 });

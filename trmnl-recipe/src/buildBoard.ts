@@ -63,7 +63,24 @@ export interface BoardColumn {
 }
 
 /** A row as it crosses the wire: positional, to stay inside the payload cap. */
-export type BoardRow = [badge: string, destination: string, time: string, urgent: 0 | 1];
+/**
+ * A row on the wire: positional, to stay inside the payload cap.
+ *
+ * `direction` is appended rather than inserted so a row stays readable as
+ * `[badge, destination, time, urgent]` — it is absent on most rows, and
+ * trailing `undefined` serialises to nothing in JSON.
+ *
+ * `1` is toward the city and `-1` away from it, as `isCityBound()` decides.
+ * `0` or absent means the direction is unknown, which is the honest answer
+ * for a train terminating here and for every transit type but the railroads.
+ */
+export type BoardRow = [
+  badge: string,
+  destination: string,
+  time: string,
+  urgent: 0 | 1,
+  direction?: 1 | -1 | 0,
+];
 
 export interface BoardCard {
   /** Slot number, which fixes the card's place in the grid. */
@@ -157,12 +174,23 @@ const toMessage = (err: unknown) =>
   err instanceof Error ? err.message : "Failed to load";
 
 /** Strip the React key and compact the row for the wire. */
-const toBoardRow = (row: DepartureRowData): BoardRow => [
-  row.badge,
-  row.destination ?? "",
-  row.time,
-  row.urgent ? 1 : 0,
-];
+const toBoardRow = (row: DepartureRowData): BoardRow => {
+  const base: BoardRow = [
+    row.badge,
+    row.destination ?? "",
+    row.time,
+    row.urgent ? 1 : 0,
+  ];
+
+  // Only the railroads know their direction — `trainRows` sets `point` from
+  // isCityBound(), which checks the trip's destination against a terminal
+  // list. Omitted entirely when unknown, so no row pays for a field it has
+  // nothing to put in.
+  if (row.point === "left") base.push(1);
+  else if (row.point === "right") base.push(-1);
+
+  return base;
+};
 
 /**
  * How many rows a card gets.

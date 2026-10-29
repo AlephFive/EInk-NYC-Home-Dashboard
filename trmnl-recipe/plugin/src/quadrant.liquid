@@ -141,13 +141,19 @@
                         {% assign bullet_class = "" %}
                       {% endif %}
                 {% if r[1] == r[0] %}{% assign destination = "" %}{% else %}{% assign destination = r[1] %}{% endif %}
+                {% comment %}
+                  `‹` toward the city, `›` away from it, nothing when the
+                  direction is unknown. Only the railroads report one.
+                {% endcomment %}
+                {% assign arrow = "" %}
+                {% if r[4] == 1 %}
+                  {% assign arrow = "‹" %}
+                {% elsif r[4] == -1 %}
+                  {% assign arrow = "›" %}
+                {% endif %}
                 <div class="flex flex--row flex--between flex--center-y gap--small">
                   <span class="label label--small label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
-                  {% if destination == blank %}
-                    <span class="grow"></span>
-                  {% else %}
-                    <span class="title title--small grow" data-clamp="1">{{ destination }}</span>
-                  {% endif %}
+                  <span class="title title--small grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
                   <span class="title title--small">{{ r[2] }}</span>
                 </div>
               {% endfor %}

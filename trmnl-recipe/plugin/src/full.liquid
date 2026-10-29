@@ -267,6 +267,19 @@
                     `flex--top`, without which the shorter column centres
                     itself vertically and the two headings no longer line up.
                   {% endcomment %}
+                  {% comment %}
+                    One column gets the card's whole width (~253px), two get
+                    about 123px each. That is what decides whether a row fits
+                    on one line, so it is keyed on the column count rather
+                    than the transit type — a subway terminal collapses to a
+                    single direction and should read like a railroad card.
+                  {% endcomment %}
+                  {% assign column_count = card.k | size %}
+                  {% assign one_line = false %}
+                  {% if column_count == 1 %}
+                    {% assign one_line = true %}
+                  {% endif %}
+
                   <div class="flex flex--row gap--small w--full flex--top">
                     {% comment %}
                       When every departure in a column goes to the same place,
@@ -354,30 +367,59 @@
                             {% assign destination = destination | remove_first: badge_prefix %}
                           {% endif %}
                         {% endif %}
+                        {% comment %}
+                          Urgent departures — the ones you must leave for now
+                          — are outlined rather than inverted: at a ten-minute
+                          threshold with a typical walk most rows qualify, and
+                          a panel of solid black rows has no emphasis left.
+                        {% endcomment %}
                         {% if r[3] == 1 %}
+                          {% assign badge_fill = "label--outline" %}
+                        {% else %}
+                          {% assign badge_fill = "label--filled" %}
+                        {% endif %}
+
+                        {% comment %}
+                          `‹` toward the city, `›` away from it, nothing when
+                          the direction is unknown — a train terminating here
+                          has none, and no other transit type reports one.
+                          Single-angle quotes rather than ← →, which the
+                          panel's face draws inconsistently at this size.
+                        {% endcomment %}
+                        {% assign arrow = "" %}
+                        {% if r[4] == 1 %}
+                          {% assign arrow = "‹" %}
+                        {% elsif r[4] == -1 %}
+                          {% assign arrow = "›" %}
+                        {% endif %}
+
+                        {% if one_line %}
                           {% comment %}
-                            Urgent: departures you must leave for now. Outlined
-                            rather than inverted — at a ten-minute threshold
-                            with a typical walk most rows qualify, and a panel
-                            of solid black rows has no emphasis left.
+                            A single-column card has the whole ~253px, so
+                            badge, destination and time fit on one line —
+                            twice the width a split subway column gets, which
+                            is what forces two lines there.
                           {% endcomment %}
-                          <div class="w--full">
-                            <div class="flex flex--row flex--between flex--center-y gap--small w--full">
-                              <span class="label label--small md:label--base label--outline {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
-                              <span class="title title--small md:title--base">{{ r[2] }}</span>
-                            </div>
-                            {% if destination != blank %}
-                              <span class="description w--full" data-clamp="1">{{ destination }}</span>
-                            {% endif %}
+                          <div class="flex flex--row flex--between flex--center-y gap--small w--full">
+                            <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
+                            {% comment %}
+                              The arrow stands on its own when the
+                              destination was dropped as redundant — a train
+                              to its branch's namesake still has a direction,
+                              and losing it there would make the rows that
+                              most need it the ones without it.
+                            {% endcomment %}
+                            <span class="description grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
+                            <span class="title title--small md:title--base">{{ r[2] }}</span>
                           </div>
                         {% else %}
                           <div class="w--full">
                             <div class="flex flex--row flex--between flex--center-y gap--small w--full">
-                              <span class="label label--small md:label--base label--filled {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
+                              <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                               <span class="title title--small md:title--base">{{ r[2] }}</span>
                             </div>
                             {% if destination != blank %}
-                              <span class="description w--full" data-clamp="1">{{ destination }}</span>
+                              <span class="description w--full" data-clamp="1">{% if arrow != "" %}{{ arrow }} {% endif %}{{ destination }}</span>
                             {% endif %}
                           </div>
                         {% endif %}
