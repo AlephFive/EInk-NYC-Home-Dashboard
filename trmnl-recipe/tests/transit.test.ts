@@ -29,7 +29,7 @@ import {
   subwayRouteMatches,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel.ts";
 import apis from "../../EInk-NYC-Home-Dashboard/src/staticData/subway/apis.json" with { type: "json" };
-import { subwayFeedKey } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup.ts";
+import { subwayFeedKey, feedKeysFor } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup.ts";
 
 describe("a station can carry several lines on one ID", () => {
   test("Coney Island-Stillwell Av serves D, F, N and Q", () => {
@@ -483,6 +483,69 @@ describe("cards sharing a feed share one fetch", () => {
     // Coney Island carries D/F/N/Q on one stop ID, across two feeds.
     const key = subwayFeedKey(getSubwayRoutes("D43"));
     assert.equal(new Set(key.split(",")).size, 2, `expected two feeds: ${key}`);
+  });
+});
+
+describe("a station's expanded lines are all fetchable", () => {
+  // The bug this exists for took down every multi-route subway card in
+  // production. subwayLinesFor() expands a station's routes into every feed
+  // id they could appear under, and that expansion guesses wide on purpose:
+  // "1" yields "1X" because the trailing X *is* the express rule, not a list
+  // to maintain. No 1X runs, so it maps to no feed — and the fetcher threw on
+  // the first such id rather than skipping it.
+  //
+  // Times Sq expands to 25 ids, 10 of them unmapped, so the card died. Vernon
+  // Blvd survived because the 7's express exists, which is why a single-route
+  // board looked perfectly healthy.
+  //
+  // The invariant is not "every id maps" — that would forbid guessing wide.
+  // It is "every station resolves to at least one feed, and the unmapped ones
+  // are harmless".
+  const expand = (routes: string[]) => [
+    ...new Set(routes.flatMap(subwayRouteIds)),
+  ];
+
+  const stations: [string, string][] = [
+    ["127", "Times Sq 1/2/3"],
+    ["A27", "42 St-Port Authority"],
+    ["D43", "Coney Island, D/F/N/Q"],
+    ["A41", "Jay St-MetroTech"],
+    ["721", "Vernon Blvd, single route"],
+    ["S31", "St George, SIR"],
+    ["L08", "Bedford Av"],
+  ];
+
+  for (const [stopId, label] of stations) {
+    test(`${label} resolves to at least one feed`, () => {
+      const ids = expand(getSubwayRoutes(stopId));
+      const mapped = ids.filter((id) => feedKeysFor(id).length > 0);
+      assert.ok(
+        mapped.length > 0,
+        `${stopId} expanded to ${ids.join(",")} and none mapped`
+      );
+    });
+  }
+
+  test("a speculative express id maps to nothing, and that is fine", () => {
+    // Stated explicitly so the next reader does not "fix" it by pruning the
+    // expansion — the fetcher skipping these is what makes it safe.
+    assert.ok(subwayRouteIds("1").includes("1X"));
+    assert.deepEqual(feedKeysFor("1X"), []);
+  });
+
+  test("every mapped id names a feed that exists", () => {
+    // The other half: an id that maps to a key with no URL would throw at
+    // fetch time, which no amount of skipping would rescue.
+    for (const [stopId] of stations) {
+      for (const id of expand(getSubwayRoutes(stopId))) {
+        for (const key of feedKeysFor(id)) {
+          assert.ok(
+            key in apis.apiUrl,
+            `${id} maps to "${key}", which has no URL`
+          );
+        }
+      }
+    }
   });
 });
 

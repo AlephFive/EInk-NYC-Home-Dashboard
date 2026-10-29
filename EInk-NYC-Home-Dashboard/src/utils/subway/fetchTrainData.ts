@@ -121,11 +121,15 @@ export async function fetchMultipleTrainLines(
     // A rider-facing label can span several feeds, so this is a list: "S"
     // yields a_division, bdfm and ace, and dropping any of them hides a
     // whole shuttle.
+    //
+    // An id that maps to no feed is **skipped, not fatal**. Callers expand a
+    // station's routes into every id those routes could appear under, and
+    // that expansion deliberately guesses wide: the express rule derives `1X`
+    // from `1` because the X suffix is the rule rather than a list to
+    // maintain. No 1X runs, so it maps to nothing — and throwing on it killed
+    // every multi-route card in production while single-route cards, whose
+    // express happens to exist, kept working.
     const apiKeys = feedKeysFor(line);
-
-    if (apiKeys.length === 0) {
-      throw new Error(`Train line "${line}" not found in API mappings`);
-    }
 
     for (const apiKey of apiKeys) {
       const apiUrl = apis.apiUrl[apiKey as keyof typeof apis.apiUrl];
@@ -137,6 +141,14 @@ export async function fetchMultipleTrainLines(
       apiKeySet.add(apiKey);
       apiKeyToUrl.set(apiKey, apiUrl);
     }
+  }
+
+  // Nothing resolved at all, which is a real configuration error rather than
+  // a speculative id: the card named lines that exist in no feed.
+  if (apiKeySet.size === 0) {
+    throw new Error(
+      `No feed found for train line(s): ${trainLines.join(", ")}`
+    );
   }
 
   // Fetch data from each unique API endpoint
