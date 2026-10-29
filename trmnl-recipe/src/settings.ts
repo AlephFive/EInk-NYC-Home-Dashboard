@@ -192,6 +192,17 @@ const DEMO_CARDS: CardSettings[] = [
     title: "Times Sq-42 St",
   },
   {
+    slot: 2,
+    transitType: "subway",
+    // The same complex narrowed to one platform group, which is how a rider
+    // splits a station carrying twelve routes into something readable. Shown
+    // beneath the full card so the preview demonstrates the difference.
+    stopIds: ["R16"],
+    walkTime: 5,
+    routes: ["N", "Q", "R", "W"],
+    title: "Times Sq N/Q/R/W",
+  },
+  {
     slot: 3,
     transitType: "railroad-lirr",
     stopIds: ["237"], // Penn Station
@@ -199,11 +210,28 @@ const DEMO_CARDS: CardSettings[] = [
     title: "Penn Station",
   },
   {
+    slot: 4,
+    transitType: "bus",
+    // Both sides of the street. A bus stop ID is one direction, so a corner
+    // takes two — the single thing about bus cards a new installer most
+    // needs to see, and the preview can show it for free.
+    stopIds: ["403257", "403465"],
+    walkTime: 5,
+    title: "W 42 St/5 Av",
+  },
+  {
     slot: 5,
     transitType: "railroad-mtn",
     stopIds: ["1"], // Grand Central
     walkTime: 10,
     title: "Grand Central",
+  },
+  {
+    slot: 6,
+    transitType: "ferry",
+    stopIds: ["87"], // Wall St/Pier 11, the busiest landing
+    walkTime: 5,
+    title: "Wall St/Pier 11",
   },
 ];
 

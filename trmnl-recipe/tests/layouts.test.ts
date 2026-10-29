@@ -89,7 +89,7 @@ describe("the display rule is identical in every layout", () => {
     // unreadable, and a "Q101" clipped to "Q10" is a different route.
     for (const [name, liquid] of layouts) {
       assert.ok(
-        liquid.includes("{% if glyph.size <= 2 %}"),
+        liquid.includes("glyph.size <= 2"),
         `${name} does not use the two-character bullet bound`
       );
       assert.ok(
@@ -122,6 +122,27 @@ describe("the display rule is identical in every layout", () => {
         assert.ok(
           liquid.includes(`${shape} {`),
           `${name} does not define ${shape}`
+        );
+      }
+    }
+  });
+
+  test("only subway cards draw bullets", () => {
+    // The shape *means* "a subway line", so it has to be scoped by card
+    // type rather than by glyph length. Ferry routes are two characters —
+    // AS, ER, SG — and were drawn as subway bullets on the demo board;
+    // bus routes escaped only by being four characters long.
+    for (const [name, liquid] of layouts) {
+      const shapeTests = [
+        ...liquid.matchAll(/\{%\s*if\s+([^%]*?)glyph\.size\s*<=\s*2\s*%\}/g),
+      ];
+      assert.ok(shapeTests.length > 0, `${name} has no bullet shape test`);
+
+      for (const [, prefix] of shapeTests) {
+        assert.match(
+          prefix,
+          /card\.y\s*==\s*"subway"\s+and\s*$/,
+          `${name} draws a bullet without checking the card is subway`
         );
       }
     }

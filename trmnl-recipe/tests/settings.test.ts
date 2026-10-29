@@ -163,7 +163,7 @@ describe("a bad slot costs only itself", () => {
 
   test("slots outside 1..6 are ignored", () => {
     const { cards } = board("c7=subway:721:10&c0=subway:G24:5");
-    assert.equal(cards.length, 3, "falls back to the demo board");
+    assert.equal(cards.length, 6, "falls back to the demo board");
   });
 });
 
@@ -213,26 +213,58 @@ describe("the demo board", () => {
   test("stands in when nothing is configured", () => {
     const s = board("h24=true");
     assert.equal(s.isDemo, true);
-    assert.equal(s.cards.length, 3);
+    assert.equal(s.cards.length, 6, "a full board, so the preview is not half empty");
   });
 
-  test("covers subway and both railroads", () => {
-    // The preview should exercise every feed family the plugin can reach,
-    // so a broken one shows up in the directory listing rather than after
-    // a user configures it.
-    const types = board("").cards.map((c) => c.transitType);
-    assert.deepEqual([...types].sort(), [
-      "railroad-lirr",
-      "railroad-mtn",
-      "subway",
-    ]);
+  test("covers every feed family the plugin can reach", () => {
+    // Every upstream, each decoded differently: the subway and railroad
+    // protobuf dialects, NYC Ferry's own GTFS-RT, and the bus SIRI API,
+    // which is JSON and the only one needing a key. A broken one should
+    // show up in the directory listing rather than after a user configures
+    // it — which is the whole reason the demo is a full board.
+    const types = new Set(board("").cards.map((c) => c.transitType));
+    assert.deepEqual(
+      [...types].sort(),
+      ["bus", "ferry", "railroad-lirr", "railroad-mtn", "subway"]
+    );
+  });
+
+  test("fills the grid", () => {
+    // Every slot occupied, so the preview shows the layout at full density
+    // rather than three cards and three gaps.
+    const slots = board("").cards.map((c) => c.slot).sort((a, b) => a - b);
+    assert.deepEqual(slots, [1, 2, 3, 4, 5, 6]);
+  });
+
+  test("shows a bus corner as both directions", () => {
+    // A bus stop ID is one side of the street, so a corner needs two. It is
+    // the most-missed thing about bus cards, and the demo shows it.
+    const bus = board("").cards.find((c) => c.transitType === "bus");
+    assert.ok(bus, "no bus card on the demo board");
+    assert.equal(bus.stopIds.length, 2, "a corner needs both direction IDs");
+  });
+
+  test("demonstrates the line filter", () => {
+    // Times Square carries twelve routes on one card, and narrowing it is
+    // the non-obvious thing a new installer most needs to discover. The
+    // demo shows the full complex and a filtered view of it side by side.
+    const filtered = board("").cards.filter((c) => c.routes?.length);
+    assert.ok(filtered.length > 0, "no card demonstrates the filter");
+    assert.deepEqual(filtered[0].routes, ["N", "Q", "R", "W"]);
   });
 
   test("uses stations nobody lives at", () => {
     // The public recipe page renders a preview from the author's own
     // instance, so the demo must not be the author's commute.
     const names = board("").cards.map((c) => c.title);
-    assert.deepEqual(names, ["Times Sq-42 St", "Penn Station", "Grand Central"]);
+    assert.deepEqual(names, [
+      "Times Sq-42 St",
+      "Times Sq N/Q/R/W",
+      "Penn Station",
+      "W 42 St/5 Av",
+      "Grand Central",
+      "Wall St/Pier 11",
+    ]);
   });
 
   test("one configured card is enough to suppress it", () => {

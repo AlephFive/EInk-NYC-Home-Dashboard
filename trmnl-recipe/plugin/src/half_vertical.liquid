@@ -101,7 +101,7 @@
                   {% assign glyph = stripped %}
                 {% endif %}
               {% endif %}
-              {% if glyph.size <= 2 %}
+              {% if card.y == "subway" and glyph.size <= 2 %}
                 <span class="label label--small label--filled bullet{% if glyph.size == 2 %} bullet--pair{% endif %}{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
               {% else %}
                 <span class="label label--small label--filled">{{ glyph }}</span>
@@ -133,7 +133,7 @@
                           {% assign glyph = stripped %}
                         {% endif %}
                       {% endif %}
-                      {% if glyph.size <= 2 %}
+                      {% if card.y == "subway" and glyph.size <= 2 %}
                         {% assign bullet_class = "bullet" %}
                         {% if glyph.size == 2 %}{% assign bullet_class = "bullet bullet--pair" %}{% endif %}
                         {% if is_express %}{% assign bullet_class = "bullet bullet--express" %}{% endif %}

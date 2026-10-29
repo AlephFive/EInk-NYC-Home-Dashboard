@@ -217,11 +217,15 @@
                         A bullet holds one or two characters. One covers every
                         subway route and the shuttles; two covers SI, the
                         Staten Island Railway, which the R211 trains now
-                        running the line sign as a circular SI bullet. Three
-                        or more is a bus route or a railroad branch, which
-                        stays a pill — "Babylon" in a circle is unreadable.
+                        running the line sign as a circular SI bullet.
+
+                        Subway cards only: the shape means "a subway line",
+                        so it is scoped by card type rather than by length.
+                        Three or more characters is a bus route or a railroad
+                        branch, which stays a pill — "Babylon" in a circle is
+                        unreadable.
                       {% endcomment %}
-                      {% if glyph.size <= 2 %}
+                      {% if card.y == "subway" and glyph.size <= 2 %}
                         <span class="label label--small md:label--base label--filled bullet{% if glyph.size == 2 %} bullet--pair{% endif %}{% if is_express %} bullet--express{% endif %}"><span>{{ glyph }}</span></span>
                       {% else %}
                         <span class="label label--small md:label--base label--filled">{{ glyph }}</span>
@@ -311,9 +315,15 @@
                           A subway route is one character — or two, for SI —
                           so it gets a bullet: circle for local, diamond for
                           express, with the feed's X suffix stripped since the
-                          shape carries it. A bus route or railroad branch is a
-                          name and stays a pill: "Babylon" in a circle is
-                          unreadable.
+                          shape carries it.
+
+                          **Subway cards only.** The shape itself means "a
+                          subway line", so it has to be scoped by card type
+                          and not by glyph length. Ferry routes are two
+                          characters — AS, ER, SG — and were being drawn as
+                          subway bullets; bus routes escaped only by being
+                          four characters long. A named route stays a pill:
+                          "Babylon" in a circle is unreadable.
                         {% endcomment %}
                         {% assign is_express = false %}
                         {% assign glyph = r[0] %}
@@ -324,7 +334,7 @@
                             {% assign glyph = stripped %}
                           {% endif %}
                         {% endif %}
-                        {% if glyph.size <= 2 %}
+                        {% if card.y == "subway" and glyph.size <= 2 %}
                           {% assign bullet_class = "bullet" %}
                           {% if glyph.size == 2 %}
                             {% assign bullet_class = "bullet bullet--pair" %}
