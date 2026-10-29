@@ -1,3 +1,22 @@
+## Before store submission: check the station picker
+
+Two things to confirm the moment `trmnlp push` has run, both from the
+plugin's settings page and neither needing a device:
+
+1. **Does the search box render?** The station field is `xhrSelectSearch`,
+   which is real (it is in `usetrmnl/trmnlp`'s field allowlist) but appears
+   in no public TRMNL documentation. If it degrades to a plain text input,
+   users would type raw stop IDs — unusable, and a design change rather than
+   a fix.
+
+2. **Does `depends_on` survive?** TRMNL's form-builder docs say a
+   `depends_on` parent "must be an `xhrSelect` type"; ours is a plain
+   `select`, and a rejected reference is *silently cleared*. If it is, every
+   card's picker falls back to card 1's transit type — so a mixed board
+   searches the wrong table for cards 2-6.
+
+Full reasoning and the evidence behind it: spec §4.2.
+
 # Where this left off — 2026-10-27
 
 Phase 1 is merged to `main` and deployed. Phase 2's layout work is complete on
