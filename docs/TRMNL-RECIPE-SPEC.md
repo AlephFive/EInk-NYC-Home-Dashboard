@@ -418,10 +418,44 @@ repeated OPTIONS, never a POST — is what finally identified it, via
 browser preflights whatever URL the field holds — including a stale endpoint
 from an earlier push.
 
-**All three had to be fixed for the dropdown to work**, and each one hid the
-next: `depends_on` stopped the widget initialising, so no request was made;
-fixing that exposed the response-shape mismatch; fixing that exposed the
-preflight.
+All three were real, and each hid the next: `depends_on` stopped the widget
+initialising, so no request was made; fixing that exposed the response-shape
+mismatch; fixing that exposed the preflight.
+
+#### Unresolved: the dropdown is still empty
+
+Fixing all three did **not** make the picker work. Everything reachable from
+outside the browser passes:
+
+| Checked | Result |
+|---|---|
+| Field type valid | In `usetrmnl/trmnlp`'s own allowlist |
+| `endpoint:` the right key | TRMNL's guide: "fetches client-side (public URLs only)" — ours is public |
+| Response shape | `[{id, name}]`, structurally identical to TRMNL's reference |
+| CORS preflight | 204, `allow-headers: content-type, x-csrf-token` |
+| Request arrives | `OPTIONS` then `POST ?slot=1`, seen in `wrangler tail` |
+| Data returned | 25 options on an empty query |
+
+**The strongest remaining lead is that the feature may assume a same-origin
+endpoint.** TRMNL's own documented example is
+
+```
+https://trmnl.com/custom_plugin_example_xhr_select_search.json
+```
+
+served from `trmnl.com` — the same origin as the settings page — and it
+returns **no CORS headers at all**, because it never needs any. Every
+example in the documentation is same-origin. Ours is the only cross-origin
+case, and "fetches client-side" means the browser makes that call.
+
+That is a hypothesis, not a finding: a cross-origin fetch with a correct
+preflight *should* work, and ours is correct. But it is the only material
+difference left between our endpoint and the one TRMNL ships as the
+reference.
+
+**Next step is a support question, not another code change.** The minimal
+case is ready: plugin 524413, a public endpoint returning the documented
+JSON, a passing preflight, and a log proving the POST lands and is answered.
 
 ### 4.3 What the form deliberately does not expose
 
