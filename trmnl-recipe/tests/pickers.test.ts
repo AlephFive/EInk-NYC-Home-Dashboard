@@ -20,7 +20,7 @@
 import { test, describe, before } from "node:test";
 import assert from "node:assert/strict";
 import { parseBoardSettings } from "../src/settings.ts";
-import { searchStations } from "../src/pickers.ts";
+import { searchStations, searchAllTypes } from "../src/pickers.ts";
 
 const board = (query: string) =>
   parseBoardSettings(new URL(`https://example.test/api/board?${query}`));
@@ -140,6 +140,53 @@ describe("the response shape xhrSelectSearch expects", () => {
     ]) {
       assert.match(value, /^(subway|lirr|mtn|bus|ferry):/);
     }
+  });
+});
+
+describe("searching every type at once", { concurrency: 1 }, () => {
+  // What the picker actually calls. A GET carries no sibling settings, so
+  // the Worker cannot know which transit type the card was set to — it
+  // searches all of them and labels each result instead.
+
+  test("one query reaches several networks", async () => {
+    const options = await searchAllTypes("jamaica");
+    assert.ok(options.length > 0, "no options for a well-known name");
+
+    const labels = Object.keys(Object.assign({}, ...options));
+    const networks = new Set(
+      labels.map((l) => l.split(" · ").at(-1)).filter(Boolean)
+    );
+    assert.ok(
+      networks.size > 1,
+      `expected several networks, got ${[...networks].join(", ")}`
+    );
+  });
+
+  test("every label names its network", () => {
+    // Why: "Jamaica" is an LIRR station and "Jamaica Center" is on the E.
+    // Without the suffix a rider cannot tell which row is which.
+    return searchAllTypes("jamaica").then((options) => {
+      for (const option of options) {
+        const [label] = Object.keys(option);
+        assert.match(label, / · (Subway|LIRR|Metro-North|Bus|Ferry)$/);
+      }
+    });
+  });
+
+  test("the value still carries its own type", async () => {
+    // The board reads the type from the stored value, not from the card's
+    // type field — which is what lets one search serve every network.
+    const options = await searchAllTypes("wall st");
+    for (const option of options) {
+      const [value] = Object.values(option);
+      assert.match(value, /^(subway|lirr|mtn|bus|ferry):/);
+    }
+  });
+
+  test("a one-character query returns nothing", async () => {
+    // The bus search leaves the machine; an unbounded query would fetch
+    // the whole of New York.
+    assert.deepEqual(await searchAllTypes("b"), []);
   });
 });
 

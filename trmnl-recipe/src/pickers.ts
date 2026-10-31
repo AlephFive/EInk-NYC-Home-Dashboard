@@ -269,6 +269,51 @@ export function parsePickerKind(value: string | undefined): PickerKind | undefin
  * @param query - What the user typed; empty returns the first options rather
  *   than nothing, so the dropdown is never blank on open
  */
+/**
+ * Search every transit type at once, labelling each result with its own.
+ *
+ * The picker runs as a GET, which carries no sibling settings — so the
+ * Worker cannot know which transit type the card was set to. Rather than
+ * guess, it searches all of them and puts the type in the label, which is
+ * what a rider needs to tell "Jamaica" the LIRR station from "Jamaica
+ * Center" on the E train anyway.
+ *
+ * The stored value keeps its own type prefix (`lirr:102`), so the board
+ * reads the right feed whatever the card's type field says. That makes the
+ * type field redundant for routing and leaves it as the thing it should
+ * always have been: a filter on what the search offers.
+ */
+export async function searchAllTypes(query: string): Promise<PickerOption[]> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+
+  const kinds: PickerKind[] = ["subway", "lirr", "mtn", "bus", "ferry"];
+  const labels: Record<PickerKind, string> = {
+    subway: "Subway",
+    lirr: "LIRR",
+    mtn: "Metro-North",
+    bus: "Bus",
+    ferry: "Ferry",
+  };
+
+  // One failing type must not empty the whole dropdown — the bus search
+  // leaves the Worker and can time out while the rest are local lookups.
+  const results = await Promise.allSettled(
+    kinds.map(async (kind) => {
+      const options = await searchStations(kind, trimmed);
+      return options.map((option) => {
+        const [[name, value]] = Object.entries(option);
+        return { [`${name} · ${labels[kind]}`]: value };
+      });
+    })
+  );
+
+  return results
+    .filter((r): r is PromiseFulfilledResult<PickerOption[]> => r.status === "fulfilled")
+    .flatMap((r) => r.value)
+    .slice(0, MAX_OPTIONS);
+}
+
 export async function searchStations(
   kind: PickerKind,
   query: string

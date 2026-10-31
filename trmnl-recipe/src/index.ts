@@ -15,7 +15,12 @@ import {
   payloadBytes,
   trimToPayloadCap,
 } from "./payload";
-import { searchStations, parsePickerKind, type PickerOption } from "./pickers";
+import {
+  searchStations,
+  searchAllTypes,
+  parsePickerKind,
+  type PickerOption,
+} from "./pickers";
 
 /**
  * What a browser must be told before it will send the picker's POST.
@@ -95,14 +100,17 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
       ? ("bus" as const)
       : parsePickerKind(kindValue);
 
-  if (!kind) {
-    // An unset transit type is the normal state before the user picks one, so
-    // this is an empty dropdown rather than an error.
-    return json([]);
-  }
-
   try {
-    return json((await searchStations(kind, query)).map(toSearchOption));
+    // No transit type: search every network and label each result with its
+    // own. A GET carries no sibling settings, so the type genuinely is not
+    // knowable — and an empty dropdown is a worse answer than a labelled
+    // list, which also disambiguates "Jamaica" the LIRR station from
+    // "Jamaica Center" on the E.
+    const options = kind
+      ? await searchStations(kind, query)
+      : await searchAllTypes(query);
+
+    return json(options.map(toSearchOption));
   } catch (err) {
     return json(
       { error: err instanceof Error ? err.message : "Search failed" },

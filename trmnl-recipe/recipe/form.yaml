@@ -36,7 +36,7 @@
   group: Card 1
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=1
-  http_verb: POST
+  http_verb: GET
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
@@ -93,7 +93,7 @@
   group: Card 2
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=2
-  http_verb: POST
+  http_verb: GET
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
@@ -150,7 +150,7 @@
   group: Card 3
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=3
-  http_verb: POST
+  http_verb: GET
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
@@ -207,7 +207,7 @@
   group: Card 4
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=4
-  http_verb: POST
+  http_verb: GET
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
@@ -264,7 +264,7 @@
   group: Card 5
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=5
-  http_verb: POST
+  http_verb: GET
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.
@@ -321,7 +321,7 @@
   group: Card 6
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=6
-  http_verb: POST
+  http_verb: GET
   help_text: >
     Stations that share a complex are listed once and show every platform.
     A bus corner is listed once and shows both directions.

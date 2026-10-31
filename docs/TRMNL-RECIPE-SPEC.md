@@ -453,9 +453,34 @@ preflight *should* work, and ours is correct. But it is the only material
 difference left between our endpoint and the one TRMNL ships as the
 reference.
 
-**Next step is a support question, not another code change.** The minimal
-case is ready: plugin 524413, a public endpoint returning the documented
-JSON, a passing preflight, and a log proving the POST lands and is answered.
+#### Resolved by switching the picker to GET
+
+The POST was the problem, not the endpoint. A POST with a JSON body is a
+*preflighted* request, and the preflight is where the picker kept dying —
+three separate causes, each hiding the next.
+
+A **GET carrying only `query`** is a simple request. No preflight, no
+`content-type`, no `x-csrf-token`, nothing for a browser to block. TRMNL's
+own reference endpoint answers GET too, which is what suggested it.
+
+The cost is that a GET carries **no sibling settings**, so the Worker cannot
+know which transit type the card was set to. Rather than guess — the old
+body fallback returned the board's *first* type for every card — it now
+searches **every network at once** and labels each result:
+
+```
+Jamaica Center-Parsons/Archer (E/J/Z) · Subway  ->  subway:G05
+Jamaica · LIRR                                   ->  lirr:102
+111 ST/JAMAICA AV (Q37) · Bus                    ->  bus:551219+551220@...
+```
+
+That is better than the type-scoped search it replaces. "Jamaica" is an LIRR
+station and "Jamaica Center" is on the E; a rider needs the label to tell
+them apart, and now gets it without having set the card's type first.
+
+The stored value keeps its own type prefix, so the board reads the right
+feed whatever `cardN_type` says — which makes that field a *filter on what
+the search offers*, not routing.
 
 ### 4.3 What the form deliberately does not expose
 

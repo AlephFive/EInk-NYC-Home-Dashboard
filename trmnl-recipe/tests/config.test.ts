@@ -185,6 +185,30 @@ describe("the two configuration sources agree", () => {
     }
   });
 
+  test("the station picker is a GET", () => {
+    // A POST with a JSON body is preflighted, and the preflight is where
+    // the picker died for most of a session. A GET carrying only `query`
+    // is a simple request: no preflight, no custom headers, nothing for a
+    // browser to block.
+    //
+    // It also carries no sibling settings, which is why the Worker falls
+    // back to searching every transit type rather than guessing one.
+    for (const [name, yaml] of [
+      ["settings.yml", settingsYml],
+      ["form.yaml", formYaml],
+    ] as [string, string][]) {
+      assert.ok(
+        !/http_verb:\s*POST/i.test(yaml),
+        `${name} still POSTs from a station picker`
+      );
+      assert.equal(
+        (yaml.match(/http_verb:\s*GET/gi) ?? []).length,
+        6,
+        `${name} should declare GET on all six pickers`
+      );
+    }
+  });
+
   test("the recipe templates keep their placeholder", () => {
     // `recipe/` is the source the configure script reads; it writes
     // `recipe/out/` and leaves these untouched, so the hostname can change
