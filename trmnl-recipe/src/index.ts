@@ -126,34 +126,18 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
  *   xhrSelect        [{ "Braves": 123 }]                label -> value
  *   xhrSelectSearch  [{ id: "...", name: "..." }]       objects
  *
- * **TRMNL stores the `name`, not the `id`.** Picking "Harlem-125 St ·
- * Metro-North" put that string into the polling URL, where the slot parser
- * read "Harlem-125 St " as a transit type, failed, and dropped the card —
- * and a board with every slot dropped falls back to the demo. That is why
- * the headings carried route suffixes and a stray ":6:", and why the board
- * looked like it was ignoring the form.
+ * `id` is stored in settings, `name` is shown in the dropdown — the same
+ * split a `remote:` block spells out as `value_field` and `label_field`.
+ * TRMNL's own reference endpoint returns `{id: "db-123", name: "Project
+ * Tasks"}`, and an opaque "db-123" is only meaningful as the stored half.
  *
- * So the name *is* the value: it leads with the machine-readable form and
- * carries the human one after an `@`, which `parseCard` already strips off
- * as a display name. The dropdown shows the whole thing — slightly ugly at
- * pick time — but what gets stored is what the board can read.
+ * The pickers produce label->value pairs, which is the natural shape for a
+ * lookup and what the tests assert against; this converts at the one point
+ * where the format is TRMNL's business.
  */
 function toSearchOption(option: PickerOption): { id: string; name: string } {
-  const [[label, value]] = Object.entries(option);
-
-  // The value already ends with "@<name>" for bus corners, whose names the
-  // server has no table for. Appending a second one would make the parser
-  // read the first as part of the ID list.
-  // Strip what the dropdown adds for disambiguation but a heading does not
-  // want: the network suffix, and the route list a subway option carries.
-  // The card already draws its routes as bullets beside the heading, so
-  // "Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E)" says it twice and truncates.
-  const stationName = label
-    .replace(/\s+·\s+[^·]+$/, "")
-    .replace(/\s*\([0-9A-Z/]+\)\s*$/, "")
-    .trim();
-  const name = value.includes("@") ? value : `${value}@${stationName}`;
-  return { id: name, name };
+  const [[name, id]] = Object.entries(option);
+  return { id, name };
 }
 
 /** `/api/stations/subway` -> "subway". Undefined when the path carries none. */

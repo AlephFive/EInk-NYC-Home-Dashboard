@@ -112,59 +112,55 @@ describe("the picker offers a corner as one choice", { concurrency: 1 }, () => {
   });
 });
 
-describe("TRMNL stores the label, so the label must parse", () => {
-  // The bug this guards cost a whole round of debugging. TRMNL stores an
-  // option's `name`, not its `id` — so picking "Harlem-125 St ·
-  // Metro-North" put *that* into the polling URL, where the slot parser
-  // read "Harlem-125 St " as a transit type, failed, and dropped the card.
-  // Every slot dropped means the demo board, which is why the plugin
-  // looked like it was ignoring the form entirely.
+describe("the dropdown's label and value are separate", () => {
+  // `xhrSelectSearch` returns `{id, name}`: `id` is stored in settings,
+  // `name` is shown in the dropdown — the same split a `remote:` block
+  // spells out as `value_field` and `label_field`.
   //
-  // So the stored string leads with the machine-readable value and carries
-  // the display name after an "@", which parseCard already strips.
+  // Worth asserting because getting it backwards is silent and expensive.
+  // Folding the label into the value made every heading read
+  // "Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E)"; folding the value into the
+  // label would store something the board cannot parse at all.
 
-  /** What `toSearchOption` builds, mirrored here. */
-  const stored = (label: string, value: string) => {
-    const name = label
-      .replace(/\s+·\s+[^·]+$/, "")
-      .replace(/\s*\([0-9A-Z/]+\)\s*$/, "")
-      .trim();
-    return value.includes("@") ? value : `${value}@${name}`;
-  };
-
-  test("the stored string starts with a transit type", () => {
-    for (const [label, value] of [
-      ["Harlem-125 St · Metro-North", "mtn:4"],
-      ["Times Sq-42 St (1/2/3/7/S) · Subway", "subway:127+725"],
-      ["Wall St/Pier 11 · Ferry", "ferry:87"],
-    ] as [string, string][]) {
-      assert.match(stored(label, value), /^(subway|lirr|mtn|bus|ferry):/);
+  test("the value is an opaque id, not a display name", async () => {
+    const options = await searchAllTypes("harlem");
+    for (const option of options) {
+      const [value] = Object.values(option);
+      assert.match(
+        value,
+        /^(subway|lirr|mtn|bus|ferry):/,
+        "a stored value must lead with its transit type"
+      );
+      assert.ok(
+        !value.includes(" · "),
+        `the network suffix leaked into a stored value: ${value}`
+      );
     }
   });
 
-  test("the network suffix never reaches the heading", () => {
-    // It belongs in the dropdown, where it tells "Jamaica" the LIRR station
-    // from "Jamaica Center" on the E. In a heading it is noise.
-    const s = stored("Harlem-125 St · Metro-North", "mtn:4");
-    assert.equal(s, "mtn:4@Harlem-125 St");
-    assert.ok(!s.includes("·"));
+  test("the label is for reading, the value for parsing", async () => {
+    const options = await searchAllTypes("harlem");
+    for (const option of options) {
+      const [[label, value]] = Object.entries(option);
+      assert.notEqual(label, value, "label and value collapsed into one");
+      assert.match(label, / · (Subway|LIRR|Metro-North|Bus|Ferry)$/);
+    }
   });
 
-  test("a subway route list never reaches the heading", () => {
-    // The card draws its routes as bullets beside the heading already, so
-    // "Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E)" says it twice and
-    // truncates on the device.
-    const s = stored("Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway", "subway:127+725");
-    assert.equal(s, "subway:127+725@Times Sq-42 St");
-  });
+  test("a bus value carries its own stop name", async () => {
+    // The exception: bus options embed a name after "@", because the
+    // server has no table for most stops and the card would otherwise head
+    // itself "Bus Stop <id>".
+    const options = await searchAllTypes("borden");
+    const bus = options
+      .map((o) => Object.values(o)[0])
+      .filter((v) => v.startsWith("bus:"));
 
-  test("a bus value keeps the name it already carries", () => {
-    // Bus options embed their own stop name, because the server has no
-    // table for most of them. Appending a second would make the parser read
-    // the first as part of the ID list.
-    const s = stored("58 ST/BORDEN AV (Q67) · Bus", "bus:551387+551388@58 ST/BORDEN AV");
-    assert.equal(s, "bus:551387+551388@58 ST/BORDEN AV");
-    assert.equal((s.match(/@/g) ?? []).length, 1);
+    assert.ok(bus.length > 0, "no bus stops matched");
+    for (const value of bus) {
+      assert.match(value, /^bus:[\d+]+@.+/);
+      assert.equal((value.match(/@/g) ?? []).length, 1);
+    }
   });
 });
 
