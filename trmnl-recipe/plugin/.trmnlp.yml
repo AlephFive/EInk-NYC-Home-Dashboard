@@ -18,32 +18,26 @@ time_zone: America/New_York
 # the bus corner, the "@" stop name. Pick them by hand here; in the real form
 # they come from the search dropdown.
 custom_fields:
-  card1_type: subway
   card1_station: "subway:721"
   card1_walk: 10
   card1_title: ""
 
-  card2_type: subway
   card2_station: "subway:G24"
   card2_walk: 15
   card2_title: ""
 
-  card3_type: bus
   card3_station: "bus:505506@CENTER BLVD/BORDEN AV"
   card3_walk: 3
   card3_title: ""
 
-  card4_type: lirr
   card4_station: "lirr:118"
   card4_walk: 5
   card4_title: ""
 
-  card5_type: lirr
   card5_station: "lirr:349"
   card5_walk: 20
   card5_title: ""
 
-  card6_type: "off"
   card6_station: ""
   card6_walk: 5
   card6_title: ""

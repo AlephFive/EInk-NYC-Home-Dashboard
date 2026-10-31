@@ -52,7 +52,7 @@ categories:
 strategy: polling
 polling_verb: GET
 polling_url: >-
-  https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/board?c1={% if card1_type != 'off' %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_type != 'off' %}{{ card2_station }}{% if card2_routes != blank %}!{{ card2_routes }}{% endif %}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_type != 'off' %}{{ card3_station }}{% if card3_routes != blank %}!{{ card3_routes }}{% endif %}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_type != 'off' %}{{ card4_station }}{% if card4_routes != blank %}!{{ card4_routes }}{% endif %}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_type != 'off' %}{{ card5_station }}{% if card5_routes != blank %}!{{ card5_routes }}{% endif %}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_type != 'off' %}{{ card6_station }}{% if card6_routes != blank %}!{{ card6_routes }}{% endif %}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
+  https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/board?c1={% if card1_station != blank %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}&c2={% if card2_station != blank %}{{ card2_station }}{% if card2_routes != blank %}!{{ card2_routes }}{% endif %}:{{ card2_walk }}:{{ card2_title }}{% endif %}&c3={% if card3_station != blank %}{{ card3_station }}{% if card3_routes != blank %}!{{ card3_routes }}{% endif %}:{{ card3_walk }}:{{ card3_title }}{% endif %}&c4={% if card4_station != blank %}{{ card4_station }}{% if card4_routes != blank %}!{{ card4_routes }}{% endif %}:{{ card4_walk }}:{{ card4_title }}{% endif %}&c5={% if card5_station != blank %}{{ card5_station }}{% if card5_routes != blank %}!{{ card5_routes }}{% endif %}:{{ card5_walk }}:{{ card5_title }}{% endif %}&c6={% if card6_station != blank %}{{ card6_station }}{% if card6_routes != blank %}!{{ card6_routes }}{% endif %}:{{ card6_walk }}:{{ card6_title }}{% endif %}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
 
 # TRMNL's store minimum, and the reason the board shows clock times rather than
 # a countdown: a "leave in 6 min" line is stale by up to the refresh interval,
@@ -72,22 +72,6 @@ custom_fields:
     description: >-
       Built by Shao-en Ma. Source, issues and setup notes:
       <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">github.com/AlephFive/EInk-NYC-Home-Dashboard</a>
-
-  - keyname: card1_type
-    field_type: select
-    name: Transit type
-    description: Left column, top
-    group: Card 1
-    optional: true
-    default: 'off'
-    help_text: Leave off to hide this card. Its column-mate then fills the column.
-    options:
-      - 'Off': 'off'
-      - Subway: subway
-      - LIRR: lirr
-      - Metro-North: mtn
-      - Bus: bus
-      - Ferry: ferry
 
   - keyname: card1_station
     field_type: xhrSelectSearch
@@ -131,22 +115,6 @@ custom_fields:
     placeholder: Defaults to the station name
     help_text: Leave blank to use the station name.
 
-  - keyname: card2_type
-    field_type: select
-    name: Transit type
-    description: Left column, bottom
-    group: Card 2
-    optional: true
-    default: 'off'
-    help_text: Leave off to hide this card. Its column-mate then fills the column.
-    options:
-      - 'Off': 'off'
-      - Subway: subway
-      - LIRR: lirr
-      - Metro-North: mtn
-      - Bus: bus
-      - Ferry: ferry
-
   - keyname: card2_station
     field_type: xhrSelectSearch
     name: Station or stop
@@ -188,22 +156,6 @@ custom_fields:
     optional: true
     placeholder: Defaults to the station name
     help_text: Leave blank to use the station name.
-
-  - keyname: card3_type
-    field_type: select
-    name: Transit type
-    description: Middle column, top
-    group: Card 3
-    optional: true
-    default: 'off'
-    help_text: Leave off to hide this card. Its column-mate then fills the column.
-    options:
-      - 'Off': 'off'
-      - Subway: subway
-      - LIRR: lirr
-      - Metro-North: mtn
-      - Bus: bus
-      - Ferry: ferry
 
   - keyname: card3_station
     field_type: xhrSelectSearch
@@ -247,22 +199,6 @@ custom_fields:
     placeholder: Defaults to the station name
     help_text: Leave blank to use the station name.
 
-  - keyname: card4_type
-    field_type: select
-    name: Transit type
-    description: Middle column, bottom
-    group: Card 4
-    optional: true
-    default: 'off'
-    help_text: Leave off to hide this card. Its column-mate then fills the column.
-    options:
-      - 'Off': 'off'
-      - Subway: subway
-      - LIRR: lirr
-      - Metro-North: mtn
-      - Bus: bus
-      - Ferry: ferry
-
   - keyname: card4_station
     field_type: xhrSelectSearch
     name: Station or stop
@@ -305,22 +241,6 @@ custom_fields:
     placeholder: Defaults to the station name
     help_text: Leave blank to use the station name.
 
-  - keyname: card5_type
-    field_type: select
-    name: Transit type
-    description: Right column, top
-    group: Card 5
-    optional: true
-    default: 'off'
-    help_text: Leave off to hide this card. Its column-mate then fills the column.
-    options:
-      - 'Off': 'off'
-      - Subway: subway
-      - LIRR: lirr
-      - Metro-North: mtn
-      - Bus: bus
-      - Ferry: ferry
-
   - keyname: card5_station
     field_type: xhrSelectSearch
     name: Station or stop
@@ -362,22 +282,6 @@ custom_fields:
     optional: true
     placeholder: Defaults to the station name
     help_text: Leave blank to use the station name.
-
-  - keyname: card6_type
-    field_type: select
-    name: Transit type
-    description: Right column, bottom
-    group: Card 6
-    optional: true
-    default: 'off'
-    help_text: Leave off to hide this card. Its column-mate then fills the column.
-    options:
-      - 'Off': 'off'
-      - Subway: subway
-      - LIRR: lirr
-      - Metro-North: mtn
-      - Bus: bus
-      - Ferry: ferry
 
   - keyname: card6_station
     field_type: xhrSelectSearch

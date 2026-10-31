@@ -285,9 +285,17 @@ export function parsePickerKind(value: string | undefined): PickerKind | undefin
  */
 export async function searchAllTypes(query: string): Promise<PickerOption[]> {
   const trimmed = query.trim();
-  if (trimmed.length < 2) return [];
+  if (trimmed.length < 1) return [];
 
-  const kinds: PickerKind[] = ["subway", "lirr", "mtn", "bus", "ferry"];
+  // One character searches the bundled tables only. Subway, railroad and
+  // ferry are local lookups and cost nothing, so the first keystroke shows
+  // something rather than an empty list that reads as broken. The bus
+  // search leaves the machine for NY Open Data, and querying it on every
+  // keystroke would be rude to a public portal for 25 noisy matches.
+  const kinds: PickerKind[] =
+    trimmed.length < 2
+      ? ["subway", "lirr", "mtn", "ferry"]
+      : ["subway", "lirr", "mtn", "bus", "ferry"];
   const labels: Record<PickerKind, string> = {
     subway: "Subway",
     lirr: "LIRR",

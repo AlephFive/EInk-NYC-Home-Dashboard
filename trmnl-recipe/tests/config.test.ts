@@ -94,16 +94,16 @@ describe("every card field is actually wired up", () => {
     }
   }
 
-  test("the type field drives the form without being sent", () => {
-    // Deliberately asymmetric. The picker stores the type on the front of the
-    // station value already, so writing it again would produce
-    // "subway:subway:721:10" and shift every field along one.
+  test("there is no transit type field", () => {
+    // Removed once the picker searched every network. The station search
+    // covers them all and the stored value carries its own type prefix
+    // (`lirr:102`), so the field decided nothing and was one more thing to
+    // set wrongly — a card typed Subway with an LIRR station picked would
+    // still have rendered the LIRR card.
     for (const slot of [1, 2, 3, 4, 5, 6]) {
-      const key = `card${slot}_type`;
-      assert.ok(declaredFields(settingsYml).includes(key), `${key} missing`);
       assert.ok(
-        shippedUrl.includes(`${key} != 'off'`),
-        `${key} should guard its slot`
+        !declaredFields(settingsYml).includes(`card${slot}_type`),
+        `card${slot}_type is back`
       );
     }
   });
@@ -242,11 +242,11 @@ describe("the two configuration sources agree", () => {
 });
 
 describe("the polling URL is well formed", () => {
-  test("every slot guards against its Off value", () => {
-    // Setting a card to Off does not clear the station it holds, so without
-    // the guard the slot keeps rendering the last station picked and the Off
-    // option appears to do nothing.
-    const guards = shippedUrl.match(/card\d_type != 'off'/g) ?? [];
+  test("every slot is guarded on its station", () => {
+    // An empty station is what turns a slot off, now that there is no type
+    // field. The Worker skips an empty parameter, so a cleared card leaves
+    // its column to its neighbour rather than rendering blank.
+    const guards = shippedUrl.match(/card\d_station != blank/g) ?? [];
     assert.equal(guards.length, 6);
   });
 

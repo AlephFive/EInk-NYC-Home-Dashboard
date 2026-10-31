@@ -83,18 +83,17 @@ async function handlePicker(request: Request, url: URL): Promise<Response> {
     const body = await readBody(request);
     query = String(body.query ?? query ?? "");
 
-    // The path wins. TRMNL posts *every* sibling setting, so the body carries
-    // all six slots' types — and picking "the first key ending _type" out of
-    // them returns card 1's type no matter which slot's picker is open. The
-    // path segment comes from this field's own `depends_on` interpolation, so
-    // it is the only one that identifies the right slot.
+    // The path wins. A POST is no longer how the form asks — the pickers
+    // are GETs, which carry no sibling settings — but a hand-made POST is
+    // still a reasonable way to query one transit type, so the body is
+    // still read.
     kindValue = kindValue ?? pickTransitType(body, url.searchParams.get("slot"));
   }
 
   // `/api/bus-stops` is an alias for `/api/stations/bus`, kept because the
-  // spec names it and because it needs no transit type to be passed at all.
-  // The form uses the path-interpolated form for every slot, so both routes
-  // reach the same search.
+  // spec names it. The form asks `/api/stations` with no type at all and
+  // gets every network back, labelled; the type-scoped paths remain for
+  // anyone querying one network directly.
   const kind =
     url.pathname === "/api/bus-stops"
       ? ("bus" as const)

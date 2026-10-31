@@ -482,6 +482,15 @@ The stored value keeps its own type prefix, so the board reads the right
 feed whatever `cardN_type` says — which makes that field a *filter on what
 the search offers*, not routing.
 
+**So `cardN_type` was removed entirely.** It decided nothing: the search
+covered every network regardless, and the board routed on the value's own
+prefix. Keeping it would have left a field that looked like it filtered the
+search and did not — a card typed Subway with an LIRR station picked would
+still have rendered the LIRR card.
+
+A slot is now guarded on its **station** being set, which is also what turns
+a card off. 34 form fields became 28.
+
 ### 4.3 What the form deliberately does not expose
 
 - **Subway `lines`.** In `displayConfig.ts` this selects *feeds*, not routes,

@@ -183,10 +183,23 @@ describe("searching every type at once", { concurrency: 1 }, () => {
     }
   });
 
-  test("a one-character query returns nothing", async () => {
-    // The bus search leaves the machine; an unbounded query would fetch
-    // the whole of New York.
-    assert.deepEqual(await searchAllTypes("b"), []);
+  test("one character searches the bundled tables only", async () => {
+    // The first keystroke should show something rather than an empty list
+    // that reads as broken. Subway, railroad and ferry are local lookups
+    // and cost nothing; the bus search leaves the machine for NY Open Data
+    // and is held back until there are two characters to go on.
+    const options = await searchAllTypes("f");
+    assert.ok(options.length > 0, "one character returned nothing");
+
+    const labels = Object.keys(Object.assign({}, ...options));
+    assert.ok(
+      !labels.some((l) => l.endsWith("Bus")),
+      "the bus portal was queried on a single character"
+    );
+  });
+
+  test("an empty query returns nothing", async () => {
+    assert.deepEqual(await searchAllTypes("   "), []);
   });
 });
 

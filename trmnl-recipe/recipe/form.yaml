@@ -13,22 +13,6 @@
 # A slot left Off is omitted and its column-mate fills the column, doubling
 # that card's rows.
 
-- keyname: card1_type
-  field_type: select
-  name: Transit type
-  description: Left column, top
-  group: Card 1
-  optional: true
-  default: 'off'
-  help_text: Leave off to hide this card. Its column-mate then fills the column.
-  options:
-    - 'Off': 'off'
-    - Subway: subway
-    - LIRR: lirr
-    - Metro-North: mtn
-    - Bus: bus
-    - Ferry: ferry
-
 - keyname: card1_station
   field_type: xhrSelectSearch
   name: Station or stop
@@ -69,22 +53,6 @@
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
-
-- keyname: card2_type
-  field_type: select
-  name: Transit type
-  description: Left column, bottom
-  group: Card 2
-  optional: true
-  default: 'off'
-  help_text: Leave off to hide this card. Its column-mate then fills the column.
-  options:
-    - 'Off': 'off'
-    - Subway: subway
-    - LIRR: lirr
-    - Metro-North: mtn
-    - Bus: bus
-    - Ferry: ferry
 
 - keyname: card2_station
   field_type: xhrSelectSearch
@@ -127,22 +95,6 @@
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
 
-- keyname: card3_type
-  field_type: select
-  name: Transit type
-  description: Middle column, top
-  group: Card 3
-  optional: true
-  default: 'off'
-  help_text: Leave off to hide this card. Its column-mate then fills the column.
-  options:
-    - 'Off': 'off'
-    - Subway: subway
-    - LIRR: lirr
-    - Metro-North: mtn
-    - Bus: bus
-    - Ferry: ferry
-
 - keyname: card3_station
   field_type: xhrSelectSearch
   name: Station or stop
@@ -183,22 +135,6 @@
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
-
-- keyname: card4_type
-  field_type: select
-  name: Transit type
-  description: Middle column, bottom
-  group: Card 4
-  optional: true
-  default: 'off'
-  help_text: Leave off to hide this card. Its column-mate then fills the column.
-  options:
-    - 'Off': 'off'
-    - Subway: subway
-    - LIRR: lirr
-    - Metro-North: mtn
-    - Bus: bus
-    - Ferry: ferry
 
 - keyname: card4_station
   field_type: xhrSelectSearch
@@ -241,22 +177,6 @@
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
 
-- keyname: card5_type
-  field_type: select
-  name: Transit type
-  description: Right column, top
-  group: Card 5
-  optional: true
-  default: 'off'
-  help_text: Leave off to hide this card. Its column-mate then fills the column.
-  options:
-    - 'Off': 'off'
-    - Subway: subway
-    - LIRR: lirr
-    - Metro-North: mtn
-    - Bus: bus
-    - Ferry: ferry
-
 - keyname: card5_station
   field_type: xhrSelectSearch
   name: Station or stop
@@ -297,22 +217,6 @@
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
-
-- keyname: card6_type
-  field_type: select
-  name: Transit type
-  description: Right column, bottom
-  group: Card 6
-  optional: true
-  default: 'off'
-  help_text: Leave off to hide this card. Its column-mate then fills the column.
-  options:
-    - 'Off': 'off'
-    - Subway: subway
-    - LIRR: lirr
-    - Metro-North: mtn
-    - Bus: bus
-    - Ferry: ferry
 
 - keyname: card6_station
   field_type: xhrSelectSearch
