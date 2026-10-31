@@ -94,6 +94,46 @@ describe("every card field is actually wired up", () => {
     }
   }
 
+  test("each card can be hidden without losing its settings", () => {
+    // Clearing a station also hides a card, but destructively. The toggle
+    // is for parking a card you want back — a summer ferry, a station you
+    // only use on weekdays.
+    for (const slot of [1, 2, 3, 4, 5, 6]) {
+      const key = `card${slot}_visible`;
+      assert.ok(
+        declaredFields(settingsYml).includes(key),
+        `${key} is missing`
+      );
+      assert.ok(
+        shippedUrl.includes(`${key} and card${slot}_station != blank`),
+        `${key} does not guard its slot`
+      );
+    }
+  });
+
+  test("the card groups name their grid position", () => {
+    // "Card 4" says nothing about where it lands. The grid is fixed —
+    // slots 1&2 are the left column, 3&4 the middle, 5&6 the right — so
+    // the group can say so directly.
+    for (const [slot, label] of [
+      [1, "Column 1 · Row 1"],
+      [2, "Column 1 · Row 2"],
+      [3, "Column 2 · Row 1"],
+      [4, "Column 2 · Row 2"],
+      [5, "Column 3 · Row 1"],
+      [6, "Column 3 · Row 2"],
+    ] as [number, string][]) {
+      assert.ok(
+        settingsYml.includes(`group: ${label}`),
+        `slot ${slot} is not grouped as "${label}"`
+      );
+    }
+    assert.ok(
+      !/group: Card \d/.test(settingsYml),
+      "a card is still grouped by number"
+    );
+  });
+
   test("there is no transit type field", () => {
     // Removed once the picker searched every network. The station search
     // covers them all and the stored value carries its own type prefix

@@ -35,7 +35,10 @@ import {
   type DepartureRowData,
   type RowOptions,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/departureRows";
-import { isBoardable } from "../../EInk-NYC-Home-Dashboard/src/utils/departures";
+import {
+  isBoardable,
+  formatClockTime,
+} from "../../EInk-NYC-Home-Dashboard/src/utils/departures";
 import {
   getStationName,
   getSubwayRoutes,
@@ -107,6 +110,17 @@ export interface BoardCard {
 export interface Board {
   /** Generation time, ISO 8601. */
   t: string;
+  /**
+   * Generation time as the panel shows it: New York local, formatted to the
+   * user's clock preference.
+   *
+   * Separate from `t` because Liquid cannot convert a timezone, and a board
+   * that is hours stale should say so in the zone its departures are in.
+   *
+   * Optional: the handler's last-resort error board has no departures to be
+   * stale relative to, and formatting a time there would be noise.
+   */
+  a?: string;
   c: BoardCard[];
   /** Present and true when this is the demo board, not a configured one. */
   d?: true;
@@ -710,8 +724,17 @@ export async function buildBoard(
     })
   );
 
+  const generatedAt = new Date();
   const board: Board = {
-    t: new Date().toISOString(),
+    t: generatedAt.toISOString(),
+    // Pre-formatted in New York time, because Liquid has no timezone
+    // support and the panel runs wherever the user is. The Worker already
+    // pins this zone for every departure — see `formatClockTime` — so the
+    // footer agrees with the rows above it.
+    a: formatClockTime(generatedAt, {
+      use24HourTime: settings.use24HourTime,
+      urgentThresholdMinutes: settings.urgentThresholdMinutes,
+    }),
     c: cards.sort((a, b) => a.s - b.s),
   };
   // The panel says so, so a new installer knows these are not their stations.

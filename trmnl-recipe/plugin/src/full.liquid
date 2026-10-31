@@ -519,7 +519,14 @@
   </div>
 
   <div class="title_bar">
-    <span class="title">NYC Transit</span>
+    {% comment %}
+        The data's age, in New York time. A panel refreshes on an interval
+        and an e-ink screen holds its last image through a failure, so
+        without this there is no way to tell a quiet board from a frozen
+        one. Formatted by the Worker, because Liquid cannot convert a
+        timezone and the panel runs wherever the user is.
+      {% endcomment %}
+      <span class="title">NYC Transit{% if a %} · as of {{ a }}{% endif %}</span>
     {% if d %}
       {% comment %}
         The backend substitutes a demo board when nothing is configured, so

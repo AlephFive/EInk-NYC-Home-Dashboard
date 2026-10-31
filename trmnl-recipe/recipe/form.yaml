@@ -13,11 +13,21 @@
 # A slot left Off is omitted and its column-mate fills the column, doubling
 # that card's rows.
 
+- keyname: card1_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 1 · Row 1
+  optional: true
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings. Its column-mate
+    then fills the column and shows about twice as many departures.
+
 - keyname: card1_station
   field_type: xhrSelectSearch
   name: Station or stop
   description: Type part of a name, then pick from the list
-  group: Card 1
+  group: Column 1 · Row 1
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=1
   http_verb: GET
@@ -28,7 +38,7 @@
 - keyname: card1_routes
   field_type: string
   name: Only these lines
-  group: Card 1
+  group: Column 1 · Row 1
   optional: true
   placeholder: All lines at this station
   help_text: >
@@ -40,7 +50,7 @@
 - keyname: card1_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 1
+  group: Column 1 · Row 1
   optional: true
   default: 5
   placeholder: 5
@@ -49,16 +59,26 @@
 - keyname: card1_title
   field_type: string
   name: Card heading
-  group: Card 1
+  group: Column 1 · Row 1
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
+
+- keyname: card2_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 1 · Row 2
+  optional: true
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings. Its column-mate
+    then fills the column and shows about twice as many departures.
 
 - keyname: card2_station
   field_type: xhrSelectSearch
   name: Station or stop
   description: Type part of a name, then pick from the list
-  group: Card 2
+  group: Column 1 · Row 2
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=2
   http_verb: GET
@@ -69,7 +89,7 @@
 - keyname: card2_routes
   field_type: string
   name: Only these lines
-  group: Card 2
+  group: Column 1 · Row 2
   optional: true
   placeholder: All lines at this station
   help_text: >
@@ -81,7 +101,7 @@
 - keyname: card2_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 2
+  group: Column 1 · Row 2
   optional: true
   default: 5
   placeholder: 5
@@ -90,16 +110,26 @@
 - keyname: card2_title
   field_type: string
   name: Card heading
-  group: Card 2
+  group: Column 1 · Row 2
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
+
+- keyname: card3_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 2 · Row 1
+  optional: true
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings. Its column-mate
+    then fills the column and shows about twice as many departures.
 
 - keyname: card3_station
   field_type: xhrSelectSearch
   name: Station or stop
   description: Type part of a name, then pick from the list
-  group: Card 3
+  group: Column 2 · Row 1
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=3
   http_verb: GET
@@ -110,7 +140,7 @@
 - keyname: card3_routes
   field_type: string
   name: Only these lines
-  group: Card 3
+  group: Column 2 · Row 1
   optional: true
   placeholder: All lines at this station
   help_text: >
@@ -122,7 +152,7 @@
 - keyname: card3_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 3
+  group: Column 2 · Row 1
   optional: true
   default: 5
   placeholder: 5
@@ -131,16 +161,26 @@
 - keyname: card3_title
   field_type: string
   name: Card heading
-  group: Card 3
+  group: Column 2 · Row 1
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
+
+- keyname: card4_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 2 · Row 2
+  optional: true
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings. Its column-mate
+    then fills the column and shows about twice as many departures.
 
 - keyname: card4_station
   field_type: xhrSelectSearch
   name: Station or stop
   description: Type part of a name, then pick from the list
-  group: Card 4
+  group: Column 2 · Row 2
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=4
   http_verb: GET
@@ -151,7 +191,7 @@
 - keyname: card4_routes
   field_type: string
   name: Only these lines
-  group: Card 4
+  group: Column 2 · Row 2
   optional: true
   placeholder: All lines at this station
   help_text: >
@@ -163,7 +203,7 @@
 - keyname: card4_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 4
+  group: Column 2 · Row 2
   optional: true
   default: 5
   placeholder: 5
@@ -172,16 +212,26 @@
 - keyname: card4_title
   field_type: string
   name: Card heading
-  group: Card 4
+  group: Column 2 · Row 2
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
+
+- keyname: card5_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 3 · Row 1
+  optional: true
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings. Its column-mate
+    then fills the column and shows about twice as many departures.
 
 - keyname: card5_station
   field_type: xhrSelectSearch
   name: Station or stop
   description: Type part of a name, then pick from the list
-  group: Card 5
+  group: Column 3 · Row 1
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=5
   http_verb: GET
@@ -192,7 +242,7 @@
 - keyname: card5_routes
   field_type: string
   name: Only these lines
-  group: Card 5
+  group: Column 3 · Row 1
   optional: true
   placeholder: All lines at this station
   help_text: >
@@ -204,7 +254,7 @@
 - keyname: card5_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 5
+  group: Column 3 · Row 1
   optional: true
   default: 5
   placeholder: 5
@@ -213,16 +263,26 @@
 - keyname: card5_title
   field_type: string
   name: Card heading
-  group: Card 5
+  group: Column 3 · Row 1
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.
+
+- keyname: card6_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 3 · Row 2
+  optional: true
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings. Its column-mate
+    then fills the column and shows about twice as many departures.
 
 - keyname: card6_station
   field_type: xhrSelectSearch
   name: Station or stop
   description: Type part of a name, then pick from the list
-  group: Card 6
+  group: Column 3 · Row 2
   optional: true
   endpoint: https://REPLACE_ME.workers.dev/api/stations?slot=6
   http_verb: GET
@@ -233,7 +293,7 @@
 - keyname: card6_routes
   field_type: string
   name: Only these lines
-  group: Card 6
+  group: Column 3 · Row 2
   optional: true
   placeholder: All lines at this station
   help_text: >
@@ -245,7 +305,7 @@
 - keyname: card6_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 6
+  group: Column 3 · Row 2
   optional: true
   default: 5
   placeholder: 5
@@ -254,7 +314,7 @@
 - keyname: card6_title
   field_type: string
   name: Card heading
-  group: Card 6
+  group: Column 3 · Row 2
   optional: true
   placeholder: Defaults to the station name
   help_text: Leave blank to use the station name.

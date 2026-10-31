@@ -10,7 +10,8 @@
     "test": "node --experimental-transform-types --import ./tests/resolve-ts.mjs --test \"tests/*.test.ts\"",
     "configure": "node scripts/configure.mjs",
     "spike:cpu": "node --experimental-transform-types spikes/decodeCost.ts",
-    "capture": "node --experimental-transform-types scripts/captureFixture.mjs"
+    "capture": "node --experimental-transform-types scripts/captureFixture.mjs",
+    "preview:device": "node scripts/previewAtDeviceScale.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261023.1",

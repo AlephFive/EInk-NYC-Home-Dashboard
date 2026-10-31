@@ -277,6 +277,25 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("every layout shows when the data was fetched", () => {
+    // A panel refreshes on an interval and e-ink holds its last image
+    // through a failure, so without this there is no way to tell a quiet
+    // board from a frozen one.
+    //
+    // The Worker pre-formats it in New York time: Liquid cannot convert a
+    // timezone, and the panel runs wherever the user is.
+    for (const [name, liquid] of layouts) {
+      assert.ok(
+        liquid.includes("{% if a %}"),
+        `${name} does not guard the timestamp`
+      );
+      assert.ok(
+        liquid.includes("{{ a }}"),
+        `${name} never renders the timestamp`
+      );
+    }
+  });
+
   test("every layout draws the direction arrow", () => {
     // `‹` toward the city, `›` away. Single-angle quotes rather than ← →,
     // which the panel's face draws inconsistently at this size.
