@@ -1,3 +1,36 @@
+## Local renders are not what the device shows
+
+The board **works on TRMNL** — a rendered screenshot from the plugin page
+shows all six cards, every transit type, correct 800x480. But it is visibly
+tighter than any local render, and that gap is structural:
+
+- The framework multiplies every size by `--ui-scale`, computed as
+  `--device-ui-scale * --modifier-scale`.
+- That calculation happens in exactly one place: `.trmnl .screen`, a wrapper
+  **TRMNL supplies above our markup**. Our layouts start at `.view`.
+- Locally both factors are 1, so **`trmnlp build` always renders the
+  unscaled case.** The device raises `--device-ui-scale`.
+
+Consequences, verified against the CSS:
+
+- `screen--scale-small` / `screen--text-scale-small` **cannot help us**.
+  They only set `--modifier-scale`, and setting it on a descendant of
+  `.screen` is too late — the calculation has already run.
+- `md:` and `lg:` size variants fire on an 800px panel, so the card heading
+  renders at `title--large` while its column stays 253px. That is what
+  truncates "Times Sq-42 St" to "Times Sq…" on the device and not locally.
+
+**Removing the responsive variants by regex breaks the layout** — it strips
+the prefix and leaves classes the framework no longer matches, and the board
+renders as unstyled text. Tried and reverted. If this is worth fixing, swap
+each class deliberately (`title--small md:title--base` -> `title--small`)
+and re-render after each file.
+
+Also: `trmnlp build --png` renders every view at one size. Pass
+`--width`/`--height` to see a mashup at its true dimensions —
+800x240 half_horizontal, 400x480 half_vertical, 400x240 quadrant. All four
+are correct at their real sizes; the default render is misleading.
+
 ## `trmnlp push` rewrites settings.yml — check the diff
 
 The plugin exists: **524413**, https://trmnl.com/plugin_settings/524413/edit
