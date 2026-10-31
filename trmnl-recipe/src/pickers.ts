@@ -311,6 +311,12 @@ export async function searchAllTypes(query: string): Promise<PickerOption[]> {
       const options = await searchStations(kind, trimmed);
       return options.map((option) => {
         const [[name, value]] = Object.entries(option);
+
+        // The network goes in the *label*, which is what disambiguates
+        // "Jamaica" the LIRR station from "Jamaica Center" on the E at pick
+        // time. It must not reach the stored value, or it would become the
+        // card's heading — so the value keeps the plain name after its "@",
+        // and `toSearchOption` builds the stored string from that.
         return { [`${name} · ${labels[kind]}`]: value };
       });
     })

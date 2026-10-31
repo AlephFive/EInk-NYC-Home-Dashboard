@@ -112,6 +112,62 @@ describe("the picker offers a corner as one choice", { concurrency: 1 }, () => {
   });
 });
 
+describe("TRMNL stores the label, so the label must parse", () => {
+  // The bug this guards cost a whole round of debugging. TRMNL stores an
+  // option's `name`, not its `id` — so picking "Harlem-125 St ·
+  // Metro-North" put *that* into the polling URL, where the slot parser
+  // read "Harlem-125 St " as a transit type, failed, and dropped the card.
+  // Every slot dropped means the demo board, which is why the plugin
+  // looked like it was ignoring the form entirely.
+  //
+  // So the stored string leads with the machine-readable value and carries
+  // the display name after an "@", which parseCard already strips.
+
+  /** What `toSearchOption` builds, mirrored here. */
+  const stored = (label: string, value: string) => {
+    const name = label
+      .replace(/\s+·\s+[^·]+$/, "")
+      .replace(/\s*\([0-9A-Z/]+\)\s*$/, "")
+      .trim();
+    return value.includes("@") ? value : `${value}@${name}`;
+  };
+
+  test("the stored string starts with a transit type", () => {
+    for (const [label, value] of [
+      ["Harlem-125 St · Metro-North", "mtn:4"],
+      ["Times Sq-42 St (1/2/3/7/S) · Subway", "subway:127+725"],
+      ["Wall St/Pier 11 · Ferry", "ferry:87"],
+    ] as [string, string][]) {
+      assert.match(stored(label, value), /^(subway|lirr|mtn|bus|ferry):/);
+    }
+  });
+
+  test("the network suffix never reaches the heading", () => {
+    // It belongs in the dropdown, where it tells "Jamaica" the LIRR station
+    // from "Jamaica Center" on the E. In a heading it is noise.
+    const s = stored("Harlem-125 St · Metro-North", "mtn:4");
+    assert.equal(s, "mtn:4@Harlem-125 St");
+    assert.ok(!s.includes("·"));
+  });
+
+  test("a subway route list never reaches the heading", () => {
+    // The card draws its routes as bullets beside the heading already, so
+    // "Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E)" says it twice and
+    // truncates on the device.
+    const s = stored("Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway", "subway:127+725");
+    assert.equal(s, "subway:127+725@Times Sq-42 St");
+  });
+
+  test("a bus value keeps the name it already carries", () => {
+    // Bus options embed their own stop name, because the server has no
+    // table for most of them. Appending a second would make the parser read
+    // the first as part of the ID list.
+    const s = stored("58 ST/BORDEN AV (Q67) · Bus", "bus:551387+551388@58 ST/BORDEN AV");
+    assert.equal(s, "bus:551387+551388@58 ST/BORDEN AV");
+    assert.equal((s.match(/@/g) ?? []).length, 1);
+  });
+});
+
 describe("the response shape xhrSelectSearch expects", () => {
   // The two XHR field types disagree, and the mismatch is silent — the
   // request succeeds, the widget cannot read the options, and the dropdown
