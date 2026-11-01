@@ -72,6 +72,49 @@ describe("a legacy '@name' is ignored for every type", () => {
   });
 });
 
+describe("an inherited slot tail is cut out of the title", () => {
+  // Captured from a device. The station field was fine (`subway:721`); the
+  // *title* field held a whole old slot string, so the template's append
+  // produced "…:5:" inside the heading — and typing a new title appended to
+  // the junk rather than replacing it, which is how the user found it.
+  const inherited = "Vernon Blvd-Jackson Av (7) · Subway:5:";
+
+  test("what the user typed survives, the inherited label does not", () => {
+    const { cards } = board(
+      `c1=${encodeURIComponent(`subway:721:5:${inherited}test`)}`
+    );
+    assert.equal(cards[0].title, "test");
+  });
+
+  test("a tail with nothing after it leaves no title at all", () => {
+    const { cards } = board(
+      `c1=${encodeURIComponent(`subway:721:5:${inherited}`)}`
+    );
+    assert.equal(cards[0].title, undefined);
+  });
+
+  test("the last tail wins, not the first", () => {
+    // A value that round-tripped more than once carries several tails, and
+    // only the text after the final one was ever typed.
+    const twice = "Old Name:5:Older Name:10:actual";
+    const { cards } = board(`c1=${encodeURIComponent(`subway:721:5:${twice}`)}`);
+    assert.equal(cards[0].title, "actual");
+  });
+
+  test("an ordinary title is untouched", () => {
+    assert.equal(board("c1=subway:721:5:My stop").cards[0].title, "My stop");
+  });
+
+  test("a real name with digits and punctuation is untouched", () => {
+    // The pattern is a colon-wrapped number, which MTA names never contain
+    // — they carry slashes, parentheses, periods and middots freely.
+    for (const name of ["W 42 St/5 Av", "21 St", "Beach 108th Street", "Astoria-Ditmars Blvd"]) {
+      const { cards } = board(`c1=${encodeURIComponent(`subway:721:5:${name}`)}`);
+      assert.equal(cards[0].title, name);
+    }
+  });
+});
+
 describe("a title of nothing but punctuation is discarded", () => {
   // The residue of an old tail, never a station name.
   test("separators and digits alone do not become a heading", () => {

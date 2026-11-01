@@ -101,19 +101,34 @@ function parseVisible(value: string | null): boolean {
 /**
  * A card's custom heading, or "" to fall back to the station's own name.
  *
- * A stored value written before the picker separated label from value keeps
- * its own ":<walk>:<title>" tail, so the template's append shifts the fields
- * along and the *old* tail lands in the title — leaving headings like ":5:".
- * A title of nothing but separators and digits is never a station name and
- * always this, so it is discarded in favour of the real one.
+ * The polling template writes `{{station}}:{{walk}}:{{title}}`. A value
+ * stored before the picker separated label from value kept a whole slot
+ * string in one field, so the template's append shifts everything along and
+ * the *old* `:<walk>:<title>` tail ends up inside the title:
  *
- * Deliberately narrow. Real names contain digits and punctuation freely —
- * "W 42 St/5 Av", "Beach 108th Street", "21 St" — so the test is that there
- * is no letter at all, not that the title looks tidy.
+ *   card1_title = "Vernon Blvd-Jackson Av (7) · Subway:5:test"
+ *                  └─ an old label ─────────────┘└──┘└──┘
+ *                                            old walk  what the user typed
+ *
+ * An embedded `:<digits>:` is the template's own separator pattern appearing
+ * where only a heading belongs, and no station name contains it — the MTA's
+ * names carry slashes, parentheses, periods and middots, but never a
+ * colon-wrapped number. So the title is everything *after* the last such
+ * tail: the user's own text survives, the inherited label does not.
+ *
+ * An empty remainder means the whole field was residue, which is the ":5:"
+ * case — nothing left, so the station names itself.
  */
 function cardTitle(raw: string): string {
-  return /\p{L}/u.test(raw) ? raw : "";
+  // Last, not first: a value that has round-tripped more than once carries
+  // several tails, and only the text after the final one was ever typed.
+  const tail = /.*:\d+:/s;
+  const typed = tail.test(raw) ? raw.replace(tail, "").trim() : raw.trim();
+
+  // A heading with no letter at all is leftover punctuation, never a name.
+  return /\p{L}/u.test(typed) ? typed : "";
 }
+
 
 
 function parseNumber(value: string | undefined, fallback: number): number {
