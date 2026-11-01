@@ -179,7 +179,37 @@ interface SlotParams {
 function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   if (isBlank(params.station)) return undefined;
 
-  const parts = params.station!.split(":");
+  // The route filter is split off the *whole* value before anything else.
+  //
+  // It used to be taken from the segment between the first and second
+  // colon, which is where the picker puts the IDs — correct for a current
+  // value, and silently wrong for one still carrying a packed
+  // ":<walk>:<title>" tail, because the "!routes" then sits in a later
+  // segment that nothing looks at. The filter was simply ignored, with no
+  // error and a full card to look at. `!` is our own separator and means
+  // one thing wherever it appears, so taking it first is both simpler and
+  // immune to what follows.
+  // In a packed legacy value the filter sits *before* the walk and title
+  // ("subway:127!A,C,E:5:Home"), so the list is cut at the first colon and
+  // the rest handed back to the positional parse below. In a current value
+  // there is nothing after it and the cut is a no-op.
+  const bang = params.station!.indexOf("!");
+  let stationPart = params.station!;
+  let routes: string[] = [];
+
+  if (bang !== -1) {
+    const after = params.station!.slice(bang + 1);
+    const colon = after.indexOf(":");
+    const routeList = colon === -1 ? after : after.slice(0, colon);
+    const trailing = colon === -1 ? "" : after.slice(colon);
+    stationPart = params.station!.slice(0, bang) + trailing;
+    routes = routeList
+      .split(",")
+      .map((route) => route.trim().toUpperCase())
+      .filter(Boolean);
+  }
+
+  const parts = stationPart.split(":");
 
   // The picker's stored value already begins with the transit type, so a
   // polling URL that writes `{{ cardN_type }}:{{ cardN_station }}` yields
@@ -196,18 +226,10 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   const transitType = parseTransitType(type);
   if (!transitType) return undefined;
 
-  // Routes are split off first. A stop name can contain almost anything —
-  // "BORDEN AV/5 ST" — so splitting "@" first would leave "!1,2,3" inside
-  // the name and lose the filter silently.
-  const [withName = "", routeList = ""] = ids.split("!");
   // A legacy "@<name>" may still be in a value stored before the picker
   // dropped it. Split it off and discard it: the board builder names bus
   // stops from the dataset now, and every other network from its own tables.
-  const [idList = ""] = withName.split("@");
-  const routes = routeList
-    .split(",")
-    .map((route) => route.trim().toUpperCase())
-    .filter(Boolean);
+  const [idList = ""] = ids.split("@");
 
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
   //

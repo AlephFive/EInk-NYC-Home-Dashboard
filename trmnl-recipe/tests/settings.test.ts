@@ -72,6 +72,42 @@ describe("a legacy '@name' is ignored for every type", () => {
   });
 });
 
+describe("the route filter is found wherever it sits", () => {
+  // It was taken from the segment between the first and second colon —
+  // where the picker puts the IDs. Correct for a current value, silently
+  // wrong for one still carrying a packed ":<walk>:<title>" tail, because
+  // the "!routes" then sits in a later segment nothing looked at. The
+  // filter was simply ignored: no error, and a full card to look at.
+  const ROUTES = ["A", "C", "E"];
+
+  test("a current value", () => {
+    const { cards } = board("c1=subway:127+725!A,C,E&w1=5");
+    assert.deepEqual(cards[0].routes, ROUTES);
+  });
+
+  test("a value still carrying a packed walk and title", () => {
+    // The shape the device was sending. This is the regression.
+    const { cards } = board("c1=subway:127+725!A,C,E:5:&w1=5");
+    assert.deepEqual(cards[0].routes, ROUTES);
+    assert.deepEqual(cards[0].stopIds, ["127", "725"]);
+  });
+
+  test("the packed walk is still read, not swallowed by the filter", () => {
+    // Cutting the route list at the first colon has to hand the rest back
+    // to the positional parse, or the walk time goes missing.
+    const { cards } = board("c1=subway:127!A,C,E:12:Home");
+    assert.deepEqual(cards[0].routes, ROUTES);
+    assert.equal(cards[0].walkTime, 12);
+    assert.equal(cards[0].title, "Home");
+  });
+
+  test("a value with a legacy @name as well", () => {
+    const { cards } = board("c1=bus:403257@W 42 St!M42:5:");
+    assert.deepEqual(cards[0].routes, ["M42"]);
+    assert.deepEqual(cards[0].stopIds, ["403257"]);
+  });
+});
+
 describe("each card field has its own parameter", () => {
   // The fields were packed into one parameter as `station:walk:title`, and
   // the title — free text, last in line — could not be told from the
