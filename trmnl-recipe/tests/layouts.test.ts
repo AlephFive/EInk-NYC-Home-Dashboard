@@ -211,16 +211,24 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
-  test("every layout caps the heading marks", () => {
+  test("the heading marks are bounded by width, not by a count", () => {
     // A twelve-route complex wraps its bullets onto a second line and, in
     // the smaller layouts, straight through the neighbouring card's
-    // heading. Past a few they stop telling a rider anything the station
-    // name has not.
+    // heading — so the strip has to be bounded somehow.
+    //
+    // It was a fixed `limit:` for a while, and that is the wrong shape: the
+    // right count depends on the bullet size, so the cap went stale the
+    // moment the bullets shrank, and Times Square headed itself "1 2 3 7"
+    // while the rows beneath showed A, E and R. Clipping cannot go stale.
     for (const [name, liquid] of layouts) {
-      assert.match(
+      assert.ok(
+        liquid.includes('<div class="bullet-strip">'),
+        `${name} does not bound its heading marks`
+      );
+      assert.doesNotMatch(
         liquid,
-        /\{%\s*for route in card\.b limit: [1-9]\s*%\}/,
-        `${name} renders every bullet a card carries`
+        /\{%\s*for route in card\.b limit:/,
+        `${name} still caps its bullets at a fixed count`
       );
     }
   });
@@ -386,6 +394,7 @@ describe("every class exists in the framework", () => {
     "row-dest",
     "row-time",
     "row-line--split",
+    "bullet-strip",
   ]);
 
   let frameworkClasses: Set<string> | undefined;

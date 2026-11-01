@@ -122,6 +122,26 @@
        final letter pushes SI visibly left of centre. */
     text-indent: -0.06em;
   }
+  /* The bullet strip takes what the station name leaves and clips there.
+
+     It was a fixed count — four in `full`, three in the smaller layouts —
+     set when bullets were 1.7em and a twelve-route complex wrapped onto a
+     second line. Any fixed count is the wrong shape: Times Square has
+     twelve routes, so a cap silently drops routes the rows below still
+     show, and the heading ends up contradicting its own card. Clipping
+     instead means what fits is shown and the cap cannot go stale against a
+     future type size.
+
+     `flex-shrink` lets the name win when both cannot fit, and `nowrap`
+     keeps the heading one line tall. */
+  .bullet-strip {
+    display: flex;
+    gap: inherit;
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    flex-wrap: nowrap;
+  }
   /* A heading tag names the network — LIRR, Metro North, Bus, Ferry — and
      shares its slot with the subway's route bullets. Unlike a bullet it is
      words, so it needs bounding: without this a long one wraps onto a second
@@ -287,7 +307,8 @@
                       the card beside it. Three rather than four: these
                       layouts give a heading roughly half the width.
                     {% endcomment %}
-                    {% for route in card.b limit: 3 %}
+                    <div class="bullet-strip">
+                      {% for route in card.b %}
                     {% comment %}
                       The same rule the departure rows use: a bullet for one or two
                       characters, a pill for a named route, and the feed's X suffix
@@ -308,6 +329,8 @@
                       <span class="label label--small label--filled type-tag">{{ glyph }}</span>
                     {% endif %}
                   {% endfor %}
+                    </div>
+                    
                 {% endif %}
               </div>
               <div class="border--h-40 w--full"></div>

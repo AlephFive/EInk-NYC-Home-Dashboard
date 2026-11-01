@@ -122,6 +122,26 @@
        final letter pushes SI visibly left of centre. */
     text-indent: -0.06em;
   }
+  /* The bullet strip takes what the station name leaves and clips there.
+
+     It was a fixed count — four in `full`, three in the smaller layouts —
+     set when bullets were 1.7em and a twelve-route complex wrapped onto a
+     second line. Any fixed count is the wrong shape: Times Square has
+     twelve routes, so a cap silently drops routes the rows below still
+     show, and the heading ends up contradicting its own card. Clipping
+     instead means what fits is shown and the cap cannot go stale against a
+     future type size.
+
+     `flex-shrink` lets the name win when both cannot fit, and `nowrap`
+     keeps the heading one line tall. */
+  .bullet-strip {
+    display: flex;
+    gap: inherit;
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    flex-wrap: nowrap;
+  }
   /* A heading tag names the network — LIRR, Metro North, Bus, Ferry — and
      shares its slot with the subway's route bullets. Unlike a bullet it is
      words, so it needs bounding: without this a long one wraps onto a second
@@ -401,19 +421,28 @@
                   are named by their station alone.
                 {% endcomment %}
                 {% comment %}
-                  Station name first, bullets after, and at most four of them.
+                  Station name first, bullets after.
 
                   Leading with the bullets crushed "Times Sq-42 St" to "Ti..."
                   — the name is what identifies a card, so it takes the space.
-                  And a twelve-route complex wrapped its bullets onto a second
-                  line, making one heading taller than the rest; past about
-                  four the bullets stop telling a rider anything the name has
-                  not, so the rest are dropped.
+
+                  The bullets were capped at four, from when they were 1.7em
+                  and a twelve-route complex wrapped onto a second line,
+                  making one heading taller than the rest. At 1.35em six fit,
+                  but any fixed cap is the wrong shape: Times Square has
+                  twelve, so a cap silently drops routes the rows below are
+                  still showing, and the heading contradicts its own card.
+
+                  So the strip takes the width the name leaves and clips
+                  there. What fits is shown, nothing is dropped at a number
+                  that no longer matches the type size, and the row stays one
+                  line tall because the strip cannot wrap.
                 {% endcomment %}
                 <div class="flex flex--row flex--center-y gap--small">
                   <span class="title title--small md:title--base lg:title--large grow" data-clamp="1">{{ card.n }}</span>
                   {% if card.b %}
-                    {% for route in card.b limit: 4 %}
+                    <div class="bullet-strip">
+                    {% for route in card.b %}
                       {% assign is_express = false %}
                       {% assign glyph = route %}
                       {% if route.size > 1 and route contains "X" %}
@@ -449,6 +478,8 @@
                         <span class="label label--small md:label--base label--filled type-tag">{{ glyph }}</span>
                       {% endif %}
                     {% endfor %}
+                  </div>
+                  
                   {% endif %}
                 </div>
                 <div class="border--h-40 w--full"></div>
