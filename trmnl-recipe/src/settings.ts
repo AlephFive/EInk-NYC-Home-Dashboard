@@ -176,79 +176,128 @@ interface SlotParams {
   title: string | undefined;
 }
 
-function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
-  if (isBlank(params.station)) return undefined;
+/**
+ * Split a station value into its station part and its route filter.
+ *
+ * `!` is our own separator, so it means one thing wherever it appears. It
+ * used to be looked for only in the segment between the first and second
+ * colon — where the picker puts the IDs — which was correct for a current
+ * value and silently wrong for one still carrying a packed
+ * ":<walk>:<title>" tail: the filter then sat in a later segment that
+ * nothing looked at, and was ignored with no error and a full card to show
+ * for it.
+ */
+function splitStationValue(station: string): {
+  stationPart: string;
+  routes: string[];
+} {
+  const bang = station.indexOf("!");
+  if (bang === -1) return { stationPart: station, routes: [] };
 
-  // The route filter is split off the *whole* value before anything else.
-  //
-  // It used to be taken from the segment between the first and second
-  // colon, which is where the picker puts the IDs — correct for a current
-  // value, and silently wrong for one still carrying a packed
-  // ":<walk>:<title>" tail, because the "!routes" then sits in a later
-  // segment that nothing looks at. The filter was simply ignored, with no
-  // error and a full card to look at. `!` is our own separator and means
-  // one thing wherever it appears, so taking it first is both simpler and
-  // immune to what follows.
-  // In a packed legacy value the filter sits *before* the walk and title
+  // In a packed value the filter sits *before* the walk and title
   // ("subway:127!A,C,E:5:Home"), so the list is cut at the first colon and
-  // the rest handed back to the positional parse below. In a current value
+  // the remainder handed back to the positional parse. In a current value
   // there is nothing after it and the cut is a no-op.
-  const bang = params.station!.indexOf("!");
-  let stationPart = params.station!;
-  let routes: string[] = [];
+  const after = station.slice(bang + 1);
+  const colon = after.indexOf(":");
+  const routeList = colon === -1 ? after : after.slice(0, colon);
+  const trailing = colon === -1 ? "" : after.slice(colon);
 
-  if (bang !== -1) {
-    const after = params.station!.slice(bang + 1);
-    const colon = after.indexOf(":");
-    const routeList = colon === -1 ? after : after.slice(0, colon);
-    const trailing = colon === -1 ? "" : after.slice(colon);
-    stationPart = params.station!.slice(0, bang) + trailing;
-    routes = routeList
+  return {
+    stationPart: station.slice(0, bang) + trailing,
+    routes: routeList
       .split(",")
       .map((route) => route.trim().toUpperCase())
-      .filter(Boolean);
-  }
+      .filter(Boolean),
+  };
+}
 
-  const parts = stationPart.split(":");
+/**
+ * What a station value stored before 2026-11-01 can still carry.
+ *
+ * **This whole mechanism is deletable** once no stored value predates the
+ * split-parameter polling URL — every field here has its own parameter now.
+ * It cannot be dropped on a date, because a user who has not opened their
+ * settings since then is still sending the old shape and would see their
+ * board empty rather than change. The signal to remove it is the store
+ * release after which every install has re-saved; until then, deleting it
+ * is a silent regression for exactly the users least likely to report one.
+ *
+ * Three shapes, all from the same cause — one field that used to hold four:
+ *
+ * - `subway:127:5:Home`  the packed walk time and title
+ * - `bus:403257@W 42 St` a display name smuggled beside the ID
+ * - `subway:subway:127`  a doubled type prefix, from a template that wrote
+ *                        `{{ cardN_type }}` as well as the station
+ */
+interface LegacyFields {
+  /** The ID list with any smuggled `@name` removed. */
+  ids: string;
+  /** A packed walk time, or undefined when the value carries none. */
+  walk: string | undefined;
+  /** A packed title, or "" when the value carries none. */
+  title: string;
+}
 
+/**
+ * Strip the legacy extras from a `":"`-split station value.
+ *
+ * Mutates `parts` so the caller reads a clean `[type, ids]` out of it, and
+ * returns whatever the old packed form carried in the segments beyond.
+ */
+function legacyUnpack(parts: string[]): LegacyFields {
   // The picker's stored value already begins with the transit type, so a
-  // polling URL that writes `{{ cardN_type }}:{{ cardN_station }}` yields
+  // polling URL that also wrote `{{ cardN_type }}` yielded
   // "subway:subway:127+725". Dropping the duplicate keeps both that and a
   // hand-written form working.
   if (parts.length > 1 && parseTransitType(parts[0]) && parseTransitType(parts[1])) {
     parts.shift();
   }
 
-  // A legacy packed value carries ":<walk>:<title>" here. Those fields have
-  // their own parameters now, so anything past the IDs is ignored — see the
-  // module comment for why the packed form existed and what it cost.
-  const [type = "", ids = "", packedWalk = "", ...packedTitle] = parts;
+  const [, ids = "", walk, ...title] = parts;
+
+  // A display name used to travel beside the ID, because the board builder
+  // could not name a bus stop offline. It can now — see fetchBusStopNames —
+  // so the name is split off and discarded rather than becoming a heading.
+  const [idList = ""] = ids.split("@");
+
+  return {
+    ids: idList,
+    walk,
+    title: title.join(":"),
+  };
+}
+
+function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
+  if (isBlank(params.station)) return undefined;
+
+  // `!` separates the route filter from the stop IDs, and is our own
+  // separator, so it means one thing wherever it appears in the value.
+  const { stationPart, routes } = splitStationValue(params.station!);
+
+  const parts = stationPart.split(":");
+  const legacy = legacyUnpack(parts);
+
+  const [type = ""] = parts;
   const transitType = parseTransitType(type);
   if (!transitType) return undefined;
 
-  // A legacy "@<name>" may still be in a value stored before the picker
-  // dropped it. Split it off and discard it: the board builder names bus
-  // stops from the dataset now, and every other network from its own tables.
-  const [idList = ""] = ids.split("@");
-
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
   //
-  // Split on whitespace too. A query string decodes a literal "+" as a space,
-  // and whether TRMNL percent-encodes the stored value when it interpolates
-  // it into the polling URL is not under our control — so "127+725" may
-  // arrive as "127 725". Accepting both means a multi-ID station cannot
-  // silently collapse into one unusable id.
-  const stopIds = idList
+  // Split on whitespace too. Liquid's `url_encode` writes a space as "+"
+  // and a query string decodes "+" back to a space, so "127+725" can
+  // legitimately arrive either way. Accepting both means a multi-ID station
+  // cannot silently collapse into one unusable id — which would show as a
+  // five-platform complex quietly rendering one platform's trains.
+  const stopIds = legacy.ids
     .split(/[+\s]+/)
     .map((id) => id.trim())
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
 
-  // Both read from their own parameters. The packed value is consulted only
-  // when the parameter is absent, which means an old polling URL — a user
-  // who has not re-saved the plugin since the URL changed shape.
-  const title = cardTitle(params.title ?? packedTitle.join(":"));
-  const walk = parseNumber(params.walk ?? packedWalk, DEFAULT_WALK_TIME);
+  // Each from its own parameter; see `legacyUnpack` for the fallbacks.
+  const title = cardTitle(params.title ?? legacy.title);
+  const walk = parseNumber(params.walk ?? legacy.walk, DEFAULT_WALK_TIME);
 
   return {
     slot,

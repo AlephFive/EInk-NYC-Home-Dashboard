@@ -132,6 +132,30 @@ describe("every card field is actually wired up", () => {
     }
   });
 
+  test("every interpolated value is url_encoded", () => {
+    // `c1` went in raw while `n1` was encoded — the same asymmetry that
+    // made the packed format fragile, left behind after it was split up.
+    // A station value is picker-generated so it has never broken in
+    // practice, but "has not broken yet" is not a property.
+    //
+    // The "!" between station and routes is written as a literal %21 so it
+    // survives as a separator rather than being encoded as content.
+    for (const slot of [1, 2, 3, 4, 5, 6]) {
+      assert.ok(
+        shippedUrl.includes(`{{ card${slot}_station | url_encode }}`),
+        `card${slot}_station is interpolated raw`
+      );
+      assert.ok(
+        shippedUrl.includes(`%21{{ card${slot}_routes | url_encode }}`),
+        `card${slot}_routes is interpolated raw`
+      );
+      assert.ok(
+        !shippedUrl.includes(`!{{ card${slot}_routes`),
+        `card${slot} uses a literal "!" that encoding could swallow`
+      );
+    }
+  });
+
   test("visibility is never decided in Liquid", () => {
     // It was once, and the toggle did nothing: Liquid treats only `nil` and
     // `false` as falsy, so a checkbox stored as the string "false" is
