@@ -46,6 +46,34 @@ const railroadStopsByIdMtn = railroadStopsLookup.by_id_mtn as Record<
 >;
 
 /**
+ * Whether a stop ID appears in the static table for its transit type.
+ *
+ * `getStationName` cannot answer this: it falls back to "Stop <id>" for an
+ * unknown ID, so a caller holding a name cannot tell a real station from a
+ * typo. The TRMNL recipe needs the distinction because its stop IDs come
+ * from user settings rather than a checked-in config — a stale or
+ * hand-edited value has to be rejected before it becomes a card that can
+ * only ever report an error.
+ *
+ * **Bus is not covered.** Its stops live in the MTA's remote dataset, not a
+ * bundled table, and `getBusStopInfo` only knows the handful named in
+ * `route_info.json` — so a `false` here would mean "not one of ours", not
+ * "does not exist". Bus IDs can only be validated by asking the API.
+ *
+ * @param stopId - The stop/station ID
+ * @param transitType - Type of transit
+ */
+export function isKnownStop(
+  stopId: string,
+  transitType: "subway" | "railroad-lirr" | "railroad-mtn"
+): boolean {
+  if (transitType === "subway") return stopId in subwayStationsByGtfsId;
+  return transitType === "railroad-lirr"
+    ? stopId in railroadStopsByIdLirr
+    : stopId in railroadStopsByIdMtn;
+}
+
+/**
  * Get station name by ID for any transit type
  * @param stopId - The stop/station ID
  * @param transitType - Type of transit

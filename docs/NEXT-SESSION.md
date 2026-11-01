@@ -126,10 +126,37 @@ Renders are in `docs/images/`. The plan and its open questions are in
 
 - **A deployed Worker runs in UTC.** `wrangler dev` inherits the developer's
   zone, so a timezone bug is invisible locally. CI guards this under `TZ=UTC`.
-- **TRMNL refuses to poll a private address**, so a local Worker cannot back
-  the preview. `.trmnlp.yml` carries a captured response under `variables:`
-  instead — **delete that block once a real polling URL is set**, or the board
-  keeps rendering frozen departures.
+- **TRMNL refuses to poll a *private* address**, so while the Worker was
+  local, `.trmnlp.yml` carried a captured response under `variables:`. That
+  block is gone: the deployed Worker is public and `trmnlp` fetches it live.
+  Do not reintroduce it — it froze the preview on a four-day-old board.
+- **The local preview renders the demo board, not your panel.** TRMNL has no
+  API to read a user's stored settings back (`trmnlp` only pushes), so the
+  preview cannot discover what any given device is configured to show. It
+  renders the demo board instead — the same board an unconfigured install
+  gets — generated from `DEMO_CARDS` by `npm run preview:sync` so the two
+  cannot drift. To preview your own panel, edit the generated block in
+  `.trmnlp.yml` by hand and do not re-run the sync.
+
+  The consequence worth remembering: **the preview cannot show a bug in a
+  stored value**, because every value in it was written correctly by the
+  generator. That is how `Bus:6:` reached the device while every local
+  screenshot stayed clean.
+- **`trmnlp` does not stamp a device class on `.screen`.** TRMNL's framework
+  carries a per-device block (`.screen--ogv2`, `.screen--og`, …) setting
+  screen size, pixel ratio, gap scale and colour depth; `trmnlp` emits a bare
+  `screen screen--fonts-trmnl`, so a local build falls back to the `:root`
+  defaults. Each layout therefore sets those variables itself, pinned to
+  `ogv2` and checked against the live stylesheet by `layouts.test.ts`.
+
+  For an 800x480 device at scale **Regular** this changes nothing visually —
+  every value already matches. It is there so a framework upgrade that
+  retunes the device fails a test instead of surprising the panel. Two
+  caveats: `--quadrant-w/h` are deliberately *not* copied (the device's
+  `100%` collapses against trmnlp's unsized wrapper), and `--modifier-scale`
+  is a per-plugin **user setting** (`screen--scale-small` … `xxlarge`), not a
+  device property — if the panel is not on Regular, the preview will not
+  match and no amount of CSS here fixes it.
 - **`trmnlp` needs a Windows-style path** for its Docker volume mount;
   `/tmp/...` from Git Bash silently fails to mount.
 - **The demo board is what an unconfigured install shows.** It is live data

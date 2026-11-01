@@ -99,6 +99,31 @@ function ambientApiKey(): string | undefined {
  * @returns Bus arrival data in SIRI format with metadata
  * @throws Error if the fetch fails
  */
+/**
+ * A SIRI `ErrorCondition`, carrying whether the stop exists at all.
+ *
+ * The distinction matters to any caller deciding what to render. "No such
+ * stop" is permanent and the user's to fix, so a card built on it can only
+ * ever show an error; everything else — a rate limit, an outage, a key
+ * problem — is transient, and hiding the card would silently delete transit
+ * the user does depend on. SIRI reports both the same way, as HTTP 200 with
+ * text in the body, so the two can only be told apart here where the
+ * response is still parsed.
+ */
+export class BusStopError extends Error {
+  /** The stop is not in the MTA's dataset. Retrying cannot help. */
+  readonly noSuchStop: boolean;
+
+  constructor(stopId: string, errorText: string) {
+    super(`Bus stop ${stopId}: ${errorText}`);
+    this.name = "BusStopError";
+    // SIRI's own wording, repeated once per operator prefix: "No such stop:
+    // MTA NYCT_6. No such stop: MTA_6. No such stop: MTABC_6." There is no
+    // code or flag in the response to key on instead.
+    this.noSuchStop = /no such stop/i.test(errorText);
+  }
+}
+
 export async function fetchBusData(
   stopId: string,
   maxVisits: number = 5,
@@ -138,7 +163,7 @@ export async function fetchBusData(
       errorCondition.OtherError?.ErrorText ||
       errorCondition.Description ||
       "Unknown error";
-    throw new Error(`Bus stop ${stopId}: ${errorText}`);
+    throw new BusStopError(stopId, errorText);
   }
 
   // Return the data with metadata

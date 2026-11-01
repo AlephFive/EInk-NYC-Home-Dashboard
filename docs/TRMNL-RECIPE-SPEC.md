@@ -187,8 +187,9 @@ the single most shaping constraint on the design. A user cannot "add a card"
 an arbitrary number of times.
 
 The layout is therefore a **fixed 3x2 grid — three columns, at most two cards
-each, six slots**. Each slot is independently configurable; a slot left `Off`
-is omitted and its column-mate stretches to the column's full height.
+each, six slots**. Each slot is independently configurable; a slot with no
+station, or with its **Show this card** box unticked, is omitted and its
+column-mate stretches to the column's full height.
 
 Three columns is not a preference, it is the last column count that renders
 readable text. Measured against the real row geometry (`DepartureRow.tsx`:
@@ -223,56 +224,69 @@ with no new layout logic.
 
 ### 4.1 Field list
 
-Per slot *N* in 1..6, all fields grouped under an accordion `Card N`:
+Per slot *N* in 1..6, all fields grouped under an accordion named for the
+slot's **grid position** rather than its number — "Card 4" says nothing about
+where it lands, and the mapping above is fixed:
 
 ```yaml
-- keyname: card1_type
-  field_type: select
-  name: Transit type
-  group: Card 1
+- keyname: card1_visible
+  field_type: boolean
+  name: Show this card
+  group: Column 1 · Row 1
   optional: true
-  options:
-    - Off
-    - Subway
-    - LIRR
-    - Metro-North
-    - Bus
-    - Ferry
-  default: Off
-  help_text: Leave Off to hide this card.
+  default: true
+  help_text: >-
+    Untick to hide the card without losing its settings.
 
 - keyname: card1_station
   field_type: xhrSelectSearch
-  name: Station
-  group: Card 1
-  depends_on: card1_type
+  name: Station or stop
+  group: Column 1 · Row 1
   endpoint: https://<host>/api/stations
-  help_text: Type part of a station name.
+  help_text: Type part of a name, then pick from the list
 
 - keyname: card1_routes
   field_type: string
   name: Lines (optional)
-  group: Card 1
+  group: Column 1 · Row 1
   optional: true
   placeholder: 1,2,3
   help_text: >
     Comma separated, as a rider names them. Blank shows every line the stop
     carries.
 
-- keyname: card1_walk_time
+- keyname: card1_walk
   field_type: number
   name: Walk time (minutes)
-  group: Card 1
+  group: Column 1 · Row 1
   default: 5
   help_text: Departures you could not reach in this time are hidden.
 
 - keyname: card1_title
   field_type: string
   name: Custom title
-  group: Card 1
+  group: Column 1 · Row 1
   optional: true
   help_text: Defaults to the station name.
 ```
+
+**There is no `cardN_type` field.** An earlier draft had one, as a `select`
+the station picker would narrow itself against via `depends_on`. Two things
+killed it. `xhrSelectSearch` does not support `depends_on` — that property
+belongs to `xhrSelect` only — so the picker could not have read it. And the
+picker searches all five networks at once and stores the transit type on the
+front of its own value (`subway:127+725`), which makes a separate type field
+not merely unnecessary but a second source of truth the two could disagree on.
+
+**Visibility is not decided in Liquid.** The polling URL passes
+`cardN_visible` through raw as `vN` and the Worker decides. Liquid treats
+only `nil` and `false` as falsy, so a checkbox stored as the *string*
+`"false"` is truthy there and `{% if cardN_visible %}` hides nothing — which
+is how the toggle first shipped doing nothing at all. Which representation
+TRMNL stores for an unticked box is undocumented, so `parseVisible` in
+`settings.ts` accepts every spelling and defaults to visible for anything it
+does not recognise: silently dropping a card the user configured is the worse
+of the two failure modes.
 
 Board-level settings, group `Display`:
 
@@ -564,12 +578,24 @@ TRMNL interpolates form values into the polling URL via Liquid:
 
 ```
 https://<host>/api/board
-  ?tz={{ trmnl.user.utc_offset }}
-  &c1={{ card1_type }}:{{ card1_station }}:{{ card1_walk_time }}:{{ card1_title }}
-  &c2={{ card2_type }}:{{ card2_station }}:{{ card2_walk_time }}:{{ card2_title }}
+  ?c1={% if card1_station != blank %}{{ card1_station }}{% if card1_routes != blank %}!{{ card1_routes }}{% endif %}:{{ card1_walk }}:{{ card1_title }}{% endif %}
+  &v1={{ card1_visible }}
+  &c2=...&v2=...
   ...
   &h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&leavein={{ show_leave_in }}
 ```
+
+Three things about that shape are load-bearing, and
+`trmnl-recipe/recipe/polling-url.txt` is the authoritative copy:
+
+- **No `{{ cardN_type }}`.** The picker stores the transit type on the front
+  of the station value already, so writing it again yields
+  `subway:subway:127+725` and shifts every positional field along by one. The
+  Worker tolerates the doubled form, but the URL avoids producing it.
+- **The `{% if %}` tests the station only**, so an unconfigured slot writes an
+  empty parameter the Worker skips. It deliberately does not test
+  `cardN_visible` — see §4.1.
+- **`vN` carries the visibility checkbox raw**, for the Worker to interpret.
 
 ### 6.2 Response
 
@@ -652,6 +678,32 @@ mitigation is in the picker, not the renderer: labels carry route lists so the
 user can tell platform groups apart, and the plugin's knowledge-base page
 documents the common causes. **The board itself still says only "No upcoming
 trains".**
+
+There is one slot the endpoint does drop outright: **a stop ID that is in no
+lookup is not a card.** This is not an exception to "empty is not an error" —
+it is upstream of it. A slot can be well-formed and still name nothing:
+`Bus:6:` parses cleanly as type `bus`, stop `6`, because the slot parser knows
+the grammar and not the stops, and it shipped as a card headed "Bus Stop 6"
+whose entire content was a SIRI "No such stop" error. That is what a station
+value stored before the picker returned `{id, name}` decays into. Rendering a
+card that can only ever fail is worse than rendering nothing, so `buildBoard`
+filters those slots before fetching.
+
+The check is presence in the lookup, and it cannot be anything cheaper:
+single-digit stop IDs are real on three of the five networks (ferry `4` is
+Hunters Point South, LIRR `1` is Albertson, Metro-North `1` is Grand Central),
+so neither length nor shape distinguishes a real ID from a stray. Two
+consequences:
+
+- **The two railroads are checked separately.** Their ID spaces overlap and
+  disagree — `102` is Jamaica on the LIRR and nothing on Metro-North — so one
+  merged lookup would accept a Metro-North card pointed at an LIRR station and
+  then render it empty for ever.
+- **Bus IDs are exempt.** Their stops live in the MTA's remote dataset rather
+  than a bundled table, and `route_info.json` names only the handful the
+  dashboard itself uses, so a local miss would mean "not one of ours" rather
+  than "does not exist". A bad bus ID can only be discovered by asking, and
+  the per-card error path already reports that answer honestly.
 
 ---
 

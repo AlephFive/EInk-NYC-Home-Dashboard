@@ -53,17 +53,23 @@ reason the board shows clock times rather than a countdown.
 
 ## 3. Configure a board
 
-Each card needs a transit type and a station. The station picker only populates
-after a type is chosen, since it searches that type's dataset.
+Each card needs only a station. There is no transit type to pick first — one
+picker searches all five networks at once and labels each result with its
+network, so typing "jamaica" offers the LIRR station, the subway station and
+the AirTrain stop together. **Type at least two characters**; one is too
+short to search on.
 
-Slots map to the 3x2 grid in order:
+Each slot is named for where it lands, so there is no mapping to remember:
 
 ```
-Card 1 | Card 3 | Card 5     (top row)
-Card 2 | Card 4 | Card 6     (bottom row)
+Column 1 · Row 1 | Column 2 · Row 1 | Column 3 · Row 1
+Column 1 · Row 2 | Column 2 · Row 2 | Column 3 · Row 2
 ```
 
-A slot left **Off** is omitted, and its column-mate fills the column.
+A slot is omitted, and its column-mate fills the column, if either its station
+is empty or its **Show this card** box is unticked. Unticking is the
+non-destructive one — it parks a card with its settings intact, for a summer
+ferry or a weekday-only station.
 
 ## 4. What to check on the device
 
@@ -82,6 +88,12 @@ The point of the debug markup is that each line is verifiable:
   distinct, and a failing card must not blank the others.
 - **Subway terminals** collapse to one direction. At a terminal every train in
   one direction terminates, so nothing there is boardable.
+- **A card that vanished rather than erroring** had a station value the server
+  could not resolve to a real stop, and was dropped on purpose — a card that
+  can only ever show an error is worse than no card. Re-pick the station from
+  the dropdown. Values stored before the picker began returning proper
+  `{id, name}` pairs are the usual cause, and they cannot be repaired in
+  place: the stored text is a display label, not an ID.
 
 ## Known gaps in phase 1
 

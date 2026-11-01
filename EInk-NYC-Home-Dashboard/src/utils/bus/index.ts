@@ -3,6 +3,7 @@ export {
   extractBusArrivals,
   filterUpcomingBuses,
   getUpcomingBusesAtStop,
+  BusStopError,
   type BusDataResponse,
   type SiriResponse,
   type MonitoredStopVisit,

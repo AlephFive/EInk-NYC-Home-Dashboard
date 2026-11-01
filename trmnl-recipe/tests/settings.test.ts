@@ -15,6 +15,67 @@ import { parseBoardSettings } from "../src/settings.ts";
 const board = (query: string) =>
   parseBoardSettings(new URL(`https://example.test/api/board?${query}`));
 
+describe("the visibility toggle", () => {
+  // Decided here, not in the polling template. Liquid treats the string
+  // "false" as truthy, so a `{% if cardN_visible %}` guard hid nothing and
+  // the toggle appeared dead. What TRMNL stores for an unticked box is
+  // undocumented, so every plausible spelling is accepted.
+  test("an off card is dropped whatever the spelling", () => {
+    // A second card keeps the board configured, so the hidden slot's
+    // absence is visible — with only one card the board empties and the
+    // demo takes over, which is tested separately below.
+    for (const off of ["false", "FALSE", "0", "no", "off", " false "]) {
+      const { cards } = board(
+        `c1=subway:721:10&v1=${off}&c2=railroad-lirr:102:10`
+      );
+      assert.deepEqual(
+        cards.map((card) => card.slot),
+        [2],
+        `v1=${off} did not hide the card`
+      );
+    }
+  });
+
+  test("an on card is kept whatever the spelling", () => {
+    for (const on of ["true", "TRUE", "1", "yes"]) {
+      const { cards } = board(`c1=subway:721:10&v1=${on}`);
+      assert.equal(cards[0]?.stopIds[0], "721", `v1=${on} hid the card`);
+    }
+  });
+
+  test("an unrecognised value shows the card", () => {
+    // Fail visible, not hidden. We do not know which representation TRMNL
+    // sends, so anything unexpected is likelier a spelling we have not seen
+    // than a request to hide — and silently dropping a card the user
+    // configured is the worse of the two mistakes.
+    assert.equal(board("c1=subway:721:10&v1=maybe").cards.length, 1);
+  });
+
+  test("a missing or empty toggle shows the card", () => {
+    // Older polling URLs send no vN at all, and TRMNL may write an empty
+    // value. Neither should blank a board that was working.
+    assert.equal(board("c1=subway:721:10").cards.length, 1);
+    assert.equal(board("c1=subway:721:10&v1=").cards.length, 1);
+  });
+
+  test("hiding one card leaves the others alone", () => {
+    const { cards } = board(
+      "c1=subway:721:10&v1=false&c2=railroad-lirr:102:10&v2=true"
+    );
+    assert.deepEqual(
+      cards.map((card) => card.slot),
+      [2]
+    );
+  });
+
+  test("hiding every card falls back to the demo board", () => {
+    // Not a blank panel: an empty board is indistinguishable from an
+    // unconfigured one, and that already demonstrates itself.
+    const { isDemo } = board("c1=subway:721:10&v1=false");
+    assert.equal(isDemo, true);
+  });
+});
+
 describe("slot parsing", () => {
   test("reads type, stop IDs, walk time and title", () => {
     const { cards } = board("c1=subway:721:10:Home");

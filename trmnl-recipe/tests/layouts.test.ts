@@ -490,3 +490,134 @@ describe("the layouts agree with the TypeScript rule", () => {
     }
   });
 });
+
+describe("the preview is pinned to the device's own profile", () => {
+  // TRMNL stamps a per-device class on the `.screen` wrapper when it renders
+  // for hardware; `trmnlp` emits a bare `screen screen--fonts-trmnl`, so a
+  // local build silently falls back to the `:root` defaults. Each layout
+  // therefore sets the same variables that class would, which is how the
+  // preview and the panel agree.
+  //
+  // Copied values go stale. This checks ours still match the framework's.
+  const FRAMEWORK_CSS = "https://trmnl.com/css/3.4.4/plugins.css";
+  const cachePath = resolve(root, "node_modules/.cache/trmnl-framework.css");
+
+  /** The device this recipe is previewed against. */
+  const DEVICE = "ogv2";
+
+  // Variables the device block sets that `.trmnl .screen` already computes
+  // identically — the gap scale chain and the full-screen sizes. The preview
+  // gets those from `.screen` whether or not a device class is present, so
+  // copying them would be noise. The test below proves they really are
+  // identical rather than taking it on trust.
+  //
+  // --quadrant-w/h are the exception in the other direction: `.screen`
+  // computes them differently, and the device's 100% resolves against
+  // trmnlp's unsized wrapper and collapses the quadrant view to an empty
+  // title bar. Verified by rendering it both ways.
+  const ALREADY_ON_SCREEN = new Set([
+    "gap-xsmall",
+    "gap-small",
+    "gap",
+    "gap-medium",
+    "gap-large",
+    "gap-xlarge",
+    "gap-xxlarge",
+    "list-gap-small",
+    "full-w",
+    "full-h",
+  ]);
+  const CANNOT_COPY = new Set(["quadrant-w", "quadrant-h"]);
+
+  let deviceProfile: Map<string, string> | undefined;
+  let screenProfile: Map<string, string> | undefined;
+
+  before(async () => {
+    let css: string | undefined;
+
+    if (existsSync(cachePath)) {
+      css = readFileSync(cachePath, "utf8");
+    } else {
+      try {
+        const response = await fetch(FRAMEWORK_CSS);
+        if (response.ok) {
+          css = await response.text();
+          mkdirSync(dirname(cachePath), { recursive: true });
+          writeFileSync(cachePath, css);
+        }
+      } catch {
+        // Offline. Left undefined, and the tests below skip.
+      }
+    }
+
+    if (css === undefined) return;
+
+    const read = (body: string) => {
+      const profile = new Map<string, string>();
+      for (const [, name, value] of body.matchAll(/--([a-z0-9-]+):\s*([^;]+)/g)) {
+        profile.set(name, value.trim());
+      }
+      return profile;
+    };
+
+    const device = new RegExp(`\.trmnl \.screen--${DEVICE}\{([^}]*)\}`).exec(css);
+    const screen = /\.trmnl \.screen\{([^}]*)\}/.exec(css);
+    if (!device || !screen) return;
+
+    deviceProfile = read(device[1]);
+    screenProfile = read(screen[1]);
+  });
+
+  test("the variables we skip are already identical on .screen", () => {
+    // Why ALREADY_ON_SCREEN is safe to leave out. If a framework release
+    // ever makes a device's gap chain differ from the generic one, this
+    // fails and the skipped set has to be revisited.
+    if (!deviceProfile || !screenProfile) return;
+
+    for (const key of ALREADY_ON_SCREEN) {
+      assert.equal(
+        screenProfile.get(key),
+        deviceProfile.get(key),
+        `--${key} differs between .screen and ${DEVICE}, so it can no longer be skipped`
+      );
+    }
+  });
+
+  for (const name of LAYOUTS) {
+    test(`${name} matches the ${DEVICE} profile`, (t) => {
+      if (!deviceProfile) {
+        t.skip("framework stylesheet unavailable (offline)");
+        return;
+      }
+
+      const markup = readFileSync(resolve(root, `plugin/src/${name}.liquid`), "utf8");
+      const ours = new Map<string, string>();
+      const screenBlock = /\.trmnl \.screen \{([^}]*)\}/.exec(markup);
+      assert.ok(screenBlock, `${name} sets no .trmnl .screen block`);
+
+      for (const [, key, value] of screenBlock[1].matchAll(
+        /--([a-z0-9-]+):\s*([^;]+)/g
+      )) {
+        ours.set(key, value.trim());
+      }
+
+      for (const [key, value] of ours) {
+        assert.equal(
+          deviceProfile.get(key),
+          value,
+          `--${key} is "${value}" locally but "${deviceProfile.get(key)}" on ${DEVICE}`
+        );
+      }
+
+      // The other direction: a variable the device sets and we do not have
+      // silently reverts to the :root fallback.
+      for (const key of deviceProfile.keys()) {
+        if (ALREADY_ON_SCREEN.has(key) || CANNOT_COPY.has(key)) continue;
+        assert.ok(
+          ours.has(key),
+          `${DEVICE} sets --${key}, which ${name} does not pin`
+        );
+      }
+    });
+  }
+});

@@ -11,7 +11,7 @@
     "configure": "node scripts/configure.mjs",
     "spike:cpu": "node --experimental-transform-types spikes/decodeCost.ts",
     "capture": "node --experimental-transform-types scripts/captureFixture.mjs",
-    "preview:device": "node scripts/previewAtDeviceScale.mjs"
+    "preview:sync": "node --experimental-transform-types scripts/syncPreviewFields.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261023.1",

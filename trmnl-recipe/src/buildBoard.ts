@@ -22,7 +22,10 @@ import {
   fetchMultipleRailroads,
   getUpcomingTrainsAtStation as getRailroadTrainsAtStation,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/railroad";
-import { getUpcomingBusesAtStop } from "../../EInk-NYC-Home-Dashboard/src/utils/bus";
+import {
+  getUpcomingBusesAtStop,
+  BusStopError,
+} from "../../EInk-NYC-Home-Dashboard/src/utils/bus";
 import {
   fetchFerryData,
   extractFerryDataByStop,
@@ -43,6 +46,7 @@ import {
   getStationName,
   getSubwayRoutes,
   getDirectionLabels,
+  isKnownStop,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/stationLookup";
 import { mergeSorted, stopTimeOf } from "../../EInk-NYC-Home-Dashboard/src/utils/multiStop";
 import {
@@ -50,7 +54,7 @@ import {
   subwayRouteMatches,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/routeLabel";
 import { subwayFeedKey } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/feedLookup";
-import type { BoardSettings, CardSettings } from "./settings";
+import type { BoardSettings, CardSettings, TransitType } from "./settings";
 
 /**
  * One column of departures within a card.
@@ -418,6 +422,19 @@ function bulletsFor(card: CardSettings, routes: string[]): string[] {
 }
 
 
+/**
+ * Whether a stop ID appears in the lookup for its transit type.
+ *
+ * Bus always passes. Its stops live in the MTA's remote dataset rather than
+ * a bundled table, so an unknown ID can only be found by asking — and the
+ * per-card error handling already reports that answer honestly.
+ */
+export function knownStop(stopId: string, transitType: TransitType): boolean {
+  if (transitType === "bus") return true;
+  if (transitType === "ferry") return getFerryStopName(stopId) !== undefined;
+  return isKnownStop(stopId, transitType);
+}
+
 /** Build the two direction columns of a subway card. */
 async function subwayCard(
   card: CardSettings,
@@ -562,7 +579,7 @@ async function busCard(
   card: CardSettings,
   rowOptions: SharedOptions,
   env: BuildEnv
-): Promise<BoardCard> {
+): Promise<BoardCard | undefined> {
   const base: BoardCard = {
     s: card.slot,
     y: card.transitType,
@@ -588,7 +605,14 @@ async function busCard(
           },
         };
       } catch (err) {
-        return { error: toMessage(err) };
+        return {
+          error: toMessage(err),
+          // A stop the MTA has never heard of is the user's to fix, and no
+          // amount of retrying changes the answer — so the card is dropped
+          // rather than rendered as a permanent error. Distinguished from a
+          // transient failure, which must stay visible.
+          missing: err instanceof BusStopError && err.noSuchStop,
+        };
       }
     })
   );
@@ -597,8 +621,11 @@ async function busCard(
     .map((result) => result.column)
     .filter((column): column is BoardColumn => column !== undefined);
 
-  // Every stop failed: there is nothing to show, so the card reports why.
+  // Every stop failed. If the MTA says none of them exist, the card cannot
+  // ever work and is dropped; anything else is transient and must say so.
   if (columns.length === 0) {
+    if (results.every((result) => result.missing)) return undefined;
+
     const firstError = results.find((result) => result.error)?.error;
     return { ...base, e: firstError ?? "Failed to load" };
   }
@@ -688,8 +715,24 @@ export async function buildBoard(
   // Shared per request, so concurrent cards reuse one decode per feed.
   const feeds = emptyFeedCache();
 
-  const cards = await Promise.all(
-    settings.cards.map(async (card): Promise<BoardCard> => {
+  // A slot naming no real stop is not a card. Dropping it here rather than
+  // in each of the four builders is what keeps the rule in one place, and
+  // the slot parser cannot do it: "Bus:6:" is *well-formed* — type `bus`,
+  // stop `6` — so it parsed, built, and rendered as a card headed "Bus Stop
+  // 6" whose only content was a SIRI error. A station value stored before
+  // the picker returned {id, name} decays into exactly that shape.
+  //
+  // "Empty is not an error" still holds: this drops slots whose ID resolves
+  // to nothing, never a card whose feed happens to be quiet.
+  const resolvable = settings.cards.filter((card) =>
+    card.stopIds.some((stopId) => knownStop(stopId, card.transitType))
+  );
+
+  // A builder may return undefined for a card that cannot ever work — see
+  // busCard, the one case a stop's non-existence is only discoverable by
+  // asking. Those are dropped below rather than rendered as an error.
+  const built = await Promise.all(
+    resolvable.map(async (card): Promise<BoardCard | undefined> => {
       try {
         switch (card.transitType) {
           case "subway":
@@ -723,6 +766,8 @@ export async function buildBoard(
       }
     })
   );
+
+  const cards = built.filter((card): card is BoardCard => card !== undefined);
 
   const generatedAt = new Date();
   const board: Board = {

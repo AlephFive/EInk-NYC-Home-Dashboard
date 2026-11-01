@@ -105,8 +105,25 @@ describe("every card field is actually wired up", () => {
         `${key} is missing`
       );
       assert.ok(
-        shippedUrl.includes(`${key} and card${slot}_station != blank`),
-        `${key} does not guard its slot`
+        shippedUrl.includes(`v${slot}={{ ${key} }}`),
+        `${key} is not passed to the Worker as v${slot}`
+      );
+    }
+  });
+
+  test("visibility is never decided in Liquid", () => {
+    // It was once, and the toggle did nothing: Liquid treats only `nil` and
+    // `false` as falsy, so a checkbox stored as the string "false" is
+    // truthy and `{% if cardN_visible %}` never hides anything. The value
+    // goes to the Worker raw, where parseBoolean knows every spelling.
+    //
+    // Pinned because the obvious-looking fix is to put the test back.
+    for (const slot of [1, 2, 3, 4, 5, 6]) {
+      assert.ok(
+        !/card\d_visible\s*(!=|==|and|or|%\})/.test(
+          shippedUrl.split(`v${slot}={{ card${slot}_visible }}`).join("")
+        ),
+        `card${slot}_visible is used in a Liquid condition`
       );
     }
   });

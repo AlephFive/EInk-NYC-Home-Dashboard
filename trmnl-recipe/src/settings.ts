@@ -79,6 +79,25 @@ function parseBoolean(value: string | null, fallback: boolean): boolean {
   return trimmed === "true" || trimmed === "1" || trimmed === "yes";
 }
 
+/**
+ * Whether a card's visibility toggle says to show it.
+ *
+ * Separate from `parseBoolean` because the two disagree about "off".
+ * `isBlank` counts "off" as unset — that is the station picker's own Off
+ * option — so `parseBoolean("off", true)` returns the fallback, `true`.
+ * Correct for `h24`; backwards for a flag where "off" is the plainest way
+ * to say hidden.
+ *
+ * Unset really does mean visible, though: an older polling URL sends no
+ * `vN` at all, and an empty value is what TRMNL writes for a field a user
+ * has never touched. Neither should blank a board that was working.
+ */
+function parseVisible(value: string | null): boolean {
+  if (value === null || value.trim() === "") return true;
+  const trimmed = value.trim().toLowerCase();
+  return trimmed !== "false" && trimmed !== "0" && trimmed !== "no" && trimmed !== "off";
+}
+
 function parseNumber(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") return fallback;
   const parsed = Number(value);
@@ -182,7 +201,7 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
  * stations exist and the feeds are current — so the preview shows what the
  * plugin genuinely does rather than a mock-up of it.
  */
-const DEMO_CARDS: CardSettings[] = [
+export const DEMO_CARDS: CardSettings[] = [
   {
     slot: 1,
     transitType: "subway",
@@ -253,6 +272,16 @@ export function parseBoardSettings(url: URL): BoardSettings {
   const cards: CardSettings[] = [];
 
   for (let slot = 1; slot <= MAX_SLOTS; slot++) {
+    // The visibility toggle is decided here rather than in the Liquid guard
+    // that writes `c<slot>`. Liquid's truthiness made that unreliable: only
+    // `nil` and `false` are falsy there, so a checkbox arriving as the
+    // *string* "false" is truthy and `{% if cardN_visible %}` hides nothing.
+    // Which of those TRMNL stores for an unticked box is not documented and
+    // not testable from here, so the template passes the raw value through
+    // and `parseVisible` — which accepts every spelling and is under test —
+    // decides.
+    if (!parseVisible(params.get(`v${slot}`))) continue;
+
     const card = parseCard(slot, params.get(`c${slot}`));
     if (card) cards.push(card);
   }
