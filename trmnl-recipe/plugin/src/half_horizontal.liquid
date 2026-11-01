@@ -140,6 +140,19 @@
   .card-name {
     min-width: 7ch;
   }
+  /* The mark slot holds either subway bullets or one network tag, and the
+     two want opposite things: a long bullet list must yield to the station
+     name, where a tag is a single word that is useless once clipped.
+
+     So the caps below are applied by a modifier the template sets, not by
+     `:has(.type-tag)`. The selector would read better, but this markup has
+     to render on an e-ink device whose browser version is not ours to
+     choose, and an unsupported selector drops the whole rule silently —
+     which here would mean shipping the unreadable tags this fixes. */
+  .bullet-strip--tag {
+    max-width: none;
+    flex-shrink: 0;
+  }
   .bullet-strip {
     display: flex;
     /* A ceiling as well as shrink, so a long route list cannot claim the
@@ -172,13 +185,29 @@
     font-size: 0.82em;
     padding-top: 0;
     padding-bottom: 0;
+    /* A floor in `ch`, as on `.row-badge`, and for the same reason: the tag
+       shares the heading's mark slot with the subway's bullets, and that
+       slot is sized for circles. Without a floor "LIRR", "Bus" and "Ferry"
+       were squeezed to an unreadable black square — the strip shrank them
+       as if they were bullets, which is what they are standing in for but
+       not what they are shaped like.
+
+       `min-content` would also work and is more honest about the intent,
+       but it cannot be capped: a long enough name would then push the
+       station name out. A floor plus the existing ceiling keeps both. */
+    min-width: 5ch;
     max-width: 33%;
     flex-shrink: 1;
-    min-width: 0;
+    /* Match the bullets beside it, so the heading marks share a baseline
+       box whichever kind a card carries. */
+    height: 1.35em;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
   }
   /* Rows are one line each, so the space two lines used to take is given
      back as breathing room between them — the panel is read at a glance
@@ -328,7 +357,7 @@
                       the card beside it. Three rather than four: these
                       layouts give a heading roughly half the width.
                     {% endcomment %}
-                    <div class="bullet-strip">
+                    <div class="bullet-strip{% if card.y != "subway" %} bullet-strip--tag{% endif %}">
                       {% for route in card.b %}
                     {% comment %}
                       The same rule the departure rows use: a bullet for one or two

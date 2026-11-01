@@ -222,7 +222,7 @@ describe("the display rule is identical in every layout", () => {
     // while the rows beneath showed A, E and R. Clipping cannot go stale.
     for (const [name, liquid] of layouts) {
       assert.ok(
-        liquid.includes('<div class="bullet-strip">'),
+        liquid.includes('<div class="bullet-strip'),
         `${name} does not bound its heading marks`
       );
       assert.doesNotMatch(
@@ -230,6 +230,40 @@ describe("the display rule is identical in every layout", () => {
         /\{%\s*for route in card\.b limit:/,
         `${name} still caps its bullets at a fixed count`
       );
+    }
+  });
+
+  test("a heading tag is not squeezed like a bullet", () => {
+    // The tag shares the heading's mark slot with the subway's bullets, and
+    // that slot is sized for circles. When the strip gained a shrink and a
+    // 50% cap, "LIRR", "Bus" and "Ferry" were crushed to an unreadable
+    // black square on the device — a word is useless once clipped, where a
+    // bullet list can give way.
+    for (const [name, liquid] of layouts) {
+      assert.match(
+        liquid,
+        /\.type-tag \{[^}]*min-width:/s,
+        `${name} lets its network tag shrink to nothing`
+      );
+      assert.ok(
+        liquid.includes("bullet-strip--tag"),
+        `${name} applies the bullet cap to a card carrying a tag`
+      );
+    }
+  });
+
+  test("the layouts do not depend on :has()", () => {
+    // It reads better than a template-set modifier, but this markup renders
+    // on an e-ink device whose browser version is not ours to choose, and
+    // an unsupported selector drops the whole rule silently — here that
+    // would mean shipping the very bug the rule fixes.
+    for (const [name, liquid] of layouts) {
+      // Comments mention it by name — explaining why it is not used is the
+      // point — so strip CSS and Liquid comments before looking.
+      const code = liquid
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\{%\s*comment\s*%\}[\s\S]*?\{%\s*endcomment\s*%\}/g, "");
+      assert.doesNotMatch(code, /:has\(/, `${name} uses :has()`);
     }
   });
 
@@ -396,6 +430,7 @@ describe("every class exists in the framework", () => {
     "row-line--split",
     "bullet-strip",
     "card-name",
+    "bullet-strip--tag",
   ]);
 
   let frameworkClasses: Set<string> | undefined;
