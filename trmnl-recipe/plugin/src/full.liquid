@@ -192,12 +192,16 @@
        as if they were bullets, which is what they are standing in for but
        not what they are shaped like.
 
-       `min-content` would also work and is more honest about the intent,
-       but it cannot be capped: a long enough name would then push the
-       station name out. A floor plus the existing ceiling keeps both. */
+       The width then follows the content rather than a percentage. 33% of
+       the heading is 11ch on a full card and far less on a split one, so a
+       fixed share clipped "Metro North" from both ends — it rendered as
+       "tro No" and ran under the station name. `max-content` lets the tag
+       be as wide as its word and no wider; `.card-name`'s own floor is
+       what stops it taking the whole heading. */
     min-width: 5ch;
-    max-width: 33%;
-    flex-shrink: 1;
+    width: max-content;
+    max-width: 100%;
+    flex-shrink: 0;
     /* Match the bullets beside it, so the heading marks share a baseline
        box whichever kind a card carries. */
     height: 1.35em;
@@ -275,9 +279,21 @@
        at — enough that "M42" never becomes "M…", which reads as a
        different route rather than as a truncation. */
     min-width: 4.5ch;
-    /* Longer railroad branches still ellipsize; the first word separates
+    /* Size to the route name, not to a fixed share. `flex-shrink: 1` with
+       a 9ch ceiling made every badge in a column the same box, so "Hudson"
+       sat in a "New Haven"-sized rectangle and "Far Rockaway" clipped to
+       "Far Rockaw" — the badges read as one width rather than as names.
+
+       `max-content` lets each be as wide as its own text, and the ceiling
+       still catches the longest branches, where the first word separates
        "Port Washington" from "Port Jefferson". */
-    max-width: 9ch;
+    width: max-content;
+    /* 9ch was set against the full-size label; at 0.86em it crushed
+       "Far Rockaway" to "Far Rccka" — narrow enough that the glyphs
+       themselves distorted. 13ch fits every LIRR and Metro-North branch
+       outright, and the destination beside it gives way instead, which is
+       the right priority: the route is what a rider scans for. */
+    max-width: 13ch;
     /* A railroad or bus badge sits in the same column as a subway bullet
        and must read as the same kind of mark. The framework's `.label`
        padding made it visibly taller — "Far Rock…" stood a third higher

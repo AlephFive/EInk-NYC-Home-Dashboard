@@ -97,16 +97,19 @@ custom_fields:
 
   - keyname: card1_routes
     field_type: string
-    name: Lines (optional)
-    description: Leave blank for every line at this station
+    name: Routes (optional)
+    description: Leave blank for everything that calls here
     group: Column 1 · Row 1
     optional: true
     placeholder: 1,2,3
     help_text: >-
-      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
-      a complex like Times Square, which carries twelve lines on one card:
-      name a few and the rest are hidden. Asking for 7 includes the express 7,
-      and S covers every shuttle.
+      Comma separated, named the way you would say them, and it works on
+      every kind of stop — subway lines (1,2,3 or A,C,E or S), railroad
+      branches (Hudson, Babylon), bus routes (M42, Q101) or a ferry route.
+      Matching ignores case and accepts the start of a name, so "hud" finds
+      the Hudson line. Asking for 7 includes the express 7, and S covers
+      every shuttle. Most useful at a complex like Times Square, which
+      carries twelve lines on one card: name a few and the rest are hidden.
 
   - keyname: card1_walk
     field_type: number
@@ -149,16 +152,19 @@ custom_fields:
 
   - keyname: card2_routes
     field_type: string
-    name: Lines (optional)
-    description: Leave blank for every line at this station
+    name: Routes (optional)
+    description: Leave blank for everything that calls here
     group: Column 1 · Row 2
     optional: true
     placeholder: 1,2,3
     help_text: >-
-      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
-      a complex like Times Square, which carries twelve lines on one card:
-      name a few and the rest are hidden. Asking for 7 includes the express 7,
-      and S covers every shuttle.
+      Comma separated, named the way you would say them, and it works on
+      every kind of stop — subway lines (1,2,3 or A,C,E or S), railroad
+      branches (Hudson, Babylon), bus routes (M42, Q101) or a ferry route.
+      Matching ignores case and accepts the start of a name, so "hud" finds
+      the Hudson line. Asking for 7 includes the express 7, and S covers
+      every shuttle. Most useful at a complex like Times Square, which
+      carries twelve lines on one card: name a few and the rest are hidden.
 
   - keyname: card2_walk
     field_type: number
@@ -201,16 +207,19 @@ custom_fields:
 
   - keyname: card3_routes
     field_type: string
-    name: Lines (optional)
-    description: Leave blank for every line at this station
+    name: Routes (optional)
+    description: Leave blank for everything that calls here
     group: Column 2 · Row 1
     optional: true
     placeholder: 1,2,3
     help_text: >-
-      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
-      a complex like Times Square, which carries twelve lines on one card:
-      name a few and the rest are hidden. Asking for 7 includes the express 7,
-      and S covers every shuttle.
+      Comma separated, named the way you would say them, and it works on
+      every kind of stop — subway lines (1,2,3 or A,C,E or S), railroad
+      branches (Hudson, Babylon), bus routes (M42, Q101) or a ferry route.
+      Matching ignores case and accepts the start of a name, so "hud" finds
+      the Hudson line. Asking for 7 includes the express 7, and S covers
+      every shuttle. Most useful at a complex like Times Square, which
+      carries twelve lines on one card: name a few and the rest are hidden.
 
   - keyname: card3_walk
     field_type: number
@@ -253,16 +262,19 @@ custom_fields:
 
   - keyname: card4_routes
     field_type: string
-    name: Lines (optional)
-    description: Leave blank for every line at this station
+    name: Routes (optional)
+    description: Leave blank for everything that calls here
     group: Column 2 · Row 2
     optional: true
     placeholder: 1,2,3
     help_text: >-
-      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
-      a complex like Times Square, which carries twelve lines on one card:
-      name a few and the rest are hidden. Asking for 7 includes the express 7,
-      and S covers every shuttle.
+      Comma separated, named the way you would say them, and it works on
+      every kind of stop — subway lines (1,2,3 or A,C,E or S), railroad
+      branches (Hudson, Babylon), bus routes (M42, Q101) or a ferry route.
+      Matching ignores case and accepts the start of a name, so "hud" finds
+      the Hudson line. Asking for 7 includes the express 7, and S covers
+      every shuttle. Most useful at a complex like Times Square, which
+      carries twelve lines on one card: name a few and the rest are hidden.
 
   - keyname: card4_walk
     field_type: number
@@ -305,16 +317,19 @@ custom_fields:
 
   - keyname: card5_routes
     field_type: string
-    name: Lines (optional)
-    description: Leave blank for every line at this station
+    name: Routes (optional)
+    description: Leave blank for everything that calls here
     group: Column 3 · Row 1
     optional: true
     placeholder: 1,2,3
     help_text: >-
-      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
-      a complex like Times Square, which carries twelve lines on one card:
-      name a few and the rest are hidden. Asking for 7 includes the express 7,
-      and S covers every shuttle.
+      Comma separated, named the way you would say them, and it works on
+      every kind of stop — subway lines (1,2,3 or A,C,E or S), railroad
+      branches (Hudson, Babylon), bus routes (M42, Q101) or a ferry route.
+      Matching ignores case and accepts the start of a name, so "hud" finds
+      the Hudson line. Asking for 7 includes the express 7, and S covers
+      every shuttle. Most useful at a complex like Times Square, which
+      carries twelve lines on one card: name a few and the rest are hidden.
 
   - keyname: card5_walk
     field_type: number
@@ -357,16 +372,19 @@ custom_fields:
 
   - keyname: card6_routes
     field_type: string
-    name: Lines (optional)
-    description: Leave blank for every line at this station
+    name: Routes (optional)
+    description: Leave blank for everything that calls here
     group: Column 3 · Row 2
     optional: true
     placeholder: 1,2,3
     help_text: >-
-      Comma separated, as you would say them — 1,2,3 or A,C,E or S. Useful at
-      a complex like Times Square, which carries twelve lines on one card:
-      name a few and the rest are hidden. Asking for 7 includes the express 7,
-      and S covers every shuttle.
+      Comma separated, named the way you would say them, and it works on
+      every kind of stop — subway lines (1,2,3 or A,C,E or S), railroad
+      branches (Hudson, Babylon), bus routes (M42, Q101) or a ferry route.
+      Matching ignores case and accepts the start of a name, so "hud" finds
+      the Hudson line. Asking for 7 includes the express 7, and S covers
+      every shuttle. Most useful at a complex like Times Square, which
+      carries twelve lines on one card: name a few and the rest are hidden.
 
   - keyname: card6_walk
     field_type: number
