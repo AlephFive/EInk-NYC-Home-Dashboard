@@ -166,22 +166,33 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
-  test("a single-column card puts its rows on one line", () => {
-    // Width, not transit type: one column gets the card's whole ~253px, two
-    // get about 123px each, and badge plus time plus gaps leave six
-    // characters of that. So the rule keys on the column count — a subway
-    // terminal collapses to one direction and should read like a railroad
-    // card, which keying on `card.y` would miss.
-    const full = layouts.get("full")!;
-    assert.match(
-      full,
-      /\{%\s*assign column_count = card\.k \| size\s*%\}/,
-      "full.liquid does not measure the column count"
-    );
-    assert.ok(
-      full.includes("{% if one_line %}"),
-      "full.liquid does not branch on the column count"
-    );
+  test("every row is one line, in every layout", () => {
+    // It was two in `full` for split subway columns, on the measurement
+    // that ~123px could not carry badge, destination and time together —
+    // true at a 1.7em bullet, not at 1.35em. Now uniform: a row is a row
+    // whatever card it is in, which is what lets a reader scan across
+    // columns.
+    for (const [name, markup] of layouts) {
+      assert.ok(
+        markup.includes("row-line"),
+        `${name}.liquid does not use the one-line row`
+      );
+      assert.ok(
+        !markup.includes("one_line"),
+        `${name}.liquid still branches on a two-line layout`
+      );
+    }
+  });
+
+  test("the destination clips instead of wrapping", () => {
+    // A wrapped name makes its row taller than its neighbours, which is
+    // exactly what uniform row height exists to prevent.
+    for (const [name, markup] of layouts) {
+      assert.ok(
+        markup.includes("row-dest"),
+        `${name}.liquid does not bound its destination`
+      );
+    }
   });
 
   test("every layout puts the heading marks after the title", () => {
@@ -371,6 +382,10 @@ describe("every class exists in the framework", () => {
     "bullet--pair",
     "type-tag",
     "row-badge",
+    "row-line",
+    "row-dest",
+    "row-time",
+    "row-line--split",
   ]);
 
   let frameworkClasses: Set<string> | undefined;

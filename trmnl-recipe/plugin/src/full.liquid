@@ -62,17 +62,26 @@
      element size the label is given at each breakpoint; this block sets no
      font-size of its own. */
   .bullet {
-    width: 1.7em;
-    height: 1.7em;
+    /* 1.7em overflowed a heading once a complex carried four routes, and
+       stacked a row's text below its own bullet instead of beside it. The
+       framework's type does not step down at this device size — every label
+       size resolves to the same 16px — so width has to come from the glyph
+       box rather than from a smaller face. */
+    width: 1.35em;
+    height: 1.35em;
     /* The framework's own .label padding lands later in the cascade and
        stretches the box back into a rounded rectangle once the glyph is
        two characters wide. Pinning min/max as well as width is what keeps
        SI a circle at the smaller layouts' label sizes. */
-    min-width: 1.7em;
-    max-width: 1.7em;
+    min-width: 1.35em;
+    max-width: 1.35em;
     padding: 0;
     border-radius: 50%;
     justify-content: center;
+    /* Centres the glyph on the row's text baseline box. Without it a bullet
+       sits optically high beside the destination it labels. */
+    align-items: center;
+    line-height: 1;
     flex-shrink: 0;
     overflow: hidden;
   }
@@ -114,6 +123,11 @@
      gives way: it will not grow past a third of the heading, will not wrap,
      and ellipsizes when it must. */
   .type-tag {
+    /* Smaller than the heading it sits beside, so a four-bullet complex and
+       a long network name both clear the card edge. */
+    font-size: 0.82em;
+    padding-top: 0;
+    padding-bottom: 0;
     max-width: 33%;
     flex-shrink: 1;
     min-width: 0;
@@ -121,6 +135,48 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     display: block;
+  }
+  /* Rows are one line each, so the space two lines used to take is given
+     back as breathing room between them — the panel is read at a glance
+     from across a room, and rows packed tight are what make it hard to
+     track one across its columns. */
+  .row-line {
+    padding-top: 0.14em;
+    padding-bottom: 0.14em;
+  }
+  /* The clock is fixed width and never gives way. Without this the flex row
+     squeezes it like any other text child, and a long destination pushes
+     the digits into the badge beside them — the destination is what should
+     yield, since a half-read station name is still useful and a half-read
+     departure time is not. */
+  .row-time {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    /* Separates the digits from the destination clipping into them. */
+    padding-left: 0.2em;
+  }
+  /* A subway card splits into two direction columns, so its rows get half
+     the width every other card's do — 122px against 253px. Badge, clock and
+     gaps take 78px of that, leaving 44px for the destination: six
+     characters, which renders "Coney Island-Stillwell Av" as "Cone…".
+
+     Dropping the clock a step is what buys the name back. It is the only
+     element here that can give width without losing meaning: a time is five
+     glyphs whatever its size, where a station name degrades one character
+     at a time. 12px against the row's 16px returns ~12px, taking the
+     destination to about nine characters. */
+  .row-line--split .row-time {
+    font-size: 0.75em;
+  }
+  /* The destination takes whatever the badge and the clock leave, and clips
+     rather than wrapping: a wrapped name would make its row taller than its
+     neighbours, and on a fixed panel a name cut mid-word still reads. */
+  .row-dest {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
   }
   /* A row badge is a route name — a railroad branch, a bus route — and some
      are long: "City Terminal Zone" is LIRR's name for Penn/Atlantic/Grand
@@ -133,8 +189,23 @@
      first — the route is what a rider scans for. */
   .row-badge {
     flex-shrink: 1;
-    min-width: 0;
-    max-width: 40%;
+    /* A floor, not zero. Without it the flex row squeezes "M42" to "M…",
+       which is worse than useless — a truncated route reads as a different
+       route. 2.6em is four characters: every bus route and subway bullet
+       fits, and a longer railroad branch still ellipsizes, where the first
+       word is enough to tell "Port Washington" from "Port Jefferson". */
+    /* A floor in `ch`, not `em` or a percentage. The framework's `.label`
+       sets its own `max-width: 100%` and `.label--small` reduces the font
+       size, so an `em` floor shrinks with the type it is meant to protect
+       and a percentage is measured against a box the flex row has already
+       squeezed. `ch` is the width of a "0" in the rendered face, so 4.5ch
+       is four characters plus the label's padding whatever size it lands
+       at — enough that "M42" never becomes "M…", which reads as a
+       different route rather than as a truncation. */
+    min-width: 4.5ch;
+    /* Longer railroad branches still ellipsize; the first word separates
+       "Port Washington" from "Port Jefferson". */
+    max-width: 9ch;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -204,11 +275,16 @@
   A fixed width was also tried and is wrong in both directions — far too wide
   for a one-character subway bullet, too narrow for "Port Washington".
 
-  **A row is two lines, not one.** Badge and time share the first; the
-  destination takes the second, with the whole column width. Side by side,
-  two direction columns are about 123px, and badge plus time plus gaps leave
-  43px — six characters, against destinations like "Coney Island-Stillwell
-  Av". One line per row simply cannot carry all three at this width.
+  **A row is one line: badge, destination, time.** It was two for a while,
+  on the measurement that a split subway column (~123px) left only 43px for
+  the destination once a 1.7em bullet, the clock and the gaps had taken
+  theirs — six characters, against names like "Coney Island-Stillwell Av".
+
+  The bullet is 1.35em now, which returns most of that width, and one line
+  per row buys back the vertical space the second line was spending. The
+  destination clips rather than wrapping: a wrapped name would make its row
+  taller than its neighbours, and on a fixed panel a name cut mid-word still
+  reads.
 
   **The time is set at `title--small`, not `value--*`.** The smallest value
   size is 20px and took about 55px of a 90px direction column — well over half
@@ -335,6 +411,14 @@
                         {% endif %}
                       {% endif %}
                       {% comment %}
+                    A card showing two direction columns gives each half the
+                    width, which is what the tighter row variant is for.
+                  {% endcomment %}
+                  {% assign split_class = "" %}
+                  {% if card.k.size > 1 %}
+                    {% assign split_class = " row-line--split" %}
+                  {% endif %}
+                  {% comment %}
                         A bullet holds one or two characters. One covers every
                         subway route and the shuttles; two covers SI, the
                         Staten Island Railway, which the R211 trains now
@@ -388,18 +472,6 @@
                     `flex--top`, without which the shorter column centres
                     itself vertically and the two headings no longer line up.
                   {% endcomment %}
-                  {% comment %}
-                    One column gets the card's whole width (~253px), two get
-                    about 123px each. That is what decides whether a row fits
-                    on one line, so it is keyed on the column count rather
-                    than the transit type — a subway terminal collapses to a
-                    single direction and should read like a railroad card.
-                  {% endcomment %}
-                  {% assign column_count = card.k | size %}
-                  {% assign one_line = false %}
-                  {% if column_count == 1 %}
-                    {% assign one_line = true %}
-                  {% endif %}
 
                   <div class="flex flex--row gap--small w--full flex--top">
                     {% comment %}
@@ -514,36 +586,34 @@
                           {% assign arrow = "›" %}
                         {% endif %}
 
-                        {% if one_line %}
+                        {% comment %}
+                          Every row is one line: badge, destination, time.
+
+                          A split subway column was two lines until now, on
+                          the measurement that ~123px cannot carry all three
+                          — and it could not, at a 1.7em bullet. The bullet
+                          is 1.35em now, which returns the width the
+                          destination needed, and one line per row buys back
+                          the vertical space two lines were spending.
+
+                          The destination clips rather than wrapping. A name
+                          cut mid-word still reads on a fixed panel, and a
+                          wrapped one would make its row taller than its
+                          neighbours — which is what uniform row height
+                          exists to prevent.
+                        {% endcomment %}
+                        <div class="row-line{{ split_class }} flex flex--row flex--between flex--center-y gap--small w--full">
+                          <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                           {% comment %}
-                            A single-column card has the whole ~253px, so
-                            badge, destination and time fit on one line —
-                            twice the width a split subway column gets, which
-                            is what forces two lines there.
+                            The arrow stands on its own when the destination
+                            was dropped as redundant — a train to its
+                            branch's namesake still has a direction, and
+                            losing it there would make the rows that most
+                            need it the ones without it.
                           {% endcomment %}
-                          <div class="flex flex--row flex--between flex--center-y gap--small w--full">
-                            <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
-                            {% comment %}
-                              The arrow stands on its own when the
-                              destination was dropped as redundant — a train
-                              to its branch's namesake still has a direction,
-                              and losing it there would make the rows that
-                              most need it the ones without it.
-                            {% endcomment %}
-                            <span class="description grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
-                            <span class="title title--small md:title--base">{{ r[2] }}</span>
-                          </div>
-                        {% else %}
-                          <div class="w--full">
-                            <div class="flex flex--row flex--between flex--center-y gap--small w--full">
-                              <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
-                              <span class="title title--small md:title--base">{{ r[2] }}</span>
-                            </div>
-                            {% if destination != blank %}
-                              <span class="description w--full" data-clamp="1">{% if arrow != "" %}{{ arrow }} {% endif %}{{ destination }}</span>
-                            {% endif %}
-                          </div>
-                        {% endif %}
+                          <span class="row-dest description grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
+                          <span class="row-time title title--small md:title--base">{{ r[2] }}</span>
+                        </div>
                       {% endfor %}
 
                       {% assign row_count = col.r | size %}
