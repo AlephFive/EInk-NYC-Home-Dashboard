@@ -26,6 +26,7 @@ import {
   getUpcomingBusesAtStop,
   BusStopError,
 } from "../../EInk-NYC-Home-Dashboard/src/utils/bus";
+import { fetchBusStopNames } from "./pickers";
 import {
   fetchFerryData,
   extractFerryDataByStop,
@@ -580,12 +581,15 @@ async function busCard(
   rowOptions: SharedOptions,
   env: BuildEnv
 ): Promise<BoardCard | undefined> {
-  const base: BoardCard = {
-    s: card.slot,
-    y: card.transitType,
-    n: card.title ?? getStationName(card.stopIds[0], "bus"),
-    b: [TYPE_TAGS[card.transitType]],
-  };
+  // Bus is the one network whose stop names are not bundled, so the heading
+  // is fetched rather than looked up — see `fetchBusStopNames`. Started
+  // alongside the departures rather than before them, so it costs no wall
+  // time: the SIRI calls are slower and the name lands while they run.
+  //
+  // Skipped entirely when the user set a title, since nothing would use it.
+  const namesPromise = card.title
+    ? Promise.resolve(new Map<string, string>())
+    : fetchBusStopNames(card.stopIds);
 
   const results = await Promise.all(
     card.stopIds.map(async (stopId) => {
@@ -620,6 +624,20 @@ async function busCard(
   const columns = results
     .map((result) => result.column)
     .filter((column): column is BoardColumn => column !== undefined);
+
+  // The card is named for its first stop, as every other type is. A corner's
+  // two IDs share a `stop_name` — both sides of W 42 St/5 Av are "W 42 ST/5
+  // AV" — which is why they belong on one card to begin with.
+  const names = await namesPromise;
+  const base: BoardCard = {
+    s: card.slot,
+    y: card.transitType,
+    n:
+      card.title ??
+      names.get(card.stopIds[0]) ??
+      getStationName(card.stopIds[0], "bus"),
+    b: [TYPE_TAGS[card.transitType]],
+  };
 
   // Every stop failed. If the MTA says none of them exist, the card cannot
   // ever work and is dropped; anything else is transient and must say so.

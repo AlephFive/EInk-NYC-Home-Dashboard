@@ -46,6 +46,15 @@ const BUS_STOPS_ENDPOINT = "https://data.ny.gov/resource/2ucp-7wg5.json";
  */
 const BUS_SEARCH_TIMEOUT_MS = 5_000;
 
+/**
+ * How long the board may wait for a bus stop's name.
+ *
+ * Tighter than the search's budget, because this one runs on the render path
+ * and the name is the least important thing on the card. A card with
+ * departures and a fallback heading beats a card that arrived late.
+ */
+const BUS_NAME_TIMEOUT_MS = 2_500;
+
 interface SubwayStation {
   gtfs_stop_id: string;
   stop_name: string;
@@ -234,15 +243,74 @@ async function searchBus(query: string): Promise<PickerOption[]> {
     corners.set(row.stop_name, corner);
   }
 
-  // Ids are "@"-suffixed with the stop name, because `route_info.json` is a
-  // hand-maintained map covering only stops someone added by hand — it holds
-  // one entry — so a user-picked stop would otherwise head its card
-  // "Bus Stop <id>". The picker already knows the name, so it travels with the
-  // ID rather than needing a table that cannot cover user choices.
+  // The stored value is IDs only, like every other network's. The name used
+  // to travel with it as `@<name>`, which put free text in a positional,
+  // colon-delimited value and made every delimiter a stop name can contain a
+  // parsing hazard. `fetchBusStopNames` asks the dataset instead.
   return [...corners.entries()].map(([name, { ids, routes }]) => ({
     [`${name}${routeSuffix([...routes].sort().join(" "))}`]:
-      `bus:${[...ids].sort().join("+")}@${name}`,
+      `bus:${[...ids].sort().join("+")}`,
   }));
+}
+
+/**
+ * Name the bus stops a card lists, from NY Open Data.
+ *
+ * The board builder has a bundled table for every other network, so it can
+ * name a subway or railroad stop offline. Bus stops cannot work that way —
+ * there are tens of thousands, the MTA re-IDs them, and `route_info.json`
+ * is a hand-maintained map holding the handful this project added itself.
+ *
+ * The picker used to paper over that by appending the name it had already
+ * resolved to the stored value (`bus:403257@W 42 St/5 Av`). That made the
+ * stored value carry free text through a colon-delimited format, and every
+ * delimiter a stop name can contain became a parsing hazard — a stale value
+ * reached the panel as "W 42 St/5 Av · Bus:5:", and each fix was another
+ * guess about which characters were junk. Asking the dataset instead costs
+ * one subrequest and removes the guessing entirely.
+ *
+ * One call names every stop on a card, however many IDs it has. Returns a
+ * map rather than throwing: a card whose name cannot be fetched still has
+ * departures to show, and falls back to "Bus Stop <id>" as it always did.
+ */
+export async function fetchBusStopNames(
+  stopIds: string[]
+): Promise<Map<string, string>> {
+  const names = new Map<string, string>();
+  if (stopIds.length === 0) return names;
+
+  // Numeric in the dataset, but quoted here because the column is a string;
+  // the digit filter is what keeps the literal injection-free.
+  const quoted = stopIds
+    .filter((id) => /^\d+$/.test(id))
+    .map((id) => `'${id}'`);
+  if (quoted.length === 0) return names;
+
+  const url = new URL(BUS_STOPS_ENDPOINT);
+  url.searchParams.set("$where", `stop_id in (${quoted.join(",")})`);
+  url.searchParams.set("$select", "stop_id,stop_name");
+  // Group, so the portal returns one row per stop rather than one per route
+  // serving it. Without this a busy stop's rows fill the limit on their own
+  // and the other IDs on the card silently return nothing — measured at
+  // W 42 St/5 Av, where stop 403257 alone used all 50 rows and its
+  // across-the-street twin never appeared.
+  url.searchParams.set("$group", "stop_id,stop_name");
+  url.searchParams.set("$limit", String(quoted.length));
+
+  try {
+    const response = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(BUS_NAME_TIMEOUT_MS),
+    });
+    if (!response.ok) return names;
+
+    for (const row of (await response.json()) as BusStopRow[]) {
+      if (row.stop_id && row.stop_name) names.set(row.stop_id, row.stop_name);
+    }
+  } catch {
+    // Offline, slow, or the portal is down. The card still renders.
+  }
+
+  return names;
 }
 
 /** Which dataset a search runs against, from the form's transit-type select. */

@@ -705,6 +705,24 @@ consequences:
   than "does not exist". A bad bus ID can only be discovered by asking, and
   the per-card error path already reports that answer honestly.
 
+Bus's remote stop list also shapes how its cards are *named*. Every other
+network resolves a heading from a bundled table; bus asks NY Open Data, via
+`fetchBusStopNames` in `pickers.ts` — one batched query per card, started
+alongside the SIRI fetch so it costs no wall time (a bus card measures
+~200ms either way), and failing soft to "Bus Stop <id>" when the portal is
+slow or down.
+
+That replaced an `@<name>` suffix the picker used to append to the stored
+value, which was chosen to avoid maintaining a stale lookup table. The
+alternative of querying the same dataset the picker already queries was not
+weighed at the time. It aged badly: a display name inside a positional,
+colon-delimited value makes every delimiter a stop name can contain a
+parsing hazard, and a value stored before the picker separated label from
+value reached the panel as `W 42 St/5 Av · Bus:5:`. Four successive fixes
+each guessed at which characters were junk before the data model itself was
+questioned. Legacy values still carrying the suffix parse — it is split off
+and discarded.
+
 ---
 
 ## 7. Cost

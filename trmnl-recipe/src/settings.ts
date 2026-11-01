@@ -115,34 +115,6 @@ function cardTitle(raw: string): string {
   return /\p{L}/u.test(raw) ? raw : "";
 }
 
-/**
- * A bus stop's name, with the old picker's network tag stripped.
- *
- * Bus is the one type whose "@name" the server genuinely needs — its stop
- * names live in the MTA's remote dataset, not a bundled table, so without
- * this a card falls back to "Bus Stop 403257". That makes it also the one
- * type where a stale value cannot simply be discarded.
- *
- * A value stored before the picker separated label from value carries the
- * dropdown label, which ended in " · Bus". The separator is ours and no MTA
- * stop name contains it, so cutting there recovers the real name.
- *
- * **This is a stopgap, and a brittle one.** The middot does not survive the
- * round trip intact — it arrives re-encoded, so matching the literal
- * character fails and the tag reaches the panel as "W 42 St/5 Av ? Bus".
- * Matching more encodings only adds more guesses.
- *
- * The real fix is to stop carrying the name in the value at all. The picker
- * already returns `{id, name}` and TRMNL stores only the `id`; the "@name"
- * exists solely because the board builder cannot name a bus stop offline.
- * Giving it the same NY Open Data lookup the picker uses would remove this
- * function, the "@" suffix, and the whole class of delimiter bug with it.
- * See the Known Gaps note in the spec.
- */
-function busStopName(raw: string): string {
-  // Cut at the first separator-ish run, however it survived encoding.
-  return raw.split(/\s*(?:·|&middot;|·|�)\s*/)[0].trim();
-}
 
 function parseNumber(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") return fallback;
@@ -201,7 +173,11 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   // "BORDEN AV/5 ST" — so splitting "@" first would leave "!1,2,3" inside the
   // name and lose the filter silently.
   const [withName = "", routeList = ""] = ids.split("!");
-  const [idList = "", pickedName = ""] = withName.split("@");
+  // A legacy "@<name>" may still be in a value stored before the picker
+  // dropped it. Split it off and discard it: the board builder names bus
+  // stops from the dataset now, and every other network from its own tables,
+  // so nothing needs the smuggled copy.
+  const [idList = ""] = withName.split("@");
   const routes = routeList
     .split(",")
     .map((route) => route.trim().toUpperCase())
@@ -220,24 +196,12 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
 
-  // The "@name" only exists for stops the server cannot name itself — bus
-  // corners, whose stop list is the MTA's remote dataset. Subway, railroad
-  // and ferry all resolve their own names from bundled tables, so an "@name"
-  // on those is at best redundant and at worst wrong: a value stored before
-  // the picker separated label from value carries the whole *dropdown label*
-  // there, route suffix and network and all, and it became the card's
-  // heading — "Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway".
-  //
-  // Ignoring it for those types makes such a value self-heal, since the IDs
-  // in front of it are still good. An explicit title the user typed still
-  // wins, as it always did.
-  const fallbackName =
-    transitType === "bus" ? busStopName(pickedName) : "";
-  // cardTitle runs on the explicit title *before* the fallback, not after
-  // the `||`. A stale tail like ":5:" is non-empty, so it would otherwise
-  // win the `||`, be nulled by cardTitle, and take the usable picked name
-  // down with it — leaving a bus card headed "Bus Stop 403257".
-  const title = cardTitle(titleParts.join(":").trim()) || fallbackName;
+  // A card heading is the station's own name, resolved by whoever owns the
+  // table: the bundled lookups for four networks, and NY Open Data for bus.
+  // Only a title the user typed overrides it, and a title with no letter in
+  // it is residue from an old stored value rather than a name — see
+  // `cardTitle`.
+  const title = cardTitle(titleParts.join(":").trim());
 
   return {
     slot,

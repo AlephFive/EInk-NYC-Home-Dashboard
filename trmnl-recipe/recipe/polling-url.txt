@@ -24,9 +24,10 @@ which is how the toggle shipped doing nothing at all. Which representation
 TRMNL stores for an unticked box is undocumented, so `parseBoolean` in
 `settings.ts` accepts every spelling and treats anything else as off.
 
-The `@` inside a station value carries the stop name the picker already
-resolved, so a bus card is headed by its street rather than "Bus Stop <id>".
-It is part of the stored value and needs no handling here.
+A station value is stop IDs only, for every network. Values stored before
+2026-11-01 may carry an `@<name>` suffix, which the Worker splits off and
+discards — a bus card's heading now comes from NY Open Data rather than
+from the stored value. Nothing here needs to handle either form.
 
 ----------------------------------------------------------------------
 https://REPLACE_ME.workers.dev/api/board

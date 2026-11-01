@@ -48,16 +48,16 @@ describe("a value stored by the old picker heals itself", () => {
   });
 });
 
-describe("the picker's @name is only trusted where it is needed", () => {
-  // It exists for bus stops, whose names live in the MTA's remote dataset.
-  // Everywhere else the server has its own table, and honouring an @name
-  // there is what let a stale dropdown label become a card heading.
-  test("a bus @name is kept", () => {
+describe("a legacy '@name' is ignored for every type", () => {
+  // An earlier fix kept it for bus and dropped it elsewhere, because the
+  // builder could not name a bus stop offline. It can now — see
+  // fetchBusStopNames — so the rule is uniform and the suffix is dead.
+  test("a bus @name is discarded", () => {
     const { cards } = board("c1=bus:505506@CENTER BLVD/BORDEN AV:5");
-    assert.equal(cards[0].title, "CENTER BLVD/BORDEN AV");
+    assert.equal(cards[0].title, undefined);
   });
 
-  test("a subway @name is ignored", () => {
+  test("a subway @name is discarded", () => {
     const { cards } = board("c1=subway:127@Anything At All:5");
     assert.equal(cards[0].title, undefined);
   });
@@ -90,31 +90,28 @@ describe("a title of nothing but punctuation is discarded", () => {
   });
 });
 
-describe("a stale bus value keeps its name", () => {
-  // Bus is the one type whose "@name" the server genuinely needs: its stop
-  // names live in the MTA's remote dataset, so without one the card falls
-  // back to "Bus Stop 403257". That makes it the one type where a stale
-  // value cannot just be discarded — the name has to be recovered.
+describe("a legacy '@name' never reaches the heading", () => {
+  // It used to, and that was the bug: a value stored before the picker
+  // separated label from value carried the whole dropdown label there, so
+  // the panel read "W 42 St/5 Av · Bus:5:". Discarding it for every type
+  // means a stale value resolves to the same card as a fresh pick, and the
+  // name comes from whoever owns the table.
   const STALE = "bus:403257@W 42 St/5 Av · Bus:5::5:";
 
-  test("the network tag is stripped and the street survives", () => {
+  test("the label is discarded entirely", () => {
     const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
-    assert.equal(cards[0].title, "W 42 St/5 Av");
+    assert.equal(cards[0].title, undefined);
   });
 
-  test("it matches what a fresh pick stores", () => {
-    const fresh = board("c1=" + encodeURIComponent("bus:403257@W 42 St/5 Av:5"));
-    const stale = board(`c1=${encodeURIComponent(STALE)}`);
-    assert.equal(stale.cards[0].title, fresh.cards[0].title);
+  test("the IDs in front of it still work", () => {
+    const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
+    assert.deepEqual(cards[0].stopIds, ["403257"]);
   });
 
-  test("a stale tail does not consume the picked name", () => {
-    // The ordering bug this guards: ":5:" is non-empty, so it won the `||`
-    // against the picked name, was then nulled for having no letter, and
-    // took the usable name down with it. cardTitle must run on the explicit
-    // title *before* the fallback, not after.
-    const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
-    assert.notEqual(cards[0].title, undefined);
+  test("it parses to the same card as a fresh pick", () => {
+    const stale = board(`c1=${encodeURIComponent(STALE)}`).cards[0];
+    const fresh = board("c1=bus:403257:5").cards[0];
+    assert.deepEqual(stale, fresh);
   });
 });
 
@@ -209,16 +206,17 @@ describe("slot parsing", () => {
     assert.deepEqual(cards[0].stopIds, ["505507", "505513"]);
   });
 
-  test("the picker's '@name' suffix becomes the card title", () => {
-    // staticData/bus/route_info.json holds one hand-added stop, so a
-    // user-picked stop would otherwise head its card "Bus Stop <id>". The
-    // picker already knows the name, so it travels with the ID.
+  test("a legacy '@name' suffix is discarded, IDs intact", () => {
+    // Values stored before the picker dropped the suffix still carry it.
+    // Nothing needs it now — the board builder names a bus stop from NY
+    // Open Data — so it is split off and thrown away rather than becoming
+    // the heading, which is what let a stale dropdown label reach the panel.
     const { cards } = board("c1=bus:505507+505513@BORDEN AV/5 ST:3");
-    assert.equal(cards[0].title, "BORDEN AV/5 ST");
+    assert.equal(cards[0].title, undefined);
     assert.deepEqual(cards[0].stopIds, ["505507", "505513"]);
   });
 
-  test("an explicit title beats the picker's name", () => {
+  test("an explicit title still wins", () => {
     const { cards } = board("c1=bus:505507@BORDEN AV/5 ST:3:My stop");
     assert.equal(cards[0].title, "My stop");
   });
@@ -278,13 +276,14 @@ describe("narrowing a card to some routes", () => {
     assert.deepEqual(cards[0].routes, ["A", "C", "E"]);
   });
 
-  test("survives a stop name containing punctuation", () => {
-    // Routes are split before the "@name" suffix, because a bus stop name
-    // can contain almost anything and would otherwise swallow the filter.
+  test("a route filter survives a legacy name full of punctuation", () => {
+    // Routes are split before the "@name", because a stop name can contain
+    // almost anything and would otherwise swallow the filter. Still true of
+    // a stored value carrying the old suffix.
     const { cards } = board("c1=bus:505507@BORDEN AV/5 ST!Q101:3");
     assert.deepEqual(cards[0].routes, ["Q101"]);
-    assert.equal(cards[0].title, "BORDEN AV/5 ST");
     assert.deepEqual(cards[0].stopIds, ["505507"]);
+    assert.equal(cards[0].title, undefined);
   });
 });
 

@@ -20,7 +20,11 @@
 import { test, describe, before } from "node:test";
 import assert from "node:assert/strict";
 import { parseBoardSettings } from "../src/settings.ts";
-import { searchStations, searchAllTypes } from "../src/pickers.ts";
+import {
+  searchStations,
+  searchAllTypes,
+  fetchBusStopNames,
+} from "../src/pickers.ts";
 
 const board = (query: string) =>
   parseBoardSettings(new URL(`https://example.test/api/board?${query}`));
@@ -84,13 +88,15 @@ describe("the picker offers a corner as one choice", { concurrency: 1 }, () => {
     assert.equal(ids.length, 2, `expected both sides, got ${ids.join(",")}`);
   });
 
-  test("carries the stop name so the card is not headed 'Bus Stop <id>'", async (t) => {
+  test("stores IDs only, never the stop name", async (t) => {
     if (needsPortal(t)) return;
-    // route_info.json holds one hand-added stop, so a lookup cannot cover a
-    // user's choice. The picker knows the name and sends it along.
+    // The name used to travel with the ID as "@<name>", which put free text
+    // in a positional, colon-delimited value — so every delimiter a stop
+    // name can contain became a parsing hazard. The board builder asks the
+    // dataset for the name instead; see fetchBusStopNames.
     const options = await searchStations("bus", "borden av/5");
     const value = Object.values(options[0])[0];
-    assert.match(value, /@BORDEN AV\/5 ST$/);
+    assert.match(value, /^bus:[\d+]+$/, `value carries more than IDs: ${value}`);
   });
 
   test("excludes retired stop IDs", async (t) => {
@@ -147,10 +153,10 @@ describe("the dropdown's label and value are separate", () => {
     }
   });
 
-  test("a bus value carries its own stop name", async () => {
-    // The exception: bus options embed a name after "@", because the
-    // server has no table for most stops and the card would otherwise head
-    // itself "Bus Stop <id>".
+  test("a bus value is shaped like every other network's", async () => {
+    // Bus used to be the exception, embedding a name after "@". It is not
+    // any more: the board builder names a stop from NY Open Data, so the
+    // stored value is IDs like the rest.
     const options = await searchAllTypes("borden");
     const bus = options
       .map((o) => Object.values(o)[0])
@@ -158,8 +164,7 @@ describe("the dropdown's label and value are separate", () => {
 
     assert.ok(bus.length > 0, "no bus stops matched");
     for (const value of bus) {
-      assert.match(value, /^bus:[\d+]+@.+/);
-      assert.equal((value.match(/@/g) ?? []).length, 1);
+      assert.match(value, /^bus:[\d+]+$/, `value carries more than IDs: ${value}`);
     }
   });
 });
@@ -298,5 +303,63 @@ describe("station search for the rail types", () => {
     const value = Object.values(options[0])[0];
     assert.match(value, /^ferry:\d+$/);
     assert.ok(!value.includes("+"), "a landing should not merge stop IDs");
+  });
+});
+
+describe("naming a bus stop from the dataset", () => {
+  // What replaced the "@name" suffix. Bus is the one network whose stop
+  // names are not bundled into the Worker, so the board builder asks NY
+  // Open Data rather than having the picker smuggle the name through the
+  // stored value.
+  let portalReachable = true;
+
+  before(async () => {
+    try {
+      const probe = await fetchBusStopNames(["403257"]);
+      portalReachable = probe.size > 0;
+    } catch {
+      portalReachable = false;
+    }
+  });
+
+  const needsPortal = (t: { skip: (reason?: string) => void }): boolean => {
+    if (!portalReachable) {
+      t.skip("NY Open Data unreachable");
+      return true;
+    }
+    return false;
+  };
+
+  test("one call names every ID on a card", async (t) => {
+    if (needsPortal(t)) return;
+    // Both sides of W 42 St/5 Av. The limit must scale with the ID count:
+    // a busy stop returns one row per route serving it, so a flat limit let
+    // 403257 alone fill the response and 403465 came back unnamed.
+    const names = await fetchBusStopNames(["403257", "403465"]);
+    assert.equal(names.size, 2, `expected both stops, got ${names.size}`);
+    for (const id of ["403257", "403465"]) {
+      assert.match(names.get(id) ?? "", /42 ST/i, `${id} unnamed`);
+    }
+  });
+
+  test("an unknown ID is simply absent", async (t) => {
+    if (needsPortal(t)) return;
+    // Not an error: the card still has departures to show, and falls back
+    // to "Bus Stop <id>" as it always did.
+    const names = await fetchBusStopNames(["999999999"]);
+    assert.equal(names.get("999999999"), undefined);
+  });
+
+  test("a non-numeric ID never reaches the query", async () => {
+    // The digit filter is what keeps the SoQL literal injection-free, so
+    // anything else is dropped before the call — which also means no
+    // request at all when nothing survives.
+    const names = await fetchBusStopNames(["'; DROP--", "abc"]);
+    assert.equal(names.size, 0);
+  });
+
+  test("no IDs means no request", async () => {
+    const names = await fetchBusStopNames([]);
+    assert.equal(names.size, 0);
   });
 });
