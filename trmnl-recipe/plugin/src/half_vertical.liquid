@@ -134,8 +134,18 @@
 
      `flex-shrink` lets the name win when both cannot fit, and `nowrap`
      keeps the heading one line tall. */
+  /* The name is what identifies a card, so it is never crushed below a
+     readable minimum — twelve bullets at Times Square took the heading
+     down to "Times" before this. The strip yields first and clips. */
+  .card-name {
+    min-width: 7ch;
+  }
   .bullet-strip {
     display: flex;
+    /* A ceiling as well as shrink, so a long route list cannot claim the
+       heading. Half is enough for six marks, which is as many as tell a
+       rider anything the name has not. */
+    max-width: 50%;
     /* Not `inherit`: that takes the heading row's `gap--small` (7px), which
        is the right distance between the station name and the strip but too
        much between the bullets themselves — a route list reads as one
@@ -227,11 +237,6 @@
      first — the route is what a rider scans for. */
   .row-badge {
     flex-shrink: 1;
-    /* A floor, not zero. Without it the flex row squeezes "M42" to "M…",
-       which is worse than useless — a truncated route reads as a different
-       route. 2.6em is four characters: every bus route and subway bullet
-       fits, and a longer railroad branch still ellipsizes, where the first
-       word is enough to tell "Port Washington" from "Port Jefferson". */
     /* A floor in `ch`, not `em` or a percentage. The framework's `.label`
        sets its own `max-width: 100%` and `.label--small` reduces the font
        size, so an `em` floor shrinks with the type it is meant to protect
@@ -244,10 +249,21 @@
     /* Longer railroad branches still ellipsize; the first word separates
        "Port Washington" from "Port Jefferson". */
     max-width: 9ch;
+    /* A railroad or bus badge sits in the same column as a subway bullet
+       and must read as the same kind of mark. The framework's `.label`
+       padding made it visibly taller — "Far Rock…" stood a third higher
+       than the ⑦ beside it — so the box is pinned to the bullet's own
+       1.35em and the type stepped down to fit inside it. */
+    height: 1.35em;
+    font-size: 0.86em;
+    padding-top: 0;
+    padding-bottom: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: block;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
   }
 </style>
 
@@ -283,7 +299,7 @@
         {% endunless %}
 
         <div class="flex flex--row flex--center-y gap--small">
-          <span class="title title--small grow" data-clamp="1">{{ card.n }}</span>
+          <span class="card-name title title--small grow" data-clamp="1">{{ card.n }}</span>
           {% if card.b %}
             {% comment %}
                       Capped, like the full layout. Past a few the bullets

@@ -395,6 +395,7 @@ describe("every class exists in the framework", () => {
     "row-time",
     "row-line--split",
     "bullet-strip",
+    "card-name",
   ]);
 
   let frameworkClasses: Set<string> | undefined;
