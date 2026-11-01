@@ -72,6 +72,41 @@ describe("a legacy '@name' is ignored for every type", () => {
   });
 });
 
+describe("each card field has its own parameter", () => {
+  // The fields were packed into one parameter as `station:walk:title`, and
+  // the title — free text, last in line — could not be told from the
+  // separators around it. Separate parameters make the question not arise:
+  // the URL encoder does the escaping.
+  test("a title full of separators survives intact", () => {
+    // Impossible under the packed format: every one of these characters was
+    // either a separator or ambiguous with one.
+    for (const title of ["A: B & C/D", "Track 5: Downtown", "7th & 9th", "a:b:c"]) {
+      const { cards } = board(
+        `c1=subway:721&w1=5&n1=${encodeURIComponent(title)}`
+      );
+      assert.equal(cards[0].title, title, `"${title}" did not survive`);
+    }
+  });
+
+  test("walk time comes from its own parameter", () => {
+    assert.equal(board("c1=subway:721&w1=12").cards[0].walkTime, 12);
+  });
+
+  test("a packed value still parses, for URLs not yet re-saved", () => {
+    // A user who has not re-saved the plugin since the URL changed shape is
+    // still sending the old form. It must keep working.
+    const { cards } = board("c1=subway:721:12:My stop");
+    assert.equal(cards[0].walkTime, 12);
+    assert.equal(cards[0].title, "My stop");
+  });
+
+  test("the parameter wins over anything packed in the value", () => {
+    const { cards } = board("c1=subway:721:5:Packed&w1=9&n1=Parameter");
+    assert.equal(cards[0].title, "Parameter");
+    assert.equal(cards[0].walkTime, 9);
+  });
+});
+
 describe("an inherited slot tail is cut out of the title", () => {
   // Captured from a device. The station field was fine (`subway:721`); the
   // *title* field held a whole old slot string, so the template's append

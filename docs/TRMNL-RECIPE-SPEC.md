@@ -588,10 +588,19 @@ https://<host>/api/board
 Three things about that shape are load-bearing, and
 `trmnl-recipe/recipe/polling-url.txt` is the authoritative copy:
 
+- **Every field is its own parameter** — `cN` the station, `wN` the walk
+  time, `nN` the title, `vN` the toggle. They were once packed into `cN` as
+  `station:walk:title`, and that was a mistake worth recording: the title is
+  free text and sat last, so a colon in it could not be told from a
+  separator, and a title that already contained a packed slot grew another
+  tail on every round trip — typing a new title *appended* to the junk
+  instead of replacing it. Four successive parser fixes each guessed at
+  where the real boundaries were before the format itself was questioned.
+  The title is `url_encode`d, so the encoder does the escaping.
 - **No `{{ cardN_type }}`.** The picker stores the transit type on the front
   of the station value already, so writing it again yields
-  `subway:subway:127+725` and shifts every positional field along by one. The
-  Worker tolerates the doubled form, but the URL avoids producing it.
+  `subway:subway:127+725` and shifts the fields along. The Worker tolerates
+  the doubled form, but the URL avoids producing it.
 - **The `{% if %}` tests the station only**, so an unconfigured slot writes an
   empty parameter the Worker skips. It deliberately does not test
   `cardN_visible` — see §4.1.

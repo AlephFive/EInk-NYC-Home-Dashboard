@@ -111,6 +111,27 @@ describe("every card field is actually wired up", () => {
     }
   });
 
+  test("each card field is written as its own parameter", () => {
+    // Not packed into one. A title is free text and was last in the packed
+    // form, so a colon in it was indistinguishable from a separator — and a
+    // title that already held a packed slot grew another tail on every
+    // round trip. Pinned because the packed form reads tidier in the YAML.
+    for (const slot of [1, 2, 3, 4, 5, 6]) {
+      assert.ok(
+        shippedUrl.includes(`&w${slot}={{ card${slot}_walk }}`),
+        `card${slot}_walk is not its own parameter`
+      );
+      assert.ok(
+        shippedUrl.includes(`&n${slot}={{ card${slot}_title | url_encode }}`),
+        `card${slot}_title is not its own url_encoded parameter`
+      );
+      assert.ok(
+        !shippedUrl.includes(`:{{ card${slot}_walk }}:`),
+        `card${slot} still packs its fields into one parameter`
+      );
+    }
+  });
+
   test("visibility is never decided in Liquid", () => {
     // It was once, and the toggle did nothing: Liquid treats only `nil` and
     // `false` as falsy, so a checkbox stored as the string "false" is

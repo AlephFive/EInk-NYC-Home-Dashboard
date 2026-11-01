@@ -6,10 +6,22 @@
  * query parameters. There is no session and nothing persisted on our side —
  * the settings *are* the request.
  *
- * Card slots are encoded one parameter each, `c1`..`c6`, as
- * `type:stopIds:walkTime:title`, with an optional `!routes` on the stop IDs. A flat string rather than JSON because it has
- * to survive being written into a URL by a Liquid template, where quoting JSON
- * is a reliable source of breakage.
+ * Each card field gets **its own query parameter**: `c1` the station value,
+ * `w1` the walk time, `n1` the title, `v1` the visibility toggle. Not JSON —
+ * quoting that from a Liquid template is a reliable source of breakage — but
+ * not packed into one parameter either.
+ *
+ * It was packed once, as `station:walkTime:title`, and that was the mistake.
+ * The title is free text and sits last, so a colon in it is indistinguishable
+ * from a separator; worse, a title that already contained a packed slot got
+ * another tail appended on every round trip, and typing a new title appended
+ * to the junk instead of replacing it. Four successive fixes each guessed at
+ * where the real boundaries were. Separate parameters make the question not
+ * arise: the URL encoder handles the escaping, and a title is whatever `n1`
+ * says it is.
+ *
+ * `c1` still carries `type:stopIds` with an optional `!routes`, because those
+ * are structured identifiers the picker writes, not free text.
  *
  * The station picker stores its value with the type already on the front
  * (`subway:127+725`), so a polling URL that also writes `{{ cardN_type }}`
@@ -101,26 +113,20 @@ function parseVisible(value: string | null): boolean {
 /**
  * A card's custom heading, or "" to fall back to the station's own name.
  *
- * The polling template writes `{{station}}:{{walk}}:{{title}}`. A value
- * stored before the picker separated label from value kept a whole slot
- * string in one field, so the template's append shifts everything along and
- * the *old* `:<walk>:<title>` tail ends up inside the title:
+ * Now that the title has its own query parameter, this is only a guard
+ * against values stored while it did not. Those came through packed as
+ * `station:walk:title`, so a title could inherit an entire old slot string
+ * and arrive as "Vernon Blvd-Jackson Av (7) · Subway:5:test" — the user's
+ * "test" with a stale label in front of it.
  *
- *   card1_title = "Vernon Blvd-Jackson Av (7) · Subway:5:test"
- *                  └─ an old label ─────────────┘└──┘└──┘
- *                                            old walk  what the user typed
- *
- * An embedded `:<digits>:` is the template's own separator pattern appearing
- * where only a heading belongs, and no station name contains it — the MTA's
- * names carry slashes, parentheses, periods and middots, but never a
- * colon-wrapped number. So the title is everything *after* the last such
- * tail: the user's own text survives, the inherited label does not.
- *
- * An empty remainder means the whole field was residue, which is the ":5:"
- * case — nothing left, so the station names itself.
+ * An embedded `:<digits>:` is the old packing's own separator appearing
+ * where only a heading belongs, and no MTA station name contains one: they
+ * carry slashes, parentheses, periods and middots freely, but never a
+ * colon-wrapped number. Everything after the last of them is what was
+ * actually typed.
  */
 function cardTitle(raw: string): string {
-  // Last, not first: a value that has round-tripped more than once carries
+  // Last, not first: a value that round-tripped more than once carries
   // several tails, and only the text after the final one was ever typed.
   const tail = /.*:\d+:/s;
   const typed = tail.test(raw) ? raw.replace(tail, "").trim() : raw.trim();
@@ -128,6 +134,7 @@ function cardTitle(raw: string): string {
   // A heading with no letter at all is leftover punctuation, never a name.
   return /\p{L}/u.test(typed) ? typed : "";
 }
+
 
 
 
@@ -162,36 +169,40 @@ function parseTransitType(value: string): TransitType | undefined {
  *   card should not blank the panel, which is the same rule the dashboard
  *   applies to a failing feed.
  */
-function parseCard(slot: number, raw: string | null): CardSettings | undefined {
-  if (isBlank(raw)) return undefined;
+interface SlotParams {
+  /** The picker's stored value: `type:stopIds` with an optional `!routes`. */
+  station: string | null;
+  walk: string | undefined;
+  title: string | undefined;
+}
 
-  const parts = raw!.split(":");
+function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
+  if (isBlank(params.station)) return undefined;
+
+  const parts = params.station!.split(":");
 
   // The picker's stored value already begins with the transit type, so a
   // polling URL that writes `{{ cardN_type }}:{{ cardN_station }}` yields
-  // "subway:subway:127+725:10". Dropping the duplicate keeps both that and a
-  // hand-written "subway:127+725:10" working — and getting this wrong shifts
-  // every field, so it is handled rather than left to the template.
+  // "subway:subway:127+725". Dropping the duplicate keeps both that and a
+  // hand-written form working.
   if (parts.length > 1 && parseTransitType(parts[0]) && parseTransitType(parts[1])) {
     parts.shift();
   }
 
-  // Split into at most 4 so a title containing ":" survives intact.
-  const [type = "", ids = "", walk = "", ...titleParts] = parts;
+  // A legacy packed value carries ":<walk>:<title>" here. Those fields have
+  // their own parameters now, so anything past the IDs is ignored — see the
+  // module comment for why the packed form existed and what it cost.
+  const [type = "", ids = "", packedWalk = "", ...packedTitle] = parts;
   const transitType = parseTransitType(type);
   if (!transitType) return undefined;
 
-  // The picker may append "@<name>" to the ID list, carrying a display name
-  // the server has no table for — bus stops, where `route_info.json` covers
-  // only hand-added entries. An explicit title still wins over it.
   // Routes are split off first. A stop name can contain almost anything —
-  // "BORDEN AV/5 ST" — so splitting "@" first would leave "!1,2,3" inside the
-  // name and lose the filter silently.
+  // "BORDEN AV/5 ST" — so splitting "@" first would leave "!1,2,3" inside
+  // the name and lose the filter silently.
   const [withName = "", routeList = ""] = ids.split("!");
   // A legacy "@<name>" may still be in a value stored before the picker
   // dropped it. Split it off and discard it: the board builder names bus
-  // stops from the dataset now, and every other network from its own tables,
-  // so nothing needs the smuggled copy.
+  // stops from the dataset now, and every other network from its own tables.
   const [idList = ""] = withName.split("@");
   const routes = routeList
     .split(",")
@@ -211,18 +222,17 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
 
-  // A card heading is the station's own name, resolved by whoever owns the
-  // table: the bundled lookups for four networks, and NY Open Data for bus.
-  // Only a title the user typed overrides it, and a title with no letter in
-  // it is residue from an old stored value rather than a name — see
-  // `cardTitle`.
-  const title = cardTitle(titleParts.join(":").trim());
+  // Both read from their own parameters. The packed value is consulted only
+  // when the parameter is absent, which means an old polling URL — a user
+  // who has not re-saved the plugin since the URL changed shape.
+  const title = cardTitle(params.title ?? packedTitle.join(":"));
+  const walk = parseNumber(params.walk ?? packedWalk, DEFAULT_WALK_TIME);
 
   return {
     slot,
     transitType,
     stopIds,
-    walkTime: parseNumber(walk, DEFAULT_WALK_TIME),
+    walkTime: walk,
     title: title === "" ? undefined : title,
     routes: routes.length > 0 ? routes : undefined,
   };
@@ -324,7 +334,11 @@ export function parseBoardSettings(url: URL): BoardSettings {
     // decides.
     if (!parseVisible(params.get(`v${slot}`))) continue;
 
-    const card = parseCard(slot, params.get(`c${slot}`));
+    const card = parseCard(slot, {
+      station: params.get(`c${slot}`),
+      walk: params.get(`w${slot}`) ?? undefined,
+      title: params.get(`n${slot}`) ?? undefined,
+    });
     if (card) cards.push(card);
   }
 
