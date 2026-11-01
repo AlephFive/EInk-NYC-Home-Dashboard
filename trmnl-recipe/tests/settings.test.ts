@@ -15,6 +15,81 @@ import { parseBoardSettings } from "../src/settings.ts";
 const board = (query: string) =>
   parseBoardSettings(new URL(`https://example.test/api/board?${query}`));
 
+describe("a value stored by the old picker heals itself", () => {
+  // Before the picker separated label from value, the whole dropdown label
+  // went into storage — route suffix, network, and the card's own
+  // ":<walk>:<title>" tail. The template then appended another tail, so the
+  // panel showed:
+  //
+  //   Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway:5:
+  //
+  // The IDs in front are still good, so the junk can be dropped rather than
+  // the card. Captured from a real device screenshot.
+  const STALE =
+    "subway:127+725+902+A27+R16@Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway:5:";
+  const FRESH = "subway:127+725+902+A27+R16";
+
+  test("it parses to the same card as a fresh pick", () => {
+    const stale = board(`c1=${encodeURIComponent(`${STALE}:5:`)}`).cards[0];
+    const fresh = board(`c1=${encodeURIComponent(`${FRESH}:5:`)}`).cards[0];
+    assert.deepEqual(stale, fresh);
+  });
+
+  test("the station keeps all five platform groups", () => {
+    const { cards } = board(`c1=${encodeURIComponent(`${STALE}:5:`)}`);
+    assert.deepEqual(cards[0].stopIds, ["127", "725", "902", "A27", "R16"]);
+  });
+
+  test("no custom title survives, so the server names the card", () => {
+    // Which is the whole point: the station table knows it is
+    // "Times Sq-42 St", and the routes belong in the bullets, not the text.
+    const { cards } = board(`c1=${encodeURIComponent(`${STALE}:5:`)}`);
+    assert.equal(cards[0].title, undefined);
+  });
+});
+
+describe("the picker's @name is only trusted where it is needed", () => {
+  // It exists for bus stops, whose names live in the MTA's remote dataset.
+  // Everywhere else the server has its own table, and honouring an @name
+  // there is what let a stale dropdown label become a card heading.
+  test("a bus @name is kept", () => {
+    const { cards } = board("c1=bus:505506@CENTER BLVD/BORDEN AV:5");
+    assert.equal(cards[0].title, "CENTER BLVD/BORDEN AV");
+  });
+
+  test("a subway @name is ignored", () => {
+    const { cards } = board("c1=subway:127@Anything At All:5");
+    assert.equal(cards[0].title, undefined);
+  });
+
+  test("an explicit title still wins for every type", () => {
+    // The user typed it; it is not picker residue.
+    assert.equal(board("c1=subway:127@Ignored:5:Home").cards[0].title, "Home");
+    assert.equal(
+      board("c1=bus:505506@CENTER BLVD:5:Work").cards[0].title,
+      "Work"
+    );
+  });
+});
+
+describe("a title of nothing but punctuation is discarded", () => {
+  // The residue of an old tail, never a station name.
+  test("separators and digits alone do not become a heading", () => {
+    for (const junk of [":5:", "::", "5", " : 10 : "]) {
+      const { cards } = board(`c1=${encodeURIComponent(`subway:127:5:${junk}`)}`);
+      assert.equal(cards[0].title, undefined, `"${junk}" became a title`);
+    }
+  });
+
+  test("a real name containing digits is kept", () => {
+    // The check is "has no letter", not "looks tidy" — these are all real.
+    for (const name of ["21 St", "W 42 St/5 Av", "Beach 108th Street"]) {
+      const { cards } = board(`c1=${encodeURIComponent(`subway:127:5:${name}`)}`);
+      assert.equal(cards[0].title, name);
+    }
+  });
+});
+
 describe("the visibility toggle", () => {
   // Decided here, not in the polling template. Liquid treats the string
   // "false" as truthy, so a `{% if cardN_visible %}` guard hid nothing and

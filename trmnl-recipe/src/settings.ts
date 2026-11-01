@@ -98,6 +98,23 @@ function parseVisible(value: string | null): boolean {
   return trimmed !== "false" && trimmed !== "0" && trimmed !== "no" && trimmed !== "off";
 }
 
+/**
+ * A card's custom heading, or "" to fall back to the station's own name.
+ *
+ * A stored value written before the picker separated label from value keeps
+ * its own ":<walk>:<title>" tail, so the template's append shifts the fields
+ * along and the *old* tail lands in the title — leaving headings like ":5:".
+ * A title of nothing but separators and digits is never a station name and
+ * always this, so it is discarded in favour of the real one.
+ *
+ * Deliberately narrow. Real names contain digits and punctuation freely —
+ * "W 42 St/5 Av", "Beach 108th Street", "21 St" — so the test is that there
+ * is no letter at all, not that the title looks tidy.
+ */
+function cardTitle(raw: string): string {
+  return /\p{L}/u.test(raw) ? raw : "";
+}
+
 function parseNumber(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") return fallback;
   const parsed = Number(value);
@@ -174,7 +191,19 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
 
-  const title = titleParts.join(":").trim() || pickedName.trim();
+  // The "@name" only exists for stops the server cannot name itself — bus
+  // corners, whose stop list is the MTA's remote dataset. Subway, railroad
+  // and ferry all resolve their own names from bundled tables, so an "@name"
+  // on those is at best redundant and at worst wrong: a value stored before
+  // the picker separated label from value carries the whole *dropdown label*
+  // there, route suffix and network and all, and it became the card's
+  // heading — "Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway".
+  //
+  // Ignoring it for those types makes such a value self-heal, since the IDs
+  // in front of it are still good. An explicit title the user typed still
+  // wins, as it always did.
+  const fallbackName = transitType === "bus" ? pickedName.trim() : "";
+  const title = cardTitle(titleParts.join(":").trim() || fallbackName);
 
   return {
     slot,
