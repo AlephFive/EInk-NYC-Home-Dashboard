@@ -136,7 +136,12 @@
      keeps the heading one line tall. */
   .bullet-strip {
     display: flex;
-    gap: inherit;
+    /* Not `inherit`: that takes the heading row's `gap--small` (7px), which
+       is the right distance between the station name and the strip but too
+       much between the bullets themselves — a route list reads as one
+       object, and 7px at a 1.35em bullet spaces it out into separate marks.
+       4px groups them while keeping the circles clear of each other. */
+    gap: 4px;
     min-width: 0;
     flex-shrink: 1;
     overflow: hidden;
