@@ -85,6 +85,15 @@
     flex-shrink: 0;
     overflow: hidden;
   }
+  /* The glyph, not the circle.
+     `.bullet` sizes itself in `em`, so putting the reduction on the bullet
+     would shrink the circle with it and break the shared centre line the
+     column is read down. The span inside carries it instead: the numeral
+     sits a touch smaller in a circle that has not moved. */
+  .bullet > span {
+    font-size: 0.92em;
+    line-height: 1;
+  }
   .bullet--express {
     border-radius: 0;
     /* A rotated square's bounding box grows by root 2, so a diamond would sit
@@ -161,13 +170,17 @@
      gaps take 78px of that, leaving 44px for the destination: six
      characters, which renders "Coney Island-Stillwell Av" as "Cone…".
 
-     Dropping the clock a step is what buys the name back. It is the only
-     element here that can give width without losing meaning: a time is five
-     glyphs whatever its size, where a station name degrades one character
-     at a time. 12px against the row's 16px returns ~12px, taking the
-     destination to about nine characters. */
+     The clock was dropped a step to buy the name back, and that went too
+     far — at 0.75em the split cards' times read visibly smaller than the
+     full-width ones beside them, and the time is the one thing on the row
+     that must stay legible from across a room. A destination clipped to
+     eight characters is accepted instead; the column heading already says
+     which way the train is going.
+
+     0.92em is a hair under the row's size, enough to keep two columns of
+     digits from colliding without reading as a different size. */
   .row-line--split .row-time {
-    font-size: 0.75em;
+    font-size: 0.92em;
   }
   /* The destination takes whatever the badge and the clock leave, and clips
      rather than wrapping: a wrapped name would make its row taller than its
