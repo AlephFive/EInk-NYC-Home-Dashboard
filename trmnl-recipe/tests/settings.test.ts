@@ -90,6 +90,34 @@ describe("a title of nothing but punctuation is discarded", () => {
   });
 });
 
+describe("a stale bus value keeps its name", () => {
+  // Bus is the one type whose "@name" the server genuinely needs: its stop
+  // names live in the MTA's remote dataset, so without one the card falls
+  // back to "Bus Stop 403257". That makes it the one type where a stale
+  // value cannot just be discarded — the name has to be recovered.
+  const STALE = "bus:403257@W 42 St/5 Av · Bus:5::5:";
+
+  test("the network tag is stripped and the street survives", () => {
+    const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
+    assert.equal(cards[0].title, "W 42 St/5 Av");
+  });
+
+  test("it matches what a fresh pick stores", () => {
+    const fresh = board("c1=" + encodeURIComponent("bus:403257@W 42 St/5 Av:5"));
+    const stale = board(`c1=${encodeURIComponent(STALE)}`);
+    assert.equal(stale.cards[0].title, fresh.cards[0].title);
+  });
+
+  test("a stale tail does not consume the picked name", () => {
+    // The ordering bug this guards: ":5:" is non-empty, so it won the `||`
+    // against the picked name, was then nulled for having no letter, and
+    // took the usable name down with it. cardTitle must run on the explicit
+    // title *before* the fallback, not after.
+    const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
+    assert.notEqual(cards[0].title, undefined);
+  });
+});
+
 describe("the visibility toggle", () => {
   // Decided here, not in the polling template. Liquid treats the string
   // "false" as truthy, so a `{% if cardN_visible %}` guard hid nothing and

@@ -115,6 +115,35 @@ function cardTitle(raw: string): string {
   return /\p{L}/u.test(raw) ? raw : "";
 }
 
+/**
+ * A bus stop's name, with the old picker's network tag stripped.
+ *
+ * Bus is the one type whose "@name" the server genuinely needs — its stop
+ * names live in the MTA's remote dataset, not a bundled table, so without
+ * this a card falls back to "Bus Stop 403257". That makes it also the one
+ * type where a stale value cannot simply be discarded.
+ *
+ * A value stored before the picker separated label from value carries the
+ * dropdown label, which ended in " · Bus". The separator is ours and no MTA
+ * stop name contains it, so cutting there recovers the real name.
+ *
+ * **This is a stopgap, and a brittle one.** The middot does not survive the
+ * round trip intact — it arrives re-encoded, so matching the literal
+ * character fails and the tag reaches the panel as "W 42 St/5 Av ? Bus".
+ * Matching more encodings only adds more guesses.
+ *
+ * The real fix is to stop carrying the name in the value at all. The picker
+ * already returns `{id, name}` and TRMNL stores only the `id`; the "@name"
+ * exists solely because the board builder cannot name a bus stop offline.
+ * Giving it the same NY Open Data lookup the picker uses would remove this
+ * function, the "@" suffix, and the whole class of delimiter bug with it.
+ * See the Known Gaps note in the spec.
+ */
+function busStopName(raw: string): string {
+  // Cut at the first separator-ish run, however it survived encoding.
+  return raw.split(/\s*(?:·|&middot;|·|�)\s*/)[0].trim();
+}
+
 function parseNumber(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") return fallback;
   const parsed = Number(value);
@@ -202,8 +231,13 @@ function parseCard(slot: number, raw: string | null): CardSettings | undefined {
   // Ignoring it for those types makes such a value self-heal, since the IDs
   // in front of it are still good. An explicit title the user typed still
   // wins, as it always did.
-  const fallbackName = transitType === "bus" ? pickedName.trim() : "";
-  const title = cardTitle(titleParts.join(":").trim() || fallbackName);
+  const fallbackName =
+    transitType === "bus" ? busStopName(pickedName) : "";
+  // cardTitle runs on the explicit title *before* the fallback, not after
+  // the `||`. A stale tail like ":5:" is non-empty, so it would otherwise
+  // win the `||`, be nulled by cardTitle, and take the usable picked name
+  // down with it — leaving a bus card headed "Bus Stop 403257".
+  const title = cardTitle(titleParts.join(":").trim()) || fallbackName;
 
   return {
     slot,
