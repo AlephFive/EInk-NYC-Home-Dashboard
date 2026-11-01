@@ -72,6 +72,40 @@ describe("a legacy '@name' is ignored for every type", () => {
   });
 });
 
+describe("a multi-ID station survives URL encoding", () => {
+  // `c1` is written into the polling URL *raw* — unlike `n1`, which is
+  // url_encode'd — so the station value is exposed to whatever TRMNL does
+  // with it. A query string decodes a literal "+" as a space, so
+  // "127+725" can arrive either way and both must mean two stops. Getting
+  // this wrong collapses a five-platform complex into one unusable id,
+  // silently.
+  //
+  // This had no test until an audit of the string handling went looking
+  // for it, which is how defensive code rots.
+  test("plus-joined IDs", () => {
+    assert.deepEqual(board("c1=subway:127+725").cards[0].stopIds, ["127", "725"]);
+  });
+
+  test("the same value with the plus decoded to a space", () => {
+    assert.deepEqual(
+      board("c1=subway:127%20725").cards[0].stopIds,
+      ["127", "725"]
+    );
+  });
+
+  test("a percent-encoded value parses identically", () => {
+    // If `c1` ever gains `| url_encode`, this is the shape it would send.
+    assert.deepEqual(
+      board("c1=subway%3A127%2B725%21A%2CC").cards[0].stopIds,
+      ["127", "725"]
+    );
+    assert.deepEqual(
+      board("c1=subway%3A127%2B725%21A%2CC").cards[0].routes,
+      ["A", "C"]
+    );
+  });
+});
+
 describe("the route filter is found wherever it sits", () => {
   // It was taken from the segment between the first and second colon —
   // where the picker puts the IDs. Correct for a current value, silently
