@@ -9,6 +9,7 @@
  */
 
 import { parseBoardSettings } from "./settings";
+import { boardFromJson } from "./jsonSettings";
 import { buildBoard, type BuildEnv, type Board } from "./buildBoard";
 import {
   PAYLOAD_CAP_BYTES,
@@ -278,7 +279,23 @@ export default {
       return json({ error: "Not found" }, 404);
     }
 
-    const settings = parseBoardSettings(url);
+    // A POST carries the board as JSON; a GET carries it in the query
+    // string. Both are supported because the polling URL changed shape and
+    // a user who has not re-saved since is still sending the old one.
+    //
+    // JSON is the better of the two and the one the plugin ships: the flat
+    // format has to infer which field it is reading from where a separator
+    // fell, and a station name can contain every separator this project
+    // uses. A malformed body falls through to the query string rather than
+    // erroring — an unattended panel must render something.
+    let settings = parseBoardSettings(url);
+    if (request.method === "POST") {
+      try {
+        settings = boardFromJson(await request.json());
+      } catch {
+        // Not JSON, or not readable. The query-string parse stands.
+      }
+    }
 
     // The demo board is the same for everyone who has not configured a card,
     // so it is built once and reused. `caches` is absent outside the Workers

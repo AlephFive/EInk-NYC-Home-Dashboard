@@ -96,11 +96,11 @@ export interface BoardSettings {
   fetchDepartures: number;
 }
 
-const MAX_SLOTS = 6;
-const DEFAULT_WALK_TIME = 5;
+export const MAX_SLOTS = 6;
+export const DEFAULT_WALK_TIME = 5;
 
 /** Destinations at the row's own size, which is what the panel shipped with. */
-const DEFAULT_DESTINATION_SCALE = 1;
+export const DEFAULT_DESTINATION_SCALE = 1;
 /**
  * Minutes before you must leave, below which a row is highlighted.
  *
@@ -110,8 +110,8 @@ const DEFAULT_DESTINATION_SCALE = 1;
  * form's own default, or a field left untouched and a field cleared mean
  * different things.
  */
-const DEFAULT_URGENT_THRESHOLD = 5;
-const DEFAULT_FETCH_DEPARTURES = 8;
+export const DEFAULT_URGENT_THRESHOLD = 5;
+export const DEFAULT_FETCH_DEPARTURES = 8;
 
 /** Treat TRMNL's unset/off values as absent rather than as content. */
 function isBlank(value: string | null): boolean {
@@ -161,9 +161,18 @@ function cardTitle(raw: string): string {
 
 
 
-/** Hold a number inside a range, for settings a user can type freely. */
-function clamp(value: number, low: number, high: number): number {
-  return Math.min(high, Math.max(low, value));
+/**
+ * Hold the destination scale inside the range where a row still works.
+ *
+ * Clamped rather than validated: a board must render whatever arrives,
+ * and a destination at 3x or 0.1x is not a board. The ends are where the
+ * row stops working — below 0.7 the 1-bit panel cannot resolve the
+ * glyphs, above 1.3 a destination crowds out the clock beside it.
+ *
+ * Shared with the JSON parser so both read the same setting the same way.
+ */
+export function clampDestinationScale(value: number): number {
+  return Math.min(1.3, Math.max(0.7, value));
 }
 
 function parseNumber(value: string | undefined, fallback: number): number {
@@ -172,7 +181,7 @@ function parseNumber(value: string | undefined, fallback: number): number {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
-function parseTransitType(value: string): TransitType | undefined {
+export function parseTransitType(value: string): TransitType | undefined {
   const normalised = value.trim().toLowerCase();
   // The form shows friendly names; map them to the internal union rather than
   // making users' stored settings depend on our type spelling.
@@ -435,10 +444,8 @@ export function parseBoardSettings(url: URL): BoardSettings {
     // sizes either side of which the row stops working — below 0.7 the
     // 1-bit panel cannot resolve the glyphs, above 1.3 a destination
     // crowds out the clock it is meant to sit beside.
-    destinationScale: clamp(
-      parseFloat(params.get("dscale") ?? "") || DEFAULT_DESTINATION_SCALE,
-      0.7,
-      1.3
+    destinationScale: clampDestinationScale(
+      parseFloat(params.get("dscale") ?? "") || DEFAULT_DESTINATION_SCALE
     ),
     urgentThresholdMinutes: parseNumber(
       params.get("urgent") ?? undefined,
