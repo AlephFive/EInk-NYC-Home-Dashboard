@@ -221,9 +221,19 @@
      back as breathing room between them — the panel is read at a glance
      from across a room, and rows packed tight are what make it hard to
      track one across its columns. */
+  /* Rows are one line each, so the space the second line used to take is
+     given back as breathing room between them.
+
+     As margin, not padding. Padding sits *inside* the box, so once a row
+     can be inverted the gap inverts with it and two urgent rows meet in a
+     continuous black band — the highlight stops reading as one row. Margin
+     keeps the gap outside the highlight, so an inverted row is a discrete
+     block with white either side of it whatever its neighbours are. */
   .row-line {
-    padding-top: 0.14em;
-    padding-bottom: 0.14em;
+    margin-top: 0.14em;
+    margin-bottom: 0.14em;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
   }
   /* The clock is fixed width and never gives way. Without this the flex row
      squeezes it like any other text child, and a long destination pushes
@@ -251,6 +261,28 @@
      So every time on the board is the same size, and the destination is
      what gives way — it clips, which a station name survives, where a
      half-size clock is simply harder to read. */
+  /* An urgent row is inverted whole, which is the strongest mark a 1-bit
+     panel has and the only one that reads at row scale.
+
+     `filter: invert(1)` flips what is painted, and nothing is painted
+     behind a transparent row — so the row needs an explicit white ground
+     to invert *into* black. Without it the text flips to white and
+     disappears against the page.
+
+     The inset is a negative margin plus matching padding, not padding
+     alone. Padding alone narrows the row's content box, so an urgent row
+     clipped its destination several characters shorter than the ordinary
+     rows around it — the highlight cost exactly the width the name needed.
+     Pulling the margin out by the same amount lets the highlight bleed
+     into the card's own padding instead, so both kinds of row give their
+     content the same space. */
+  .row-line--urgent {
+    background: #fff;
+    margin-left: -0.35em;
+    margin-right: -0.35em;
+    padding-left: 0.35em;
+    padding-right: 0.35em;
+  }
   /* The destination takes whatever the badge and the clock leave, and clips
      rather than wrapping: a wrapped name would make its row taller than its
      neighbours, and on a fixed panel a name cut mid-word still reads. */
@@ -426,7 +458,7 @@
                 {% elsif r[4] == -1 %}
                   {% assign arrow = "›" %}
                 {% endif %}
-                <div class="row-line flex flex--row flex--between flex--center-y gap--small">
+                <div class="row-line{% if r[3] == 1 %} row-line--urgent invert rounded--small{% endif %} flex flex--row flex--between flex--center-y gap--small">
                   <span class="label label--small label--filled {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                   <span class="row-dest title title--small grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
                   <span class="row-time title title--small">{{ r[2] }}</span>

@@ -469,6 +469,7 @@ describe("every class exists in the framework", () => {
     "bullet-strip",
     "card-name",
     "footer-stamp",
+    "row-line--urgent",
     "bullet-strip--tag",
   ]);
 
