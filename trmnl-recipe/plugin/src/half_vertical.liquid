@@ -380,6 +380,11 @@
      Sized to match a destination, since that is what it stands in for. */
   .row-empty {
     font-size: calc(0.86em * var(--dest-scale, 1));
+    /* Stand off the card heading by the same distance a direction
+       heading does. Without it the line sits flush against the rule and
+       reads as part of the title rather than as the card's content —
+       every other card has a heading in that space. */
+    margin-top: 0.35em;
   }
   /* The destination takes whatever the badge and the clock leave, and clips
      rather than wrapping: a wrapped name would make its row taller than its
