@@ -134,7 +134,7 @@ describe("every card field is actually wired up", () => {
         `${key} is missing`
       );
       assert.ok(
-        shippedBody.includes(`"visible": "{{ ${key}`),
+        shippedBody.includes(`"visible": {{ ${key} | json }}`),
         `${key} is not passed to the Worker as v${slot}`
       );
     }
@@ -147,41 +147,49 @@ describe("every card field is actually wired up", () => {
     // the grammar used, which is where most of this project's bugs came
     // from. A JSON key cannot be mistaken for another key.
     for (const slot of [1, 2, 3, 4, 5, 6]) {
-      for (const field of ["station", "routes", "walk", "title", "visible"]) {
+      for (const field of ["routes", "walk", "title", "visible"]) {
         assert.ok(
-          shippedBody.includes(`"${field}": "{{ card${slot}_${field}`),
-          `card${slot}_${field} is not its own key`
+          shippedBody.includes(`"${field}": {{ card${slot}_${field} | json }}`),
+          `card${slot}_${field} is not its own json-escaped key`
         );
       }
+      assert.ok(
+        shippedBody.includes(`card${slot}_station | split: "::"`),
+        `card${slot}_station is not split into an object`
+      );
     }
   });
 
-  test("every interpolated value strips what would break the JSON", () => {
-    // Only two characters can, and TRMNL's Liquid has no working JSON
-    // filter: `| json` does not exist and renders nothing, `| jsonify`
-    // does not escape, `| escape` writes `&quot;` into the document. All
-    // three were checked against the engine.
-    //
-    // Stripping rather than escaping is safe because neither character
-    // belongs in any of these fields — a station is a picker-generated id,
-    // routes and walk are short codes and digits, and no stop name in the
-    // bundled tables contains either. A quote typed into a title is lost;
-    // the board is not.
+  test("the station is sent as an object, not a string", () => {
+    // The template splits `type:ids` and sends both named, so the Worker
+    // reads two fields instead of inferring them from a string. That is
+    // what ended the parsing bugs: a card called "Bus:6:", ":5:" in a
+    // heading, and a whole board lost because TRMNL stores `id::label`.
+    assert.ok(
+      shippedBody.includes('"type": {{ p1[0] | json }}'),
+      "the station's type is not its own key"
+    );
+    assert.ok(
+      shippedBody.includes('"ids": ['),
+      "the station's ids are not an array"
+    );
+  });
+
+  test("every interpolated value is json-escaped", () => {
+    // `| json` quotes and escapes; an earlier pass thought it did not
+    // exist and stripped quotes with `replace` instead, which was lossy
+    // and unnecessary. Anything unescaped here can inject into the
+    // document and take every card with it.
     const interpolations = [...shippedBody.matchAll(/\{\{([^}]*)\}\}/g)].map(
-      (m) => m[1]
+      (m) => m[1].trim()
     );
     assert.ok(interpolations.length > 0, "the body interpolates nothing");
 
     for (const expression of interpolations) {
       assert.match(
         expression,
-        /replace:\s*'\\'/,
-        `a value does not strip backslashes: {{${expression}}}`
-      );
-      assert.match(
-        expression,
-        /replace:\s*'"'/,
-        `a value does not strip quotes: {{${expression}}}`
+        /\|\s*json$/,
+        `a value reaches the body unescaped: {{ ${expression} }}`
       );
     }
   });
@@ -418,7 +426,7 @@ describe("the polling URL is well formed", () => {
     // gone and must stay gone, since `{% if %}` in a JSON document is how
     // a trailing comma gets written.
     assert.ok(
-      shippedBody.includes('"routes": "{{ card1_routes'),
+      shippedBody.includes('"routes": {{ card1_routes | json }}'),
       "routes is not a key of its own"
     );
     assert.doesNotMatch(

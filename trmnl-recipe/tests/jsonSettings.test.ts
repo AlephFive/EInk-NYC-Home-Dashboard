@@ -11,6 +11,82 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { boardFromJson } from "../src/jsonSettings.ts";
 
+describe("the station arrives as an object", () => {
+  // The template splits `type:ids` and sends both named, so the Worker
+  // reads two fields rather than inferring them from where separators
+  // fall in a string. Every parsing bug this project hit was that
+  // inference going wrong.
+  test("type and ids are read from their own keys", () => {
+    const { cards } = boardFromJson({
+      cards: [{ station: { type: "subway", ids: ["127", "725"] } }],
+    });
+    assert.equal(cards[0].transitType, "subway");
+    assert.deepEqual(cards[0].stopIds, ["127", "725"]);
+  });
+
+  test("a single id needs no array gymnastics", () => {
+    const { cards } = boardFromJson({
+      cards: [{ station: { type: "ferry", ids: ["87"] } }],
+    });
+    assert.deepEqual(cards[0].stopIds, ["87"]);
+  });
+
+  test("an aliased type still resolves", () => {
+    for (const [type, expected] of [
+      ["mtn", "railroad-mtn"],
+      ["lirr", "railroad-lirr"],
+      ["Metro-North", "railroad-mtn"],
+    ] as [string, string][]) {
+      const { cards } = boardFromJson({
+        cards: [{ station: { type, ids: ["1"] } }],
+      });
+      assert.equal(cards[0]?.transitType, expected, type);
+    }
+  });
+
+  test("a value a station name could never survive as a string", () => {
+    // The object form's whole point: these characters are data, not
+    // syntax. As a string every one of them was a separator.
+    const { cards } = boardFromJson({
+      cards: [
+        {
+          station: { type: "subway", ids: ["117"] },
+          title: 'A: B @ C · D "quoted" :5:',
+        },
+      ],
+    });
+    assert.deepEqual(cards[0].stopIds, ["117"]);
+    assert.equal(cards[0].title, 'A: B @ C · D "quoted" :5:');
+  });
+
+  test("a malformed station drops its own card and no other", () => {
+    const { cards } = boardFromJson({
+      cards: [
+        { station: { type: "monorail", ids: ["1"] } },
+        { station: { type: "subway", ids: [] } },
+        { station: { type: "subway", ids: ["117"] } },
+      ],
+    });
+    assert.deepEqual(
+      cards.map((card) => card.slot),
+      [3]
+    );
+  });
+
+  test("a string station still parses, for a body not yet re-saved", () => {
+    // Including TRMNL's `id::label` storage and the oldest label-only
+    // values, which resolve against the bundled tables.
+    for (const [station, ids] of [
+      ["subway:117", ["117"]],
+      ["subway:117::116 St-Columbia University (1) · Subway", ["117"]],
+      ["116 St-Columbia University (1) · Subway", ["117"]],
+    ] as [string, string[]][]) {
+      const { cards } = boardFromJson({ cards: [{ station }] });
+      assert.deepEqual(cards[0]?.stopIds, ids, station);
+    }
+  });
+});
+
 describe("a card from a JSON body", () => {
   test("station, walk, title and routes each come from their own key", () => {
     const { cards } = boardFromJson({

@@ -17,24 +17,29 @@
  * field is whatever its key says it is, and a value containing a colon,
  * an "@" or a middot is just a string.
  *
- * **The plugin does not use this yet, and the reason is TRMNL's Liquid.**
- * A JSON body has to escape its values, and the filters are not there:
+ * **Escaping is `| json`, and the station arrives already split.**
  *
- *   `| json`     does not exist — it renders *nothing*, silently
- *   `| jsonify`  exists but does not escape: `a"b\c` comes back unchanged
- *   `| escape`   HTML-escapes, so a quote becomes `&quot;` in the JSON
+ * An earlier pass concluded the filter did not exist and fell back to
+ * stripping quotes with `replace`. That was wrong: the probe wrote
+ * `| json` into an HTML attribute, where the quotes were mangled, and the
+ * empty result read as a missing filter. Tested properly it quotes,
+ * escapes and handles empty strings — `say "hi" ok` renders as
+ * `"say \"hi\" ok"` and survives the round trip intact.
  *
- * Probed against the real engine through `trmnlp build`, not assumed. So a
- * station or title containing a double quote breaks the document, and the
- * board falls back to the demo — a worse failure than any the flat format
- * has, because it takes out every card at once.
+ * With real escaping available the template can do the splitting instead
+ * of the Worker. A card's station arrives as
+ * `{"type": "subway", "ids": ["127", "725"]}`, built in Liquid from the
+ * readable value TRMNL stores, every part escaped. Verified against a
+ * deliberately hostile value — `subway:1"}],"x":"y` — which escaped to a
+ * string and left the rest of the document intact rather than injecting
+ * into it.
  *
- * The endpoint accepts POST regardless, so this is reachable today by a
- * hand-made request and is where the plugin should go the moment a usable
- * escape exists. Two routes out: ask TRMNL to add a real `json` filter, or
- * build the escaping out of `replace` in the template, which is the same
- * class of hand-rolled rule this was meant to escape and wants measuring
- * before it is trusted.
+ * That is what ends the class of bug this project kept hitting: a card
+ * called "Bus:6:", a heading reading ":5:", "· Subway" smuggled through
+ * an @name, a route filter ignored for sitting past a tail, a badge
+ * reading "ACE:5:", and a whole board falling back to the demo because
+ * TRMNL stores `id::label` and the parser split on the first colon. Every
+ * one was the Worker inferring a field from where a separator fell.
  */
 
 import {
@@ -48,11 +53,22 @@ import {
   parseTransitType,
   type BoardSettings,
   type CardSettings,
+  type TransitType,
 } from "./settings";
 import { valueFromLabel } from "./pickers";
 
+/** A station as the body describes it: already split into its parts. */
+interface JsonStation {
+  type?: unknown;
+  ids?: unknown;
+}
+
 /** One card as the polling body describes it. Every field optional. */
 interface JsonCard {
+  /**
+   * An object, or a string for a body written before the split moved into
+   * the template.
+   */
   station?: unknown;
   routes?: unknown;
   walk?: unknown;
@@ -100,26 +116,63 @@ function asText(value: unknown): string {
 }
 
 /**
- * **Why `station` is a string and not an object.**
+ * The transit type and stop IDs a card names.
  *
- * `{ "type": "subway", "ids": ["117"] }` would delete the last parsing in
- * this file, and it was spiked against the real engine — it works. TRMNL
- * stores the picker's `id` verbatim, so a JSON-shaped id survives, and
- * `{{ cardN_station | split: '::' | first }}` interpolated *unquoted*
- * renders a real nested object. Verified: `{"station": {"type":"subway"}}`.
+ * The body sends these already separated, because the template splits
+ * them — `{% assign p = station | split: ":" %}` — and `| json` escapes
+ * each part. That is the whole point of the object form: the Worker reads
+ * two named fields instead of inferring them from where separators fall
+ * in a string, which is what produced most of this project's defects.
  *
- * It is not used, because the value then has to reach the body with its
- * own quotes intact — which means the quote-strip that makes every other
- * field safe cannot apply to it. The failure mode that buys is severe and
- * total: a malformed stored id writes malformed JSON and the *whole body*
- * fails to parse, so all six cards vanish rather than the one that is
- * broken. The board today loses only the card whose value is bad.
- *
- * Against that it removes one split, on a prefix drawn from a closed set,
- * where the only remaining ambiguity was `::` and that is now handled.
- * Not a trade worth making until a stored id can be trusted absolutely —
- * and this session is a long argument that it cannot.
+ * A string is still accepted, for a body rendered by a polling template
+ * that has not been re-saved. It carries TRMNL's own `id::label` storage
+ * (everything from "::" on is the dropdown's display text) and, for the
+ * oldest values, no id at all — just the label, which `valueFromLabel`
+ * resolves against the bundled tables.
  */
+function readStation(value: unknown): {
+  transitType: TransitType | undefined;
+  stopIds: string[];
+} {
+  const none = { transitType: undefined, stopIds: [] };
+
+  if (value && typeof value === "object") {
+    const station = value as JsonStation;
+    const transitType = parseTransitType(asText(station.type));
+    const ids = Array.isArray(station.ids) ? station.ids : [];
+
+    return {
+      transitType,
+      // Split on "+" and whitespace even here: a body written before the
+      // template did the splitting sends one joined string in the array.
+      stopIds: ids
+        .flatMap((id) => asText(id).split(/[+\s]+/))
+        .map((id) => id.trim())
+        .filter(Boolean),
+    };
+  }
+
+  const raw = asText(value);
+  if (raw === "") return none;
+
+  const stored = raw.split("::")[0]!.trim();
+  const station = valueFromLabel(stored) ?? stored;
+
+  const colon = station.indexOf(":");
+  if (colon === -1) return none;
+
+  const transitType = parseTransitType(station.slice(0, colon));
+  if (!transitType) return none;
+
+  return {
+    transitType,
+    stopIds: station
+      .slice(colon + 1)
+      .split(/[+\s]+/)
+      .map((id) => id.trim())
+      .filter(Boolean),
+  };
+}
 
 /**
  * One card, or undefined when the entry names no stop.
@@ -130,35 +183,8 @@ function asText(value: unknown): string {
  * closed set and everything after the first colon is the ID list.
  */
 function parseCard(slot: number, entry: JsonCard): CardSettings | undefined {
-  const raw = asText(entry.station);
-  if (raw === "") return undefined;
-
-  // TRMNL stores an xhrSelectSearch value as `id::label`, so what arrives
-  // is "subway:117::116 St-Columbia University (1) · Subway". Everything
-  // from "::" on is the display text the dropdown showed, and keeping it
-  // put the whole label inside the stop ID list — the card then resolved
-  // to nothing and the board fell back to the demo.
-  //
-  // Cut there rather than at the last colon: a label can contain colons,
-  // and an id never contains "::".
-  const stored = raw.split("::")[0]!.trim();
-
-  // Older values are the bare label with no id in front — the form reads
-  // correctly while the Worker gets prose — so that is recovered too.
-  const station = valueFromLabel(stored) ?? stored;
-
-  const colon = station.indexOf(":");
-  if (colon === -1) return undefined;
-
-  const transitType = parseTransitType(station.slice(0, colon));
-  if (!transitType) return undefined;
-
-  const stopIds = station
-    .slice(colon + 1)
-    .split(/[+\s]+/)
-    .map((id) => id.trim())
-    .filter(Boolean);
-  if (stopIds.length === 0) return undefined;
+  const { transitType, stopIds } = readStation(entry.station);
+  if (!transitType || stopIds.length === 0) return undefined;
 
   // Routes are their own field now, so a filter cannot be lost by sitting
   // in the wrong place — the failure that made "!A,C,E" a no-op whenever a

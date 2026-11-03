@@ -1,50 +1,86 @@
 {
   "cards": [
+    {%- assign s1 = card1_station | split: "::" -%}
+    {%- assign p1 = s1[0] | split: ":" -%}
+    {%- assign i1 = p1[1] | split: "+" -%}
     {
-      "station": "{{ card1_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "routes": "{{ card1_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "walk": "{{ card1_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "title": "{{ card1_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "visible": "{{ card1_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      "station": {
+        "type": {{ p1[0] | json }},
+        "ids": [{%- for id in i1 -%}{{ id | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+      },
+      "routes": {{ card1_routes | json }},
+      "walk": {{ card1_walk | json }},
+      "title": {{ card1_title | json }},
+      "visible": {{ card1_visible | json }}
     },
+    {%- assign s2 = card2_station | split: "::" -%}
+    {%- assign p2 = s2[0] | split: ":" -%}
+    {%- assign i2 = p2[1] | split: "+" -%}
     {
-      "station": "{{ card2_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "routes": "{{ card2_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "walk": "{{ card2_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "title": "{{ card2_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "visible": "{{ card2_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      "station": {
+        "type": {{ p2[0] | json }},
+        "ids": [{%- for id in i2 -%}{{ id | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+      },
+      "routes": {{ card2_routes | json }},
+      "walk": {{ card2_walk | json }},
+      "title": {{ card2_title | json }},
+      "visible": {{ card2_visible | json }}
     },
+    {%- assign s3 = card3_station | split: "::" -%}
+    {%- assign p3 = s3[0] | split: ":" -%}
+    {%- assign i3 = p3[1] | split: "+" -%}
     {
-      "station": "{{ card3_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "routes": "{{ card3_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "walk": "{{ card3_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "title": "{{ card3_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "visible": "{{ card3_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      "station": {
+        "type": {{ p3[0] | json }},
+        "ids": [{%- for id in i3 -%}{{ id | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+      },
+      "routes": {{ card3_routes | json }},
+      "walk": {{ card3_walk | json }},
+      "title": {{ card3_title | json }},
+      "visible": {{ card3_visible | json }}
     },
+    {%- assign s4 = card4_station | split: "::" -%}
+    {%- assign p4 = s4[0] | split: ":" -%}
+    {%- assign i4 = p4[1] | split: "+" -%}
     {
-      "station": "{{ card4_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "routes": "{{ card4_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "walk": "{{ card4_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "title": "{{ card4_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "visible": "{{ card4_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      "station": {
+        "type": {{ p4[0] | json }},
+        "ids": [{%- for id in i4 -%}{{ id | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+      },
+      "routes": {{ card4_routes | json }},
+      "walk": {{ card4_walk | json }},
+      "title": {{ card4_title | json }},
+      "visible": {{ card4_visible | json }}
     },
+    {%- assign s5 = card5_station | split: "::" -%}
+    {%- assign p5 = s5[0] | split: ":" -%}
+    {%- assign i5 = p5[1] | split: "+" -%}
     {
-      "station": "{{ card5_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "routes": "{{ card5_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "walk": "{{ card5_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "title": "{{ card5_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "visible": "{{ card5_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      "station": {
+        "type": {{ p5[0] | json }},
+        "ids": [{%- for id in i5 -%}{{ id | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+      },
+      "routes": {{ card5_routes | json }},
+      "walk": {{ card5_walk | json }},
+      "title": {{ card5_title | json }},
+      "visible": {{ card5_visible | json }}
     },
+    {%- assign s6 = card6_station | split: "::" -%}
+    {%- assign p6 = s6[0] | split: ":" -%}
+    {%- assign i6 = p6[1] | split: "+" -%}
     {
-      "station": "{{ card6_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "routes": "{{ card6_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "walk": "{{ card6_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "title": "{{ card6_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-      "visible": "{{ card6_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      "station": {
+        "type": {{ p6[0] | json }},
+        "ids": [{%- for id in i6 -%}{{ id | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+      },
+      "routes": {{ card6_routes | json }},
+      "walk": {{ card6_walk | json }},
+      "title": {{ card6_title | json }},
+      "visible": {{ card6_visible | json }}
     }
   ],
-  "use24Hour": "{{ use_24_hour | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-  "urgent": "{{ urgent_threshold | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-  "destinationScale": "{{ destination_scale | replace: '\', '' | replace: '"', '' | strip_newlines }}",
-  "showLeaveIn": "{{ show_leave_in | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+  "use24Hour": {{ use_24_hour | json }},
+  "urgent": {{ urgent_threshold | json }},
+  "destinationScale": {{ destination_scale | json }},
+  "showLeaveIn": {{ show_leave_in | json }}
 }
