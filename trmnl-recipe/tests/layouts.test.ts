@@ -213,9 +213,20 @@ describe("the display rule is identical in every layout", () => {
 
   test("the footer names the networks and dates itself", () => {
     for (const [name, markup] of layouts) {
+      // Marks rather than words: four bullets say what the sentence
+      // said, in a bar that also has to hold a timestamp.
       assert.ok(
-        markup.includes("NYC Subway, Bus, Rail, Ferry"),
-        `${name}.liquid does not name the networks`
+        markup.includes("footer-marks"),
+        `${name}.liquid does not show the networks`
+      );
+      const marks = /<span class="footer-marks">([\s\S]*?)<\/span>\s*\{%/.exec(
+        markup
+      );
+      assert.ok(marks, `${name}.liquid has no network marks`);
+      assert.equal(
+        (marks![1].match(/class="label[^"]*bullet"/g) ?? []).length,
+        4,
+        `${name}.liquid should mark all four networks`
       );
       assert.ok(
         markup.includes("Last updated: {{ a }}"),
@@ -597,6 +608,7 @@ describe("every class exists in the framework", () => {
     "card-name",
     "footer-stamp",
     "footer-label",
+    "footer-marks",
     "row-line--urgent",
     "bullet-strip--tag",
   ]);

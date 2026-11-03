@@ -141,6 +141,16 @@
     white-space: nowrap;
     text-overflow: clip;
   }
+  /* The four network marks, holding the left of the footer where the
+     text label used to be. They never shrink — four bullets are the
+     smallest the footer gets, and squeezing them would clip a letter
+     rather than a word. */
+  .footer-marks {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-right: auto;
+  }
   .footer-stamp {
     margin-left: auto;
     flex-shrink: 0;
@@ -705,7 +715,21 @@
       {% if d %}
         <span class="title footer-label">Example board · choose your stations in settings</span>
       {% else %}
-        <span class="title footer-label">NYC Subway, Bus, Rail, Ferry</span>
+        {% comment %}
+          The networks as marks rather than as words. "NYC Subway, Bus,
+          Rail, Ferry" spelled out what four bullets show at a glance, and
+          cost 28 characters of a bar that also has to hold a timestamp.
+
+          Drawn like the row badges they echo — same filled circle, same
+          bitmap face — so the footer reads as part of the board rather
+          than as a caption under it.
+        {% endcomment %}
+        <span class="footer-marks">
+          <span class="label label--small label--filled bullet"><span>S</span></span>
+          <span class="label label--small label--filled bullet"><span>B</span></span>
+          <span class="label label--small label--filled bullet"><span>R</span></span>
+          <span class="label label--small label--filled bullet"><span>F</span></span>
+        </span>
       {% endif %}
       {% if a %}
         <span class="title footer-stamp">Last updated: {{ a }}</span>
