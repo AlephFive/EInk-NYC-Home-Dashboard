@@ -369,6 +369,27 @@
   .row-line--urgent {
     background: #fff;
   }
+  /* The board's own wrapper, deliberately not a `.view`.
+     
+     trmnlp already wraps this markup in `<div class="view view--full">`,
+     and nesting a second `.view` inside it is why the footer fell off the
+     panel: `.view` is a column flex whose height comes from
+     `.view--full`, the inner one had no such class, so it grew to fit its
+     content and pushed the `.title_bar` below the screen.
+     
+     It cannot borrow `.flex--col` either — that sets `align-items:
+     center`, which collapses the layout's width and renders a blank
+     board. Its own rule, then: fill the height it is given, stack the
+     layout above the title bar, and let the layout take what is left. */
+  .board-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .board-root > .layout {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
   /* The empty state is a line of its own, not a row.
      
      It was a `<span>` carrying `.row-dest` and `w--full`, which centred
@@ -612,7 +633,21 @@
 {% endfor %}
 {% if used_columns == 0 %}{% assign used_columns = 1 %}{% endif %}
 
-<div class="view"{% if ds %} style="--dest-scale: {{ ds }}"{% endif %}>
+{% comment %}
+  Not a `.view` — trmnlp already wraps this markup in
+  `<div class="view view--full">`, and nesting a second one inside it was
+  why the footer fell off the bottom of the panel.
+
+  `.view` is a column flex whose height comes from `.view--full`
+  (`height: var(--full-h)`). The outer one has that class and is sized;
+  ours did not, so it grew to fit its content, `.layout` expanded with it,
+  and the `.title_bar` after it was pushed below the screen.
+
+  A plain wrapper is all that is needed here: it exists only to carry
+  `--dest-scale`, and the layout and title bar beneath it are already the
+  two children the framework expects.
+{% endcomment %}
+<div class="board-root"{% if ds %} style="--dest-scale: {{ ds }}"{% endif %}>
   <div class="layout">
     <div class="grid grid--cols-{{ used_columns }} h--full">
 
