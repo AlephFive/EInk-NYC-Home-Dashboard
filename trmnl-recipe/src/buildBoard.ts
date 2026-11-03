@@ -126,6 +126,15 @@ export interface Board {
    * stale relative to, and formatting a time there would be noise.
    */
   a?: string;
+  /**
+   * Destination type size, as a multiplier the layouts apply.
+   *
+   * Carried on the board rather than read from the form, because a Liquid
+   * layout cannot see custom fields — it only gets what this payload
+   * holds. Omitted at the default, so the common board costs no bytes for
+   * a setting nobody changed.
+   */
+  ds?: number;
   c: BoardCard[];
   /** Present and true when this is the demo board, not a configured one. */
   d?: true;
@@ -800,6 +809,9 @@ export async function buildBoard(
     }),
     c: cards.sort((a, b) => a.s - b.s),
   };
+  // Only when it differs from the default, so an unchanged setting costs
+  // nothing against the 5KB payload cap.
+  if (settings.destinationScale !== 1) board.ds = settings.destinationScale;
   // The panel says so, so a new installer knows these are not their stations.
   if (settings.isDemo) board.d = true;
   return board;

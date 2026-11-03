@@ -122,6 +122,10 @@
        final letter pushes SI visibly left of centre. */
     text-indent: -0.06em;
   }
+  /* Pushes the timestamp to the right edge of the footer. */
+  .footer-stamp {
+    margin-left: auto;
+  }
   /* The bullet strip takes what the station name leaves and clips there.
 
      It was a fixed count — four in `full`, three in the smaller layouts —
@@ -238,22 +242,23 @@
      gaps take 78px of that, leaving 44px for the destination: six
      characters, which renders "Coney Island-Stillwell Av" as "Cone…".
 
-     The clock was dropped a step to buy the name back, and that went too
-     far — at 0.75em the split cards' times read visibly smaller than the
-     full-width ones beside them, and the time is the one thing on the row
-     that must stay legible from across a room. A destination clipped to
-     eight characters is accepted instead; the column heading already says
-     which way the train is going.
+     The clock was dropped a step on split cards to buy that width back,
+     first to 0.75em and then to 0.92em. Both were wrong for the same
+     reason: a panel read from across a room has one element that must
+     never shrink, and it is the time. Two columns of clocks at different
+     sizes also read as a mistake rather than as a hierarchy.
 
-     0.92em is a hair under the row's size, enough to keep two columns of
-     digits from colliding without reading as a different size. */
-  .row-line--split .row-time {
-    font-size: 0.92em;
-  }
+     So every time on the board is the same size, and the destination is
+     what gives way — it clips, which a station name survives, where a
+     half-size clock is simply harder to read. */
   /* The destination takes whatever the badge and the clock leave, and clips
      rather than wrapping: a wrapped name would make its row taller than its
      neighbours, and on a fixed panel a name cut mid-word still reads. */
   .row-dest {
+    /* `--dest-scale` is set inline from the board's `ds`, so the user's
+       choice reaches a stylesheet that cannot see custom fields. Defaults
+       to 1 when the board omits it, which it does at the default size. */
+    font-size: calc(1em * var(--dest-scale, 1));
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -288,12 +293,12 @@
        still catches the longest branches, where the first word separates
        "Port Washington" from "Port Jefferson". */
     width: max-content;
-    /* 9ch was set against the full-size label; at 0.86em it crushed
-       "Far Rockaway" to "Far Rccka" — narrow enough that the glyphs
-       themselves distorted. 13ch fits every LIRR and Metro-North branch
-       outright, and the destination beside it gives way instead, which is
-       the right priority: the route is what a rider scans for. */
-    max-width: 13ch;
+    /* A third of the row, not a character count. 13ch fitted every branch
+       but "City Terminal Zone" and took a fixed slice of a split column,
+       where the destination has least to spare — a share scales with the
+       space the card actually has. The longest names still ellipsize, and
+       the first word separates "Port Washington" from "Port Jefferson". */
+    max-width: 33%;
     /* A railroad or bus badge sits in the same column as a subway bullet
        and must read as the same kind of mark. The framework's `.label`
        padding made it visibly taller — "Far Rock…" stood a third higher
@@ -427,7 +432,7 @@
 {% endfor %}
 {% if used_columns == 0 %}{% assign used_columns = 1 %}{% endif %}
 
-<div class="view">
+<div class="view"{% if ds %} style="--dest-scale: {{ ds }}"{% endif %}>
   <div class="layout">
     <div class="grid grid--cols-{{ used_columns }} h--full">
 
@@ -518,14 +523,6 @@
                           {% assign glyph = stripped %}
                         {% endif %}
                       {% endif %}
-                      {% comment %}
-                    A card showing two direction columns gives each half the
-                    width, which is what the tighter row variant is for.
-                  {% endcomment %}
-                  {% assign split_class = "" %}
-                  {% if card.k.size > 1 %}
-                    {% assign split_class = " row-line--split" %}
-                  {% endif %}
                   {% comment %}
                         A bullet holds one or two characters. One covers every
                         subway route and the shuttles; two covers SI, the
@@ -720,7 +717,7 @@
                           neighbours — which is what uniform row height
                           exists to prevent.
                         {% endcomment %}
-                        <div class="row-line{{ split_class }} flex flex--row flex--between flex--center-y gap--small w--full">
+                        <div class="row-line flex flex--row flex--between flex--center-y gap--small w--full">
                           <span class="label label--small md:label--base {{ badge_fill }} {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                           {% comment %}
                             The arrow stands on its own when the destination
@@ -767,7 +764,16 @@
         one. Formatted by the Worker, because Liquid cannot convert a
         timezone and the panel runs wherever the user is.
       {% endcomment %}
-      <span class="title">NYC Transit{% if a %} · as of {{ a }}{% endif %}</span>
+      <span class="title">NYC Subway, Bus, Rail, Ferry</span>
+      {% if a %}
+        {% comment %}
+          Pushed to the right edge, so the name and the timestamp read as
+          two separate facts rather than one run-on line. `title_bar` lays
+          its children out in a row, so an auto left margin takes all the
+          space between them.
+        {% endcomment %}
+        <span class="title footer-stamp">Last updated: {{ a }}</span>
+      {% endif %}
     {% if d %}
       {% comment %}
         The backend substitutes a demo board when nothing is configured, so

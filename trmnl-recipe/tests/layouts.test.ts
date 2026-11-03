@@ -184,6 +184,45 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("every clock on the board is the same size", () => {
+    // A split subway column is half the width of a full card's row, and
+    // the clock was shrunk there twice to buy the destination back — 0.75em,
+    // then 0.92em. Both read as a mistake beside the full-size clocks next
+    // to them, and a panel seen from across a room has exactly one element
+    // that must never shrink.
+    //
+    // The destination gives way instead: a clipped station name survives
+    // being clipped, where a smaller clock is just harder to read.
+    for (const [name, markup] of layouts) {
+      assert.doesNotMatch(
+        markup,
+        /\.row-time\s*\{[^}]*font-size/s,
+        `${name}.liquid resizes the clock`
+      );
+      assert.ok(
+        !markup.includes("row-line--split"),
+        `${name}.liquid still has a narrower row variant`
+      );
+    }
+  });
+
+  test("the footer names the networks and dates itself", () => {
+    for (const [name, markup] of layouts) {
+      assert.ok(
+        markup.includes("NYC Subway, Bus, Rail, Ferry"),
+        `${name}.liquid does not name the networks`
+      );
+      assert.ok(
+        markup.includes("Last updated: {{ a }}"),
+        `${name}.liquid does not date the board`
+      );
+      assert.ok(
+        markup.includes("footer-stamp"),
+        `${name}.liquid does not right-align the timestamp`
+      );
+    }
+  });
+
   test("the destination clips instead of wrapping", () => {
     // A wrapped name makes its row taller than its neighbours, which is
     // exactly what uniform row height exists to prevent.
@@ -427,9 +466,9 @@ describe("every class exists in the framework", () => {
     "row-line",
     "row-dest",
     "row-time",
-    "row-line--split",
     "bullet-strip",
     "card-name",
+    "footer-stamp",
     "bullet-strip--tag",
   ]);
 

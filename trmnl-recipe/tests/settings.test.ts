@@ -15,63 +15,6 @@ import { parseBoardSettings } from "../src/settings.ts";
 const board = (query: string) =>
   parseBoardSettings(new URL(`https://example.test/api/board?${query}`));
 
-describe("a value stored by the old picker heals itself", () => {
-  // Before the picker separated label from value, the whole dropdown label
-  // went into storage — route suffix, network, and the card's own
-  // ":<walk>:<title>" tail. The template then appended another tail, so the
-  // panel showed:
-  //
-  //   Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway:5:
-  //
-  // The IDs in front are still good, so the junk can be dropped rather than
-  // the card. Captured from a real device screenshot.
-  const STALE =
-    "subway:127+725+902+A27+R16@Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway:5:";
-  const FRESH = "subway:127+725+902+A27+R16";
-
-  test("it parses to the same card as a fresh pick", () => {
-    const stale = board(`c1=${encodeURIComponent(`${STALE}:5:`)}`).cards[0];
-    const fresh = board(`c1=${encodeURIComponent(`${FRESH}:5:`)}`).cards[0];
-    assert.deepEqual(stale, fresh);
-  });
-
-  test("the station keeps all five platform groups", () => {
-    const { cards } = board(`c1=${encodeURIComponent(`${STALE}:5:`)}`);
-    assert.deepEqual(cards[0].stopIds, ["127", "725", "902", "A27", "R16"]);
-  });
-
-  test("no custom title survives, so the server names the card", () => {
-    // Which is the whole point: the station table knows it is
-    // "Times Sq-42 St", and the routes belong in the bullets, not the text.
-    const { cards } = board(`c1=${encodeURIComponent(`${STALE}:5:`)}`);
-    assert.equal(cards[0].title, undefined);
-  });
-});
-
-describe("a legacy '@name' is ignored for every type", () => {
-  // An earlier fix kept it for bus and dropped it elsewhere, because the
-  // builder could not name a bus stop offline. It can now — see
-  // fetchBusStopNames — so the rule is uniform and the suffix is dead.
-  test("a bus @name is discarded", () => {
-    const { cards } = board("c1=bus:505506@CENTER BLVD/BORDEN AV:5");
-    assert.equal(cards[0].title, undefined);
-  });
-
-  test("a subway @name is discarded", () => {
-    const { cards } = board("c1=subway:127@Anything At All:5");
-    assert.equal(cards[0].title, undefined);
-  });
-
-  test("an explicit title still wins for every type", () => {
-    // The user typed it; it is not picker residue.
-    assert.equal(board("c1=subway:127@Ignored:5:Home").cards[0].title, "Home");
-    assert.equal(
-      board("c1=bus:505506@CENTER BLVD:5:Work").cards[0].title,
-      "Work"
-    );
-  });
-});
-
 describe("a multi-ID station survives URL encoding", () => {
   // `c1` is written into the polling URL *raw* — unlike `n1`, which is
   // url_encode'd — so the station value is exposed to whatever TRMNL does
@@ -106,41 +49,24 @@ describe("a multi-ID station survives URL encoding", () => {
   });
 });
 
-describe("the route filter is found wherever it sits", () => {
-  // It was taken from the segment between the first and second colon —
-  // where the picker puts the IDs. Correct for a current value, silently
-  // wrong for one still carrying a packed ":<walk>:<title>" tail, because
-  // the "!routes" then sits in a later segment nothing looked at. The
-  // filter was simply ignored: no error, and a full card to look at.
+describe("the route filter", () => {
   const ROUTES = ["A", "C", "E"];
 
-  test("a current value", () => {
+  test("is split off the station value", () => {
     const { cards } = board("c1=subway:127+725!A,C,E&w1=5");
-    assert.deepEqual(cards[0].routes, ROUTES);
-  });
-
-  test("a value still carrying a packed walk and title", () => {
-    // The shape the device was sending. This is the regression.
-    const { cards } = board("c1=subway:127+725!A,C,E:5:&w1=5");
     assert.deepEqual(cards[0].routes, ROUTES);
     assert.deepEqual(cards[0].stopIds, ["127", "725"]);
   });
 
-  test("the packed walk is still read, not swallowed by the filter", () => {
-    // Cutting the route list at the first colon has to hand the rest back
-    // to the positional parse, or the walk time goes missing.
-    const { cards } = board("c1=subway:127!A,C,E:12:Home");
+  test("survives url encoding, separator included", () => {
+    // The template writes the "!" as a literal %21 so it stays a
+    // separator rather than being encoded as part of the value.
+    const { cards } = board("c1=subway%3A127%2B725%21A%2CC%2CE&w1=5");
     assert.deepEqual(cards[0].routes, ROUTES);
-    assert.equal(cards[0].walkTime, 12);
-    assert.equal(cards[0].title, "Home");
-  });
-
-  test("a value with a legacy @name as well", () => {
-    const { cards } = board("c1=bus:403257@W 42 St!M42:5:");
-    assert.deepEqual(cards[0].routes, ["M42"]);
-    assert.deepEqual(cards[0].stopIds, ["403257"]);
+    assert.deepEqual(cards[0].stopIds, ["127", "725"]);
   });
 });
+
 
 describe("each card field has its own parameter", () => {
   // The fields were packed into one parameter as `station:walk:title`, and
@@ -162,104 +88,18 @@ describe("each card field has its own parameter", () => {
     assert.equal(board("c1=subway:721&w1=12").cards[0].walkTime, 12);
   });
 
-  test("a packed value still parses, for URLs not yet re-saved", () => {
-    // A user who has not re-saved the plugin since the URL changed shape is
-    // still sending the old form. It must keep working.
-    const { cards } = board("c1=subway:721:12:My stop");
-    assert.equal(cards[0].walkTime, 12);
-    assert.equal(cards[0].title, "My stop");
-  });
-
-  test("the parameter wins over anything packed in the value", () => {
-    const { cards } = board("c1=subway:721:5:Packed&w1=9&n1=Parameter");
-    assert.equal(cards[0].title, "Parameter");
-    assert.equal(cards[0].walkTime, 9);
-  });
-});
-
-describe("an inherited slot tail is cut out of the title", () => {
-  // Captured from a device. The station field was fine (`subway:721`); the
-  // *title* field held a whole old slot string, so the template's append
-  // produced "…:5:" inside the heading — and typing a new title appended to
-  // the junk rather than replacing it, which is how the user found it.
-  const inherited = "Vernon Blvd-Jackson Av (7) · Subway:5:";
-
-  test("what the user typed survives, the inherited label does not", () => {
+  test("a packed value no longer parses", () => {
+    // The compatibility shim is gone. A value predating the split is not
+    // repairable into the new shape, only tolerated, and tolerating it is
+    // what kept four parsing bugs alive. It now fails cleanly: the slot is
+    // skipped rather than producing a card built on guesses.
     const { cards } = board(
-      `c1=${encodeURIComponent(`subway:721:5:${inherited}test`)}`
+      `c1=${encodeURIComponent("subway:721:12:My stop")}&c2=subway:127&w2=5`
     );
-    assert.equal(cards[0].title, "test");
-  });
-
-  test("a tail with nothing after it leaves no title at all", () => {
-    const { cards } = board(
-      `c1=${encodeURIComponent(`subway:721:5:${inherited}`)}`
+    assert.deepEqual(
+      cards.map((card) => card.slot),
+      [2]
     );
-    assert.equal(cards[0].title, undefined);
-  });
-
-  test("the last tail wins, not the first", () => {
-    // A value that round-tripped more than once carries several tails, and
-    // only the text after the final one was ever typed.
-    const twice = "Old Name:5:Older Name:10:actual";
-    const { cards } = board(`c1=${encodeURIComponent(`subway:721:5:${twice}`)}`);
-    assert.equal(cards[0].title, "actual");
-  });
-
-  test("an ordinary title is untouched", () => {
-    assert.equal(board("c1=subway:721:5:My stop").cards[0].title, "My stop");
-  });
-
-  test("a real name with digits and punctuation is untouched", () => {
-    // The pattern is a colon-wrapped number, which MTA names never contain
-    // — they carry slashes, parentheses, periods and middots freely.
-    for (const name of ["W 42 St/5 Av", "21 St", "Beach 108th Street", "Astoria-Ditmars Blvd"]) {
-      const { cards } = board(`c1=${encodeURIComponent(`subway:721:5:${name}`)}`);
-      assert.equal(cards[0].title, name);
-    }
-  });
-});
-
-describe("a title of nothing but punctuation is discarded", () => {
-  // The residue of an old tail, never a station name.
-  test("separators and digits alone do not become a heading", () => {
-    for (const junk of [":5:", "::", "5", " : 10 : "]) {
-      const { cards } = board(`c1=${encodeURIComponent(`subway:127:5:${junk}`)}`);
-      assert.equal(cards[0].title, undefined, `"${junk}" became a title`);
-    }
-  });
-
-  test("a real name containing digits is kept", () => {
-    // The check is "has no letter", not "looks tidy" — these are all real.
-    for (const name of ["21 St", "W 42 St/5 Av", "Beach 108th Street"]) {
-      const { cards } = board(`c1=${encodeURIComponent(`subway:127:5:${name}`)}`);
-      assert.equal(cards[0].title, name);
-    }
-  });
-});
-
-describe("a legacy '@name' never reaches the heading", () => {
-  // It used to, and that was the bug: a value stored before the picker
-  // separated label from value carried the whole dropdown label there, so
-  // the panel read "W 42 St/5 Av · Bus:5:". Discarding it for every type
-  // means a stale value resolves to the same card as a fresh pick, and the
-  // name comes from whoever owns the table.
-  const STALE = "bus:403257@W 42 St/5 Av · Bus:5::5:";
-
-  test("the label is discarded entirely", () => {
-    const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
-    assert.equal(cards[0].title, undefined);
-  });
-
-  test("the IDs in front of it still work", () => {
-    const { cards } = board(`c1=${encodeURIComponent(STALE)}`);
-    assert.deepEqual(cards[0].stopIds, ["403257"]);
-  });
-
-  test("it parses to the same card as a fresh pick", () => {
-    const stale = board(`c1=${encodeURIComponent(STALE)}`).cards[0];
-    const fresh = board("c1=bus:403257:5").cards[0];
-    assert.deepEqual(stale, fresh);
   });
 });
 
@@ -274,7 +114,7 @@ describe("the visibility toggle", () => {
     // demo takes over, which is tested separately below.
     for (const off of ["false", "FALSE", "0", "no", "off", " false "]) {
       const { cards } = board(
-        `c1=subway:721:10&v1=${off}&c2=railroad-lirr:102:10`
+        `c1=subway:721&w1=10&v1=${off}&c2=railroad-lirr:102&w2=10`
       );
       assert.deepEqual(
         cards.map((card) => card.slot),
@@ -286,7 +126,7 @@ describe("the visibility toggle", () => {
 
   test("an on card is kept whatever the spelling", () => {
     for (const on of ["true", "TRUE", "1", "yes"]) {
-      const { cards } = board(`c1=subway:721:10&v1=${on}`);
+      const { cards } = board(`c1=subway:721&w1=10&v1=${on}`);
       assert.equal(cards[0]?.stopIds[0], "721", `v1=${on} hid the card`);
     }
   });
@@ -296,19 +136,19 @@ describe("the visibility toggle", () => {
     // sends, so anything unexpected is likelier a spelling we have not seen
     // than a request to hide — and silently dropping a card the user
     // configured is the worse of the two mistakes.
-    assert.equal(board("c1=subway:721:10&v1=maybe").cards.length, 1);
+    assert.equal(board("c1=subway:721&w1=10&v1=maybe").cards.length, 1);
   });
 
   test("a missing or empty toggle shows the card", () => {
     // Older polling URLs send no vN at all, and TRMNL may write an empty
     // value. Neither should blank a board that was working.
-    assert.equal(board("c1=subway:721:10").cards.length, 1);
-    assert.equal(board("c1=subway:721:10&v1=").cards.length, 1);
+    assert.equal(board("c1=subway:721&w1=10").cards.length, 1);
+    assert.equal(board("c1=subway:721&w1=10&v1=").cards.length, 1);
   });
 
   test("hiding one card leaves the others alone", () => {
     const { cards } = board(
-      "c1=subway:721:10&v1=false&c2=railroad-lirr:102:10&v2=true"
+      "c1=subway:721&w1=10&v1=false&c2=railroad-lirr:102&w2=10&v2=true"
     );
     assert.deepEqual(
       cards.map((card) => card.slot),
@@ -319,14 +159,14 @@ describe("the visibility toggle", () => {
   test("hiding every card falls back to the demo board", () => {
     // Not a blank panel: an empty board is indistinguishable from an
     // unconfigured one, and that already demonstrates itself.
-    const { isDemo } = board("c1=subway:721:10&v1=false");
+    const { isDemo } = board("c1=subway:721&w1=10&v1=false");
     assert.equal(isDemo, true);
   });
 });
 
 describe("slot parsing", () => {
   test("reads type, stop IDs, walk time and title", () => {
-    const { cards } = board("c1=subway:721:10:Home");
+    const { cards } = board("c1=subway:721&w1=10&n1=Home");
     assert.equal(cards.length, 1);
     assert.deepEqual(cards[0], {
       slot: 1,
@@ -343,34 +183,27 @@ describe("slot parsing", () => {
     // Times Square is five platform groups under one complex. The picker
     // offers it as one choice and joins the IDs with "+"; dropping any of
     // them silently hides whole lines from the card.
-    const { cards } = board("c1=subway:127+725+902+A27+R16:5");
+    const { cards } = board("c1=subway:127+725+902+A27+R16&w1=5");
     assert.deepEqual(cards[0].stopIds, ["127", "725", "902", "A27", "R16"]);
   });
 
   test("a bus corner keeps both direction IDs", () => {
     // A bus stop ID is one side of the street. Both are needed or the card
     // shows one direction and looks like the other has no service.
-    const { cards } = board("c1=bus:505507+505513:3");
+    const { cards } = board("c1=bus:505507+505513&w1=3");
     assert.deepEqual(cards[0].stopIds, ["505507", "505513"]);
   });
 
-  test("a legacy '@name' suffix is discarded, IDs intact", () => {
-    // Values stored before the picker dropped the suffix still carry it.
-    // Nothing needs it now — the board builder names a bus stop from NY
-    // Open Data — so it is split off and thrown away rather than becoming
-    // the heading, which is what let a stale dropdown label reach the panel.
-    const { cards } = board("c1=bus:505507+505513@BORDEN AV/5 ST:3");
-    assert.equal(cards[0].title, undefined);
-    assert.deepEqual(cards[0].stopIds, ["505507", "505513"]);
-  });
-
-  test("an explicit title still wins", () => {
-    const { cards } = board("c1=bus:505507@BORDEN AV/5 ST:3:My stop");
+  test("a title comes from its own parameter", () => {
+    const { cards } = board("c1=bus:505507+505513&w1=3&n1=My stop");
     assert.equal(cards[0].title, "My stop");
+    assert.deepEqual(cards[0].stopIds, ["505507", "505513"]);
   });
 
   test("a title containing a colon survives", () => {
-    const { cards } = board("c1=subway:721:10:Home: the 7");
+    // Trivially now that it has its own parameter; this was the case the
+    // packed format could not express at all.
+    const { cards } = board("c1=subway:721&w1=10&n1=Home: the 7");
     assert.equal(cards[0].title, "Home: the 7");
   });
 });
@@ -402,36 +235,34 @@ describe("narrowing a card to some routes", () => {
   // A complex puts many lines on one card — Times Square is twelve — so a
   // rider who only takes the 1/2/3 can name them and hide the rest.
   test("reads a comma-separated list", () => {
-    const { cards } = board("c1=subway:127%2B725!1,2,3:5");
+    const { cards } = board("c1=subway:127%2B725!1,2,3&w1=5");
     assert.deepEqual(cards[0].routes, ["1", "2", "3"]);
     assert.deepEqual(cards[0].stopIds, ["127", "725"]);
   });
 
   test("is absent when not given", () => {
-    const { cards } = board("c1=subway:127:5");
+    const { cards } = board("c1=subway:127&w1=5");
     assert.equal(cards[0].routes, undefined);
   });
 
   test("is absent when given empty", () => {
     // The Liquid guard should omit it entirely, but a blank must not become
     // a filter that matches nothing and empties the card.
-    const { cards } = board("c1=subway:127!:5");
+    const { cards } = board("c1=subway:127!&w1=5");
     assert.equal(cards[0].routes, undefined);
   });
 
   test("normalises case and spacing", () => {
-    const { cards } = board("c1=subway:127!a, c , e:5");
+    const { cards } = board("c1=subway:127!a, c , e&w1=5");
     assert.deepEqual(cards[0].routes, ["A", "C", "E"]);
   });
 
-  test("a route filter survives a legacy name full of punctuation", () => {
-    // Routes are split before the "@name", because a stop name can contain
-    // almost anything and would otherwise swallow the filter. Still true of
-    // a stored value carrying the old suffix.
-    const { cards } = board("c1=bus:505507@BORDEN AV/5 ST!Q101:3");
+  test("a filter on a bus stop with punctuation in its ID list", () => {
+    // The filter is split off the whole value before the ":" parse, so a
+    // route list is never confused with part of the IDs.
+    const { cards } = board("c1=bus:505507+505513!Q101&w1=3");
     assert.deepEqual(cards[0].routes, ["Q101"]);
-    assert.deepEqual(cards[0].stopIds, ["505507"]);
-    assert.equal(cards[0].title, undefined);
+    assert.deepEqual(cards[0].stopIds, ["505507", "505513"]);
   });
 });
 
@@ -450,27 +281,43 @@ describe("transit type aliases", () => {
 
   for (const [input, expected] of cases) {
     test(`"${input}" maps to ${expected}`, () => {
-      const { cards } = board(`c1=${input}:123:5`);
+      const { cards } = board(`c1=${input}:123&w1=5`);
       assert.equal(cards[0]?.transitType, expected);
     });
   }
 });
 
-describe("the doubled type prefix", () => {
-  test("parses when the polling URL writes the type twice", () => {
-    // The picker stores "subway:721"; a template that also writes
-    // {{ cardN_type }} produces "subway:subway:721:10" and shifts every
-    // field along one, so stop IDs would parse as the walk time.
-    const { cards } = board("c1=subway:subway:721:10");
-    assert.deepEqual(cards[0].stopIds, ["721"]);
-    assert.equal(cards[0].walkTime, 10);
-  });
+describe("a station value must be exactly type and IDs", () => {
+  // The parser used to read looser shapes, for values stored before each
+  // card field got its own query parameter: a packed ":<walk>:<title>"
+  // tail, an "@name" beside the IDs, a doubled "subway:subway:" prefix.
+  //
+  // Dropping the extra segments quietly would be worse than refusing them.
+  // The card renders, looks configured, and is built on whatever survived
+  // the guess — "subway:subway:127" yields a stop ID of "subway", which
+  // resolves to nothing and shows an empty card with no clue why.
+  for (const value of [
+    "subway:721:12:My stop",
+    "subway:subway:127",
+    "bus:505507@BORDEN AV/5 ST",
+  ]) {
+    test(`"${value}" is refused`, () => {
+      // Paired with a good slot, so the board stays configured and the
+      // refusal is visible as an absence. Alone it would fall through to
+      // the demo board, which is a different behaviour being tested.
+      const { cards } = board(
+        `c1=${encodeURIComponent(value)}&c2=subway:721&w2=5`
+      );
+      assert.deepEqual(
+        cards.map((card) => card.slot),
+        [2]
+      );
+    });
+  }
 
-  test("a type-like station name is not mistaken for a doubled prefix", () => {
-    // Only drops the first segment when *both* leading segments parse as
-    // transit types.
-    const { cards } = board("c1=bus:505506:3");
-    assert.deepEqual(cards[0].stopIds, ["505506"]);
+  test("a well-formed value parses", () => {
+    const { cards } = board("c1=subway:127+725&w1=5");
+    assert.deepEqual(cards[0].stopIds, ["127", "725"]);
   });
 });
 
@@ -479,9 +326,9 @@ describe("a bad slot costs only itself", () => {
     ["c1=", "empty value"],
     ["c1=::", "empty everything"],
     ["c1=off:::", "the form's Off value"],
-    ["c1=none:721:5", "an unknown type"],
+    ["c1=none:721&w1=5", "an unknown type"],
     ["c1=subway:", "a type with no stop ID"],
-    ["c1=:721:10", "a stop ID with no type"],
+    ["c1=:721&w1=10", "a stop ID with no type"],
     ["c1=garbage", "unparseable"],
   ];
 
@@ -489,14 +336,14 @@ describe("a bad slot costs only itself", () => {
     test(`${label} is dropped`, () => {
       // Paired with a good slot, so the test proves isolation rather than
       // just that nothing parsed.
-      const { cards } = board(`${query}&c2=subway:721:10`);
+      const { cards } = board(`${query}&c2=subway:721&w2=10`);
       assert.equal(cards.length, 1);
       assert.equal(cards[0].slot, 2);
     });
   }
 
   test("slots outside 1..6 are ignored", () => {
-    const { cards } = board("c7=subway:721:10&c0=subway:G24:5");
+    const { cards } = board("c7=subway:721&w7=10&c0=subway:G24&w0=5");
     assert.equal(cards.length, 6, "falls back to the demo board");
   });
 });
@@ -512,7 +359,7 @@ describe("walk time", () => {
 
   for (const [input, expected, label] of cases) {
     test(`${label}: "${input}" -> ${expected}`, () => {
-      const { cards } = board(`c1=subway:721:${input}`);
+      const { cards } = board(`c1=subway:721&w1=${input}`);
       assert.equal(cards[0].walkTime, expected);
     });
   }
@@ -520,14 +367,41 @@ describe("walk time", () => {
   test("an absurd walk time is honoured, not clamped", () => {
     // The board then shows nothing reachable, which is the honest answer —
     // the app does not second-guess a user who says the stop is far away.
-    const { cards } = board("c1=subway:721:99999");
+    const { cards } = board("c1=subway:721&w1=99999");
     assert.equal(cards[0].walkTime, 99999);
+  });
+});
+
+describe("destination text size", () => {
+  const scale = (q: string) =>
+    parseBoardSettings(new URL(`https://example.test/api/board?${q}`))
+      .destinationScale;
+
+  test("defaults to the row's own size", () => {
+    assert.equal(scale(""), 1);
+    assert.equal(scale("dscale="), 1);
+    assert.equal(scale("dscale=abc"), 1);
+  });
+
+  test("the offered sizes pass through", () => {
+    for (const v of [0.8, 0.9, 1, 1.1, 1.2]) {
+      assert.equal(scale(`dscale=${v}`), v);
+    }
+  });
+
+  test("anything outside the range is clamped, not refused", () => {
+    // A board must render whatever arrives. Below 0.7 the 1-bit panel
+    // cannot resolve the glyphs; above 1.3 a destination crowds out the
+    // clock it sits beside. Neither is a reason to blank the panel.
+    assert.equal(scale("dscale=5"), 1.3);
+    assert.equal(scale("dscale=0.1"), 0.7);
+    assert.equal(scale("dscale=-2"), 0.7);
   });
 });
 
 describe("display settings", () => {
   test("defaults", () => {
-    const s = board("c1=subway:721:10");
+    const s = board("c1=subway:721&w1=10");
     assert.equal(s.use24HourTime, true);
     assert.equal(s.urgentThresholdMinutes, 10);
     assert.equal(s.showLeaveIn, false);
@@ -535,10 +409,10 @@ describe("display settings", () => {
 
   test("booleans accept the shapes a Liquid template emits", () => {
     for (const truthy of ["true", "1", "yes", "TRUE"]) {
-      assert.equal(board(`c1=subway:721:5&leavein=${truthy}`).showLeaveIn, true);
+      assert.equal(board(`c1=subway:721&w1=5&leavein=${truthy}`).showLeaveIn, true);
     }
     for (const falsy of ["false", "0", "no", ""]) {
-      assert.equal(board(`c1=subway:721:5&h24=${falsy}`).use24HourTime, false || falsy === "");
+      assert.equal(board(`c1=subway:721&w1=5&h24=${falsy}`).use24HourTime, false || falsy === "");
     }
   });
 });
@@ -625,7 +499,7 @@ describe("the demo board", () => {
   });
 
   test("one configured card is enough to suppress it", () => {
-    const s = board("c1=subway:721:10");
+    const s = board("c1=subway:721&w1=10");
     assert.equal(s.isDemo, false);
     assert.equal(s.cards.length, 1);
   });

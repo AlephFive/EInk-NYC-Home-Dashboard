@@ -20,8 +20,17 @@
  * arise: the URL encoder handles the escaping, and a title is whatever `n1`
  * says it is.
  *
- * `c1` still carries `type:stopIds` with an optional `!routes`, because those
- * are structured identifiers the picker writes, not free text.
+ * `c1` carries `type:stopIds` with an optional `!routes`, because those are
+ * structured identifiers the picker writes, not free text. Every value is
+ * `url_encode`d by the template.
+ *
+ * **The parser accepts only this shape.** It used to also read values stored
+ * before the split — a packed `:walk:title` tail, an `@name` beside the IDs,
+ * a doubled type prefix — and that compatibility was removed once the
+ * author's own board had been re-saved. A value predating the split now
+ * fails to parse and its card is skipped, which is the honest outcome: the
+ * old shapes are not repairable into the new one, only tolerated, and
+ * tolerating them indefinitely is what kept four parsing bugs alive.
  *
  * The station picker stores its value with the type already on the front
  * (`subway:127+725`), so a polling URL that also writes `{{ cardN_type }}`
@@ -68,6 +77,16 @@ export interface BoardSettings {
   isDemo: boolean;
   use24HourTime: boolean;
   urgentThresholdMinutes: number;
+  /**
+   * How large a destination is drawn, relative to the row's own size.
+   *
+   * A destination is the one thing on a row whose useful length varies by
+   * station: "96 St" fits anywhere, "Coney Island-Stillwell Av" does not
+   * fit a split subway column at any size the rest of the row can spare.
+   * Rather than pick one compromise, the size is the user's — smaller
+   * trades legibility for more of the name, larger does the reverse.
+   */
+  destinationScale: number;
   showLeaveIn: boolean;
   /** Departures to request per stop, for the feeds that take a limit. */
   fetchDepartures: number;
@@ -75,6 +94,9 @@ export interface BoardSettings {
 
 const MAX_SLOTS = 6;
 const DEFAULT_WALK_TIME = 5;
+
+/** Destinations at the row's own size, which is what the panel shipped with. */
+const DEFAULT_DESTINATION_SCALE = 1;
 const DEFAULT_URGENT_THRESHOLD = 10;
 const DEFAULT_FETCH_DEPARTURES = 8;
 
@@ -113,30 +135,23 @@ function parseVisible(value: string | null): boolean {
 /**
  * A card's custom heading, or "" to fall back to the station's own name.
  *
- * Now that the title has its own query parameter, this is only a guard
- * against values stored while it did not. Those came through packed as
- * `station:walk:title`, so a title could inherit an entire old slot string
- * and arrive as "Vernon Blvd-Jackson Av (7) · Subway:5:test" — the user's
- * "test" with a stale label in front of it.
- *
- * An embedded `:<digits>:` is the old packing's own separator appearing
- * where only a heading belongs, and no MTA station name contains one: they
- * carry slashes, parentheses, periods and middots freely, but never a
- * colon-wrapped number. Everything after the last of them is what was
- * actually typed.
+ * A heading with no letter in it is not a name. The title has its own
+ * parameter now, so this is only a guard against a user typing punctuation
+ * into the field — but it is cheap and the failure it prevents (a card
+ * headed ":" or "--") is one nothing else would catch.
  */
 function cardTitle(raw: string): string {
-  // Last, not first: a value that round-tripped more than once carries
-  // several tails, and only the text after the final one was ever typed.
-  const tail = /.*:\d+:/s;
-  const typed = tail.test(raw) ? raw.replace(tail, "").trim() : raw.trim();
-
-  // A heading with no letter at all is leftover punctuation, never a name.
+  const typed = raw.trim();
   return /\p{L}/u.test(typed) ? typed : "";
 }
 
 
 
+
+/** Hold a number inside a range, for settings a user can type freely. */
+function clamp(value: number, low: number, high: number): number {
+  return Math.min(high, Math.max(low, value));
+}
 
 function parseNumber(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") return fallback;
@@ -194,79 +209,16 @@ function splitStationValue(station: string): {
   const bang = station.indexOf("!");
   if (bang === -1) return { stationPart: station, routes: [] };
 
-  // In a packed value the filter sits *before* the walk and title
-  // ("subway:127!A,C,E:5:Home"), so the list is cut at the first colon and
-  // the remainder handed back to the positional parse. In a current value
-  // there is nothing after it and the cut is a no-op.
-  const after = station.slice(bang + 1);
-  const colon = after.indexOf(":");
-  const routeList = colon === -1 ? after : after.slice(0, colon);
-  const trailing = colon === -1 ? "" : after.slice(colon);
-
   return {
-    stationPart: station.slice(0, bang) + trailing,
-    routes: routeList
+    stationPart: station.slice(0, bang),
+    routes: station
+      .slice(bang + 1)
       .split(",")
       .map((route) => route.trim().toUpperCase())
       .filter(Boolean),
   };
 }
 
-/**
- * What a station value stored before 2026-11-01 can still carry.
- *
- * **This whole mechanism is deletable** once no stored value predates the
- * split-parameter polling URL — every field here has its own parameter now.
- * It cannot be dropped on a date, because a user who has not opened their
- * settings since then is still sending the old shape and would see their
- * board empty rather than change. The signal to remove it is the store
- * release after which every install has re-saved; until then, deleting it
- * is a silent regression for exactly the users least likely to report one.
- *
- * Three shapes, all from the same cause — one field that used to hold four:
- *
- * - `subway:127:5:Home`  the packed walk time and title
- * - `bus:403257@W 42 St` a display name smuggled beside the ID
- * - `subway:subway:127`  a doubled type prefix, from a template that wrote
- *                        `{{ cardN_type }}` as well as the station
- */
-interface LegacyFields {
-  /** The ID list with any smuggled `@name` removed. */
-  ids: string;
-  /** A packed walk time, or undefined when the value carries none. */
-  walk: string | undefined;
-  /** A packed title, or "" when the value carries none. */
-  title: string;
-}
-
-/**
- * Strip the legacy extras from a `":"`-split station value.
- *
- * Mutates `parts` so the caller reads a clean `[type, ids]` out of it, and
- * returns whatever the old packed form carried in the segments beyond.
- */
-function legacyUnpack(parts: string[]): LegacyFields {
-  // The picker's stored value already begins with the transit type, so a
-  // polling URL that also wrote `{{ cardN_type }}` yielded
-  // "subway:subway:127+725". Dropping the duplicate keeps both that and a
-  // hand-written form working.
-  if (parts.length > 1 && parseTransitType(parts[0]) && parseTransitType(parts[1])) {
-    parts.shift();
-  }
-
-  const [, ids = "", walk, ...title] = parts;
-
-  // A display name used to travel beside the ID, because the board builder
-  // could not name a bus stop offline. It can now — see fetchBusStopNames —
-  // so the name is split off and discarded rather than becoming a heading.
-  const [idList = ""] = ids.split("@");
-
-  return {
-    ids: idList,
-    walk,
-    title: title.join(":"),
-  };
-}
 
 function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   if (isBlank(params.station)) return undefined;
@@ -275,12 +227,27 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   // separator, so it means one thing wherever it appears in the value.
   const { stationPart, routes } = splitStationValue(params.station!);
 
-  const parts = stationPart.split(":");
-  const legacy = legacyUnpack(parts);
+  // Exactly two segments. Anything else is a value from before the fields
+  // were split into their own parameters — a packed ":<walk>:<title>", or a
+  // doubled type prefix — and those are rejected rather than read loosely.
+  //
+  // Dropping the extra segments instead would be worse than failing: the
+  // card renders, looks configured, and is built on whatever survived the
+  // guess. "subway:subway:127" silently yields a stop ID of "subway".
+  const segments = stationPart.split(":");
+  if (segments.length !== 2) return undefined;
 
-  const [type = ""] = parts;
+  const [type = "", ids = ""] = segments;
   const transitType = parseTransitType(type);
   if (!transitType) return undefined;
+
+  // A display name used to travel beside the ID as "@<name>", because the
+  // board builder could not name a bus stop offline. It can now — see
+  // `fetchBusStopNames` — so a value still carrying one predates the
+  // change and is refused for the same reason as a packed tail: the IDs in
+  // front may be good, but a card built on half a parse is a card nobody
+  // can debug.
+  if (ids.includes("@")) return undefined;
 
   // A card's IDs are "+"-joined: a subway complex or a bus corner is several.
   //
@@ -289,15 +256,14 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   // legitimately arrive either way. Accepting both means a multi-ID station
   // cannot silently collapse into one unusable id — which would show as a
   // five-platform complex quietly rendering one platform's trains.
-  const stopIds = legacy.ids
+  const stopIds = ids
     .split(/[+\s]+/)
     .map((id) => id.trim())
     .filter(Boolean);
   if (stopIds.length === 0) return undefined;
 
-  // Each from its own parameter; see `legacyUnpack` for the fallbacks.
-  const title = cardTitle(params.title ?? legacy.title);
-  const walk = parseNumber(params.walk ?? legacy.walk, DEFAULT_WALK_TIME);
+  const title = cardTitle(params.title ?? "");
+  const walk = parseNumber(params.walk, DEFAULT_WALK_TIME);
 
   return {
     slot,
@@ -418,6 +384,16 @@ export function parseBoardSettings(url: URL): BoardSettings {
     cards: cards.length > 0 ? cards : DEMO_CARDS,
     isDemo: cards.length === 0,
     use24HourTime: parseBoolean(params.get("h24"), true),
+    // Clamped rather than validated: a board must render whatever arrives,
+    // and a destination at 3x or 0.1x is not a board. The ends are the
+    // sizes either side of which the row stops working — below 0.7 the
+    // 1-bit panel cannot resolve the glyphs, above 1.3 a destination
+    // crowds out the clock it is meant to sit beside.
+    destinationScale: clamp(
+      parseFloat(params.get("dscale") ?? "") || DEFAULT_DESTINATION_SCALE,
+      0.7,
+      1.3
+    ),
     urgentThresholdMinutes: parseNumber(
       params.get("urgent") ?? undefined,
       DEFAULT_URGENT_THRESHOLD
