@@ -58,6 +58,20 @@ describe("the route filter", () => {
     assert.deepEqual(cards[0].stopIds, ["127", "725"]);
   });
 
+  test("a packed tail hiding behind the filter is refused", () => {
+    // The two-segment check only sees the part in front of the "!", so a
+    // tail after it slipped through and was read as part of a route name:
+    // "subway:127+725!A,C,E:5:" rendered a badge saying "ACE:5:". A route
+    // never contains a colon, so one there means a legacy value.
+    const { cards } = board(
+      `c1=${encodeURIComponent("subway:127+725!A,C,E:5:")}&c2=subway:721&w2=5`
+    );
+    assert.deepEqual(
+      cards.map((card) => card.slot),
+      [2]
+    );
+  });
+
   test("survives url encoding, separator included", () => {
     // The template writes the "!" as a literal %21 so it stays a
     // separator rather than being encoded as part of the value.
@@ -215,11 +229,11 @@ describe("narrowing a card to some routes", () => {
   // branch got all nine, with nothing to say the request had been dropped.
   test("every transit type accepts a route filter", () => {
     const cases: [string, string][] = [
-      ["subway:127!1,2,3:5", "subway"],
-      ["lirr:102!Babylon:10", "railroad-lirr"],
-      ["mtn:1!Hudson:10", "railroad-mtn"],
-      ["bus:403257!M42:5", "bus"],
-      ["ferry:87!ER:5", "ferry"],
+      ["subway:127!1,2,3", "subway"],
+      ["lirr:102!Babylon", "railroad-lirr"],
+      ["mtn:1!Hudson", "railroad-mtn"],
+      ["bus:403257!M42", "bus"],
+      ["ferry:87!ER", "ferry"],
     ];
 
     for (const [slot, type] of cases) {

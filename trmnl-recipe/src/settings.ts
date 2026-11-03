@@ -211,17 +211,25 @@ interface SlotParams {
  * nothing looked at, and was ignored with no error and a full card to show
  * for it.
  */
-function splitStationValue(station: string): {
-  stationPart: string;
-  routes: string[];
-} {
+function splitStationValue(station: string):
+  | { stationPart: string; routes: string[] }
+  | undefined {
   const bang = station.indexOf("!");
   if (bang === -1) return { stationPart: station, routes: [] };
 
+  // A colon after the "!" is a packed tail hiding behind the filter, from
+  // a value stored before each card field got its own parameter. Left in,
+  // it is read as part of a route name and the badge renders "ACE:5:" —
+  // the tail escapes the two-segment check, which only ever sees the part
+  // in front of the "!". Routes never contain a colon, so this is both the
+  // simplest rule and the honest one: the value is refused like any other
+  // legacy shape, rather than half-parsed.
+  const routeList = station.slice(bang + 1);
+  if (routeList.includes(":")) return undefined;
+
   return {
     stationPart: station.slice(0, bang),
-    routes: station
-      .slice(bang + 1)
+    routes: routeList
       .split(",")
       .map((route) => route.trim().toUpperCase())
       .filter(Boolean),
@@ -234,7 +242,9 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
 
   // `!` separates the route filter from the stop IDs, and is our own
   // separator, so it means one thing wherever it appears in the value.
-  const { stationPart, routes } = splitStationValue(params.station!);
+  const split = splitStationValue(params.station!);
+  if (!split) return undefined;
+  const { stationPart, routes } = split;
 
   // Exactly two segments. Anything else is a value from before the fields
   // were split into their own parameters — a packed ":<walk>:<title>", or a

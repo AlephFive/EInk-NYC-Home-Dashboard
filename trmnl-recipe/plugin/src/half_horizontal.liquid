@@ -122,9 +122,20 @@
        final letter pushes SI visibly left of centre. */
     text-indent: -0.06em;
   }
-  /* Pushes the timestamp to the right edge of the footer. */
+  /* The footer never reflows: the label takes what is left, the stamp
+     keeps its width, and a long label clips rather than pushing the stamp
+     off the panel or wrapping the bar onto a second line. */
+  .footer-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+  }
   .footer-stamp {
     margin-left: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding-left: 0.5em;
   }
   /* The bullet strip takes what the station name leaves and clips there.
 
@@ -568,27 +579,25 @@
         one. Formatted by the Worker, because Liquid cannot convert a
         timezone and the panel runs wherever the user is.
       {% endcomment %}
-      <span class="title">NYC Subway, Bus, Rail, Ferry</span>
-      {% if d %}
-        {% comment %}
-          The backend substitutes a demo board when nothing is configured,
-          so the panel must say whose stations these are — without it a new
-          installer sees Times Square and reasonably assumes their own form
-          took effect.
+      {% comment %}
+        The footer is always exactly two items: a label on the left and the
+        timestamp on the right. The demo notice is folded into the label
+        rather than added as a third, because a third item has nowhere to
+        go — the stamp takes the right edge, so anything between them is
+        squeezed, and at a larger ui-scale all three collided into one
+        unreadable line.
 
-          It sits next to the networks rather than after the timestamp: the
-          stamp is pushed to the right edge, so anything following it was
-          pushed off the panel entirely.
-        {% endcomment %}
-        <span class="title">· Example, choose your stations in settings</span>
+        The backend substitutes a demo board when nothing is configured, so
+        the panel must say whose stations these are: without it a new
+        installer sees Times Square and reasonably assumes their own form
+        took effect.
+      {% endcomment %}
+      {% if d %}
+        <span class="title footer-label">Example board · choose your stations in settings</span>
+      {% else %}
+        <span class="title footer-label">NYC Subway, Bus, Rail, Ferry</span>
       {% endif %}
       {% if a %}
-        {% comment %}
-          Pushed to the right edge, so the name and the timestamp read as
-          two separate facts rather than one run-on line. `title_bar` lays
-          its children out in a row, so an auto left margin takes all the
-          space between them.
-        {% endcomment %}
         <span class="title footer-stamp">Last updated: {{ a }}</span>
       {% endif %}
     {% if d %}
