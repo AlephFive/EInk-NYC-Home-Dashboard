@@ -49,6 +49,55 @@ describe("a multi-ID station survives URL encoding", () => {
   });
 });
 
+describe("a stored value that is really a dropdown label", () => {
+  // TRMNL is supposed to store the `id` from {id, name} and show the
+  // `name`. Sometimes the label lands in storage instead: the field reads
+  // correctly in the form while the Worker gets
+  // "116 St-Columbia University (1) · Subway", which parses to nothing.
+  // Every card dropping is what puts the demo board on a panel whose
+  // settings all look right — unfalsifiable from the user's side, since
+  // they are looking at the name they picked.
+  test("a subway label resolves to its stop", () => {
+    const { cards } = board(
+      `c1=${encodeURIComponent("116 St-Columbia University (1) · Subway")}&w1=5`
+    );
+    assert.deepEqual(cards[0].stopIds, ["117"]);
+    assert.equal(cards[0].transitType, "subway");
+  });
+
+  test("it parses to the same card as the id would", () => {
+    const viaLabel = board(
+      `c1=${encodeURIComponent("116 St-Columbia University (1) · Subway")}&w1=5`
+    ).cards[0];
+    const viaId = board("c1=subway:117&w1=5").cards[0];
+    assert.deepEqual(viaLabel, viaId);
+  });
+
+  test("ferry and railroad labels resolve too", () => {
+    assert.deepEqual(
+      board(`c1=${encodeURIComponent("Wall St/Pier 11 · Ferry")}&w1=5`)
+        .cards[0].stopIds,
+      ["87"]
+    );
+    assert.equal(
+      board(`c1=${encodeURIComponent("Grand Central · Metro-North")}&w1=5`)
+        .cards[0].transitType,
+      "railroad-mtn"
+    );
+  });
+
+  test("a name that matches nothing is still refused", () => {
+    // The recovery must not become a second, looser parser.
+    const { cards } = board(
+      `c1=${encodeURIComponent("Nonsense Station · Subway")}&c2=subway:721&w2=5`
+    );
+    assert.deepEqual(
+      cards.map((card) => card.slot),
+      [2]
+    );
+  });
+});
+
 describe("the route filter", () => {
   const ROUTES = ["A", "C", "E"];
 
@@ -527,7 +576,7 @@ describe("the demo board", () => {
     const names = board("").cards.map((c) => c.title);
     assert.deepEqual(names, [
       "Times Sq-42 St",
-      "Times Sq N/Q/R/W",
+      "Custom name",
       "Jamaica",
       "W 42 St/5 Av",
       "Grand Central",

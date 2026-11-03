@@ -351,6 +351,60 @@ export function parsePickerKind(value: string | undefined): PickerKind | undefin
  * type field redundant for routing and leaves it as the thing it should
  * always have been: a filter on what the search offers.
  */
+/**
+ * Recover a stored value that is really a dropdown label.
+ *
+ * TRMNL is supposed to store the `id` from `{id, name}` and show the
+ * `name`. Sometimes the label lands in storage instead — the field then
+ * reads correctly in the form while the Worker receives
+ * "116 St-Columbia University (1) · Subway", which parses to nothing and
+ * drops the card. Every card dropping is what puts the demo board on a
+ * panel whose settings all look right, which is unfalsifiable from the
+ * user's side: they are looking at the name they picked.
+ *
+ * A label is recognisable — it ends " · <Network>", a separator no MTA
+ * stop name contains — and the station name in front of it searches the
+ * same bundled tables the picker does. Synchronous, so the parser can use
+ * it; bus is excluded because its lookup leaves the machine.
+ *
+ * Returns the value the picker should have stored, or undefined when the
+ * string is not a label or names nothing.
+ */
+export function valueFromLabel(label: string): string | undefined {
+  // Bus is absent deliberately: its lookup leaves the machine, and this
+  // has to stay synchronous for the parser to use it.
+  const networks: Record<string, "subway" | "lirr" | "mtn" | "ferry"> = {
+    subway: "subway",
+    lirr: "lirr",
+    "metro-north": "mtn",
+    ferry: "ferry",
+  };
+
+  const cut = label.lastIndexOf("·");
+  if (cut === -1) return undefined;
+
+  const kind = networks[label.slice(cut + 1).trim().toLowerCase()];
+  if (!kind) return undefined;
+
+  // The picker appends a route list to the name — "Jamaica (E J Z)" — so
+  // the search runs on the part before it.
+  const name = label.slice(0, cut).replace(/\s*\([^)]*\)\s*$/, "").trim();
+  if (!name) return undefined;
+
+  const matches =
+    kind === "subway"
+      ? searchSubway(name)
+      : kind === "ferry"
+        ? searchFerry(name)
+        : searchRailroad(name, kind);
+
+  for (const option of matches) {
+    const [[optionName, value]] = Object.entries(option);
+    if (optionName.replace(/\s*\([^)]*\)\s*$/, "").trim() === name) return value;
+  }
+  return undefined;
+}
+
 export async function searchAllTypes(query: string): Promise<PickerOption[]> {
   const trimmed = query.trim();
   if (trimmed.length < 1) return [];

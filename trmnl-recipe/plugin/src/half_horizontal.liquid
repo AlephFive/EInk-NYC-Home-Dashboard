@@ -283,16 +283,16 @@
     font-variant-numeric: tabular-nums;
     /* Separates the digits from the destination clipping into them. */
     padding-left: 0.2em;
-    /* Relative, never a pixel literal. It was `15px`, which does not
-       scale: the framework multiplies every size by the user's chosen
-       `--modifier-scale`, so on a panel set above Regular the clock stayed
-       15px while everything around it grew — the time ended up the
-       smallest thing on the row and the destination the largest, which is
-       the reverse of what matters.
+    /* The size comes from the framework class on the element
+       (`value--xsmall`, 20px), not from here. An `em` rule was tried and
+       is a no-op: `font-size: 1em` computes against the inherited size,
+       so the class always won and the clock stayed the smaller of the two.
 
-       1em is the row's own size; the clock is the row's primary fact and
-       is drawn at it. */
-    font-size: 1em;
+       The clock is the row's primary fact — a rider scans times first — so
+       it takes the larger step, against the destination's 16px. The next
+       step up (`title--base`, 26px) was tried and is too much: it crushed
+       a split subway destination to three characters and pushed the last
+       row of each card out of its box. */
     /* The board's face is a bitmap with a real bold cut, so this picks a
        drawn weight rather than synthesising one — which on a 1-bit panel
        is the difference between heavier and blurred. */
@@ -368,12 +368,15 @@
        `--dest-scale` is set inline from the board's `ds`, so the user's
        choice reaches a stylesheet that cannot see custom fields. Defaults
        to 1 when the board omits it, which it does at the default size. */
-    /* A step under the row, times the user's scale. The destination is the
-       row's supporting detail — the badge says which train and the clock
-       says when — and it is also the only element whose useful length
-       varies by station, so the size it gives up goes to showing more of
-       the name. */
-    font-size: calc(0.86em * var(--dest-scale, 1));
+    /* `title--small` (16px) against the clock's `value--xsmall` (20px);
+       both are the same bitmap face, so only the size differs. The
+       destination is supporting detail — the badge says which train and
+       the clock says when — and it is the only element whose useful
+       length varies by station, so the size it gives up buys more of the
+       name.
+
+       The user's scale multiplies whatever the class sets. */
+    font-size: calc(1em * var(--dest-scale, 1));
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -579,7 +582,7 @@
                       <div class="row-line{% if r[3] == 1 %} row-line--urgent invert rounded--small{% endif %} flex flex--row flex--between flex--center-y gap--small">
                         <span class="label label--small label--filled {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
                         <span class="row-dest title title--small grow">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
-                        <span class="row-time title title--small">{{ r[2] }}</span>
+                        <span class="row-time value value--xsmall">{{ r[2] }}</span>
                       </div>
                     {% endfor %}
                   {% endfor %}

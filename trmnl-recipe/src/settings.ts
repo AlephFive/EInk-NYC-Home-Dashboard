@@ -37,6 +37,10 @@
  * produces a doubled prefix. Both forms parse — see `parseCard`.
  */
 
+// `pickers` imports only JSON the Worker already loads for the board, so
+// this costs nothing at runtime — see `valueFromLabel`.
+import { valueFromLabel } from "./pickers";
+
 /** Transit types a slot may select, matching the dashboard's own union. */
 export const TRANSIT_TYPES = [
   "subway",
@@ -242,7 +246,14 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
 
   // `!` separates the route filter from the stop IDs, and is our own
   // separator, so it means one thing wherever it appears in the value.
-  const split = splitStationValue(params.station!);
+  // A stored value that is really a dropdown label — the station name
+  // followed by " · Subway" — is recovered to the value the picker should
+  // have stored. The form reads correctly while the Worker gets the label,
+  // so without this the card silently drops and a panel whose settings all
+  // look right shows the demo board.
+  const station = valueFromLabel(params.station!) ?? params.station!;
+
+  const split = splitStationValue(station);
   if (!split) return undefined;
   const { stationPart, routes } = split;
 
@@ -327,7 +338,7 @@ export const DEMO_CARDS: CardSettings[] = [
     stopIds: ["R16"],
     walkTime: 5,
     routes: ["N", "Q", "R", "W"],
-    title: "Times Sq N/Q/R/W",
+    title: "Custom name",
   },
   {
     slot: 3,
