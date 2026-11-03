@@ -186,9 +186,19 @@
   }
   .bullet-strip {
     display: flex;
+    /* The marks never give way. A station name is clipped and still
+       readable — "116 St-Columbia Uni…" tells a rider which station —
+       where a clipped bullet row loses whole routes, and a route either
+       stops here or it does not. The name shrinks first. */
+    flex-shrink: 0;
     /* A ceiling as well as shrink, so a long route list cannot claim the
        heading. Half is enough for six marks, which is as many as tell a
-       rider anything the name has not. */
+       rider anything the name has not.
+
+       Kept as a ceiling even though the strip no longer shrinks: without
+       it a twelve-route complex would push the station name out of its
+       own heading entirely, and a card with no name is worse than one
+       with no bullets. */
     max-width: 50%;
     /* Not `inherit`: that takes the heading row's `gap--small` (7px), which
        is the right distance between the station name and the strip but too
@@ -196,8 +206,6 @@
        object, and 7px at a 1.35em bullet spaces it out into separate marks.
        4px groups them while keeping the circles clear of each other. */
     gap: 4px;
-    min-width: 0;
-    flex-shrink: 1;
     overflow: hidden;
     flex-wrap: nowrap;
   }
@@ -458,7 +466,15 @@
 {% endcomment %}
 
 {% assign device_height = trmnl.device.height | default: 480 %}
-{% assign stack_height = device_height | times: 55 | divided_by: 100 %}
+{% comment %}
+  A whole number of rows, not a percentage — see full.liquid. A tuned
+  percentage stops dividing by the row height the moment the type
+  changes, and the Content Limiter then renders the remainder as a
+  part-row: the last entry on a card comes out smaller than the rest.
+{% endcomment %}
+{% assign row_pitch = 30 %}
+{% assign stack_rows = device_height | times: 55 | divided_by: 100 | divided_by: row_pitch %}
+{% assign stack_height = stack_rows | times: row_pitch %}
 
 <div class="view"{% if ds %} style="--dest-scale: {{ ds }}"{% endif %}>
   <div class="layout">

@@ -186,9 +186,19 @@
   }
   .bullet-strip {
     display: flex;
+    /* The marks never give way. A station name is clipped and still
+       readable — "116 St-Columbia Uni…" tells a rider which station —
+       where a clipped bullet row loses whole routes, and a route either
+       stops here or it does not. The name shrinks first. */
+    flex-shrink: 0;
     /* A ceiling as well as shrink, so a long route list cannot claim the
        heading. Half is enough for six marks, which is as many as tell a
-       rider anything the name has not. */
+       rider anything the name has not.
+
+       Kept as a ceiling even though the strip no longer shrinks: without
+       it a twelve-route complex would push the station name out of its
+       own heading entirely, and a card with no name is worse than one
+       with no bullets. */
     max-width: 50%;
     /* Not `inherit`: that takes the heading row's `gap--small` (7px), which
        is the right distance between the station name and the strip but too
@@ -196,8 +206,6 @@
        object, and 7px at a 1.35em bullet spaces it out into separate marks.
        4px groups them while keeping the circles clear of each other. */
     gap: 4px;
-    min-width: 0;
-    flex-shrink: 1;
     overflow: hidden;
     flex-wrap: nowrap;
   }
@@ -476,8 +484,28 @@
   reasoned about.
 {% endcomment %}
 {% assign device_height = trmnl.device.height | default: 480 %}
-{% assign full_height = device_height | times: 72 | divided_by: 100 %}
-{% assign split_height = device_height | times: 34 | divided_by: 100 %}
+
+{% comment %}
+  A card's budget is a whole number of rows, not a percentage.
+
+  It was 72% and 34%, tuned against a render — and a tuned percentage goes
+  stale the moment the type changes, which it did several times: the clock
+  moved to `value--xsmall`, badges came back to full size, the row gap
+  moved from padding to margin. The budget then no longer divided by the
+  row height, the Content Limiter rendered the leftover as a part-row, and
+  the last entry on a card came out visibly smaller than the rest.
+
+  `row_pitch` is the tallest thing in a row (the 20px clock, against a
+  21.6px badge box) plus the row's own padding and margin, rounded up. The
+  budget is the largest multiple of it that fits, so the cut always lands
+  between rows. Change a row's type size and this follows; it is the one
+  number to keep in step.
+{% endcomment %}
+{% assign row_pitch = 30 %}
+{% assign full_rows = device_height | times: 72 | divided_by: 100 | divided_by: row_pitch %}
+{% assign split_rows = device_height | times: 34 | divided_by: 100 | divided_by: row_pitch %}
+{% assign full_height = full_rows | times: row_pitch %}
+{% assign split_height = split_rows | times: row_pitch %}
 
 {% comment %}
   Two things the first renders exposed.
