@@ -293,6 +293,27 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("every element on a row draws in the same face", () => {
+    // `screen--fonts-trmnl` maps the framework's classes onto bitmap
+    // faces, and they are not interchangeable: `.description` is TRMNL12
+    // where `.label` and `.title--small` are TRMNL16. Both compute to
+    // 16px, so a mismatch is invisible in the CSS and obvious on the
+    // panel — a bus destination drawn visibly larger than the badge
+    // beside it.
+    for (const [name, markup] of layouts) {
+      assert.doesNotMatch(
+        markup,
+        /class="row-dest[^"]*description/,
+        `${name}.liquid draws the destination in a different face`
+      );
+      assert.match(
+        markup,
+        /class="row-dest[^"]*title--small/,
+        `${name}.liquid does not give the destination the row's face`
+      );
+    }
+  });
+
   test("the destination clips instead of wrapping", () => {
     // A wrapped name makes its row taller than its neighbours, which is
     // exactly what uniform row height exists to prevent.

@@ -209,6 +209,11 @@
     /* Match the bullets beside it, so the heading marks share a baseline
        box whichever kind a card carries. */
     height: 1.35em;
+    /* As on `.row-badge`: the framework's 5px either side is more air than
+       a network name needs, and the heading gives the width to the station
+       name instead. */
+    padding-left: 3px;
+    padding-right: 3px;
     overflow: hidden;
     text-overflow: clip;
     white-space: nowrap;
@@ -319,7 +324,16 @@
      rather than wrapping: a wrapped name would make its row taller than its
      neighbours, and on a fixed panel a name cut mid-word still reads. */
   .row-dest {
-    /* `--dest-scale` is set inline from the board's `ds`, so the user's
+    /* Every element on a row draws in the same face.
+       `screen--fonts-trmnl` maps the framework's classes onto bitmap
+       faces, and they are not interchangeable: `.description` is TRMNL12
+       where `.label` and `.title--small` are TRMNL16. Both compute to
+       16px, so the difference does not show in the CSS — it shows on the
+       panel, as a bus or ferry destination drawn visibly larger than the
+       badge beside it. The destination carries `.title--small` now, like
+       the rest of the row.
+
+       `--dest-scale` is set inline from the board's `ds`, so the user's
        choice reaches a stylesheet that cannot see custom fields. Defaults
        to 1 when the board omits it, which it does at the default size. */
     font-size: calc(1em * var(--dest-scale, 1));
@@ -370,6 +384,12 @@
     height: 1.35em;
     padding-top: 0;
     padding-bottom: 0;
+    /* `.label--filled` pads 5px either side, which is tuned for a label
+       standing alone. In a row it is 10px taken from the destination, the
+       one element with none to spare — and a route name needs only enough
+       air to stay off the fill's edge. */
+    padding-left: 3px;
+    padding-right: 3px;
     overflow: hidden;
     text-overflow: clip;
     white-space: nowrap;
