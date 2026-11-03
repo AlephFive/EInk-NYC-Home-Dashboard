@@ -154,6 +154,16 @@
      down to "Times" before this. The strip yields first and clips. */
   .card-name {
     min-width: 7ch;
+    /* One line, always. `data-clamp="1"` used to hold this — the framework
+       truncates in JS — and removing it to get rid of the ellipsis took
+       the wrapping guard with it, so "116 St-Columbia University" broke
+       onto a second line and pushed the card's rows down.
+
+       Clipping is the replacement: the name shows as much as fits and
+       stops, which is the same rule the rows follow. */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
   }
   /* The mark slot holds either subway bullets or one network tag, and the
      two want opposite things: a long bullet list must yield to the station

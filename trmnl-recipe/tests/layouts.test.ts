@@ -258,13 +258,17 @@ describe("the display rule is identical in every layout", () => {
     // ellipsis at render time, so it counts too. The one exception is the
     // card error box, where the message is prose and genuinely wraps.
     for (const [name, markup] of layouts) {
+      // Comments name both mechanisms to explain why they are not used.
+      const code = markup
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\{%\s*comment\s*%\}[\s\S]*?\{%\s*endcomment\s*%\}/g, "");
       assert.doesNotMatch(
-        markup,
+        code,
         /text-overflow:\s*ellipsis/,
         `${name}.liquid ellipsizes`
       );
       assert.doesNotMatch(
-        markup,
+        code,
         /data-clamp="1"/,
         `${name}.liquid clamps a single-line element`
       );

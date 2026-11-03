@@ -170,11 +170,28 @@ describe("the visibility toggle", () => {
     );
   });
 
-  test("hiding every card falls back to the demo board", () => {
-    // Not a blank panel: an empty board is indistinguishable from an
-    // unconfigured one, and that already demonstrates itself.
-    const { isDemo } = board("c1=subway:721&w1=10&v1=false");
-    assert.equal(isDemo, true);
+  test("hiding every configured card shows them anyway", () => {
+    // TRMNL sends an explicit `false` for a checkbox the user has never
+    // touched, whatever the field's declared default — so adding the
+    // toggles silently hid every card on every existing install, and the
+    // panel fell back to the demo board. A user who had picked their
+    // stations saw Times Square with no way to tell why.
+    //
+    // Hiding some cards is a real choice and is honoured. Hiding all of
+    // them cannot be told apart from the untouched state, and showing the
+    // stations the user actually picked is the better of the two guesses.
+    const { cards, isDemo } = board("c1=subway:721&w1=10&v1=false");
+    assert.equal(isDemo, false);
+    assert.deepEqual(
+      cards.map((card) => card.slot),
+      [1]
+    );
+  });
+
+  test("an empty board still demonstrates itself", () => {
+    // The fallback is for a board with nothing configured at all, which is
+    // a different thing from one whose cards are merely hidden.
+    assert.equal(board("c1=&c2=").isDemo, true);
   });
 });
 

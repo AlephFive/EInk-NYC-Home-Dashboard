@@ -378,6 +378,8 @@ export const DEMO_CARDS: CardSettings[] = [
 export function parseBoardSettings(url: URL): BoardSettings {
   const params = url.searchParams;
   const cards: CardSettings[] = [];
+  /** Slots that parsed but were hidden, kept in case every slot was. */
+  const hidden: CardSettings[] = [];
 
   for (let slot = 1; slot <= MAX_SLOTS; slot++) {
     // The visibility toggle is decided here rather than in the Liquid guard
@@ -388,15 +390,29 @@ export function parseBoardSettings(url: URL): BoardSettings {
     // not testable from here, so the template passes the raw value through
     // and `parseVisible` — which accepts every spelling and is under test —
     // decides.
-    if (!parseVisible(params.get(`v${slot}`))) continue;
-
     const card = parseCard(slot, {
       station: params.get(`c${slot}`),
       walk: params.get(`w${slot}`) ?? undefined,
       title: params.get(`n${slot}`) ?? undefined,
     });
-    if (card) cards.push(card);
+    if (!card) continue;
+
+    if (parseVisible(params.get(`v${slot}`))) cards.push(card);
+    else hidden.push(card);
   }
+
+  // Every configured card hidden is not a board anyone built on purpose.
+  //
+  // TRMNL sends an explicit `false` for a checkbox the user has never
+  // touched, whatever the field's declared default — so adding the
+  // "Show this card" toggles silently hid every card on every existing
+  // install, and the panel fell back to the demo board. A user who had
+  // picked their stations saw Times Square and had no way to tell why.
+  //
+  // Hiding some cards is a real choice and is honoured. Hiding *all* of
+  // them cannot be distinguished from the untouched state, and showing
+  // the stations a user actually chose is the better of the two guesses.
+  if (cards.length === 0 && hidden.length > 0) cards.push(...hidden);
 
   return {
     // An unconfigured board demonstrates itself rather than rendering blank.
