@@ -47,6 +47,22 @@
     for 7 includes the 7 express. Put the same station on two cards with
     different lines to split a big complex.
 
+- keyname: card1_direction
+  field_type: select
+  name: Direction
+  description: Leave on Both unless you only ever travel one way
+  group: Column 1 · Row 1
+  optional: true
+  options:
+    - Both
+    - "1"
+    - "2"
+  default: Both
+  help_text: >-
+    A card normally shows both directions side by side. Pick one and it
+    gets the whole card. On a railroad, 1 is towards the city and 2 is
+    away from it; on subway and bus they are the card's two columns.
+
 - keyname: card1_walk
   field_type: number
   name: Walk time (minutes)
@@ -97,6 +113,22 @@
     or number you read on the train: S covers all three shuttles, and asking
     for 7 includes the 7 express. Put the same station on two cards with
     different lines to split a big complex.
+
+- keyname: card2_direction
+  field_type: select
+  name: Direction
+  description: Leave on Both unless you only ever travel one way
+  group: Column 1 · Row 2
+  optional: true
+  options:
+    - Both
+    - "1"
+    - "2"
+  default: Both
+  help_text: >-
+    A card normally shows both directions side by side. Pick one and it
+    gets the whole card. On a railroad, 1 is towards the city and 2 is
+    away from it; on subway and bus they are the card's two columns.
 
 - keyname: card2_walk
   field_type: number
@@ -149,6 +181,22 @@
     for 7 includes the 7 express. Put the same station on two cards with
     different lines to split a big complex.
 
+- keyname: card3_direction
+  field_type: select
+  name: Direction
+  description: Leave on Both unless you only ever travel one way
+  group: Column 2 · Row 1
+  optional: true
+  options:
+    - Both
+    - "1"
+    - "2"
+  default: Both
+  help_text: >-
+    A card normally shows both directions side by side. Pick one and it
+    gets the whole card. On a railroad, 1 is towards the city and 2 is
+    away from it; on subway and bus they are the card's two columns.
+
 - keyname: card3_walk
   field_type: number
   name: Walk time (minutes)
@@ -199,6 +247,22 @@
     or number you read on the train: S covers all three shuttles, and asking
     for 7 includes the 7 express. Put the same station on two cards with
     different lines to split a big complex.
+
+- keyname: card4_direction
+  field_type: select
+  name: Direction
+  description: Leave on Both unless you only ever travel one way
+  group: Column 2 · Row 2
+  optional: true
+  options:
+    - Both
+    - "1"
+    - "2"
+  default: Both
+  help_text: >-
+    A card normally shows both directions side by side. Pick one and it
+    gets the whole card. On a railroad, 1 is towards the city and 2 is
+    away from it; on subway and bus they are the card's two columns.
 
 - keyname: card4_walk
   field_type: number
@@ -251,6 +315,22 @@
     for 7 includes the 7 express. Put the same station on two cards with
     different lines to split a big complex.
 
+- keyname: card5_direction
+  field_type: select
+  name: Direction
+  description: Leave on Both unless you only ever travel one way
+  group: Column 3 · Row 1
+  optional: true
+  options:
+    - Both
+    - "1"
+    - "2"
+  default: Both
+  help_text: >-
+    A card normally shows both directions side by side. Pick one and it
+    gets the whole card. On a railroad, 1 is towards the city and 2 is
+    away from it; on subway and bus they are the card's two columns.
+
 - keyname: card5_walk
   field_type: number
   name: Walk time (minutes)
@@ -301,6 +381,22 @@
     or number you read on the train: S covers all three shuttles, and asking
     for 7 includes the 7 express. Put the same station on two cards with
     different lines to split a big complex.
+
+- keyname: card6_direction
+  field_type: select
+  name: Direction
+  description: Leave on Both unless you only ever travel one way
+  group: Column 3 · Row 2
+  optional: true
+  options:
+    - Both
+    - "1"
+    - "2"
+  default: Both
+  help_text: >-
+    A card normally shows both directions side by side. Pick one and it
+    gets the whole card. On a railroad, 1 is towards the city and 2 is
+    away from it; on subway and bus they are the card's two columns.
 
 - keyname: card6_walk
   field_type: number

@@ -384,7 +384,11 @@
        name.
 
        The user's scale multiplies whatever the class sets. */
-    font-size: calc(1em * var(--dest-scale, 1));
+    /* A step under the row. The framework has no class below
+       `title--small` — every size variable bottoms out at 16px — so the
+       step is relative, which also keeps it multiplying by the user's
+       own `--dest-scale`. */
+    font-size: calc(0.86em * var(--dest-scale, 1));
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -887,7 +891,7 @@
                           does not guess whether service ended, the stop is
                           peak-only, or everything is inside the walk time.
                         {% endcomment %}
-                        <span class="description">No upcoming departures</span>
+                        <span class="row-dest title title--small">No upcoming departures</span>
                       {% endif %}
                     </div>
                     {% endfor %}

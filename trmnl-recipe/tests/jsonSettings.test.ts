@@ -11,6 +11,27 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { boardFromJson } from "../src/jsonSettings.ts";
 
+describe("narrowing a card to one direction", () => {
+  const dir = (value: unknown) =>
+    boardFromJson({
+      cards: [{ station: { type: "subway", ids: ["117"] }, direction: value }],
+    }).cards[0].direction;
+
+  test('"1" and "2" select a direction', () => {
+    assert.equal(dir("1"), 1);
+    assert.equal(dir("2"), 2);
+  });
+
+  test("anything else means both", () => {
+    // Including "Both", which is what the select sends, and the empty
+    // string a never-touched field sends. Showing one direction when the
+    // user asked for none is worse than showing both.
+    for (const value of ["Both", "", undefined, "3", "north", null]) {
+      assert.equal(dir(value), undefined, JSON.stringify(value));
+    }
+  });
+});
+
 describe("the station arrives as an object", () => {
   // The template splits `type:ids` and sends both named, so the Worker
   // reads two fields rather than inferring them from where separators

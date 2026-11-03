@@ -11,7 +11,8 @@
       "routes": {{ card1_routes | json }},
       "walk": {{ card1_walk | json }},
       "title": {{ card1_title | json }},
-      "visible": {{ card1_visible | json }}
+      "visible": {{ card1_visible | json }},
+      "direction": {{ card1_direction | json }}
     },
     {%- assign s2 = card2_station | split: "::" -%}
     {%- assign p2 = s2[0] | split: ":" -%}
@@ -24,7 +25,8 @@
       "routes": {{ card2_routes | json }},
       "walk": {{ card2_walk | json }},
       "title": {{ card2_title | json }},
-      "visible": {{ card2_visible | json }}
+      "visible": {{ card2_visible | json }},
+      "direction": {{ card2_direction | json }}
     },
     {%- assign s3 = card3_station | split: "::" -%}
     {%- assign p3 = s3[0] | split: ":" -%}
@@ -37,7 +39,8 @@
       "routes": {{ card3_routes | json }},
       "walk": {{ card3_walk | json }},
       "title": {{ card3_title | json }},
-      "visible": {{ card3_visible | json }}
+      "visible": {{ card3_visible | json }},
+      "direction": {{ card3_direction | json }}
     },
     {%- assign s4 = card4_station | split: "::" -%}
     {%- assign p4 = s4[0] | split: ":" -%}
@@ -50,7 +53,8 @@
       "routes": {{ card4_routes | json }},
       "walk": {{ card4_walk | json }},
       "title": {{ card4_title | json }},
-      "visible": {{ card4_visible | json }}
+      "visible": {{ card4_visible | json }},
+      "direction": {{ card4_direction | json }}
     },
     {%- assign s5 = card5_station | split: "::" -%}
     {%- assign p5 = s5[0] | split: ":" -%}
@@ -63,7 +67,8 @@
       "routes": {{ card5_routes | json }},
       "walk": {{ card5_walk | json }},
       "title": {{ card5_title | json }},
-      "visible": {{ card5_visible | json }}
+      "visible": {{ card5_visible | json }},
+      "direction": {{ card5_direction | json }}
     },
     {%- assign s6 = card6_station | split: "::" -%}
     {%- assign p6 = s6[0] | split: ":" -%}
@@ -76,7 +81,8 @@
       "routes": {{ card6_routes | json }},
       "walk": {{ card6_walk | json }},
       "title": {{ card6_title | json }},
-      "visible": {{ card6_visible | json }}
+      "visible": {{ card6_visible | json }},
+      "direction": {{ card6_direction | json }}
     }
   ],
   "use24Hour": {{ use_24_hour | json }},

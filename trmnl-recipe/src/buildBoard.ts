@@ -344,6 +344,35 @@ function routeFilterFor(routes: string[] | undefined) {
  * it.
  */
 /** Apply a card's route filter to built rows, or pass them through. */
+/**
+ * Keep only the direction a card asked for.
+ *
+ * Two shapes, because the networks differ. A subway or bus card is two
+ * columns and the direction *is* the column, so one is dropped. A
+ * railroad card is a single list and direction rides on each row — `r[4]`
+ * is 1 city-bound, -1 outbound, 0 unknown — so the rows are filtered and
+ * the column stays.
+ *
+ * A train whose direction is unknown is kept either way. The feed not
+ * saying is not the same as the train going the other way, and dropping
+ * it would silently hide departures a rider can take.
+ */
+function keepDirection<T>(items: T[], direction: 1 | 2 | undefined): T[] {
+  if (!direction || items.length < 2) return items;
+  return [items[direction - 1]!].filter(Boolean);
+}
+
+/** Rows of a single-column card, narrowed to one direction. */
+function rowsInDirection(
+  rows: BoardRow[],
+  direction: 1 | 2 | undefined
+): BoardRow[] {
+  if (!direction) return rows;
+  const wanted = direction === 1 ? 1 : -1;
+  // Keep 0 — unknown — for the reason above.
+  return rows.filter((row) => row[4] === wanted || !row[4]);
+}
+
 function filterRows(
   rows: DepartureRowData[],
   routes: string[] | undefined
@@ -517,7 +546,13 @@ async function subwayCard(
     // a missing column is a claim about the service.
     const live = directions.filter((d) => d.runs);
     const shown = live.length > 0 ? live : directions;
-    return { ...base, k: shown.map((d) => d.column) };
+
+    // The user's choice applies to the card's own two directions, before
+    // the terminal rule above has removed any — picking "direction 2" at
+    // a terminal must mean that direction, not whichever single column
+    // happened to survive.
+    const picked = card.direction ? keepDirection(directions, card.direction) : shown;
+    return { ...base, k: picked.map((d) => d.column) };
   } catch (err) {
     return { ...base, e: toMessage(err) };
   }
@@ -559,15 +594,21 @@ async function railroadCard(
       k: [
         {
           h: "",
-          r: filterRows(
-            trainRows(trains, {
-              ...rowOptions,
-              walkTime: card.walkTime,
-              // A railroad card is one full-height list, not two columns.
-              limit: rowOptions.limit * 2,
-            }),
-            card.routes
-          ).map(toBoardRow),
+          // A railroad card is one list, so direction filters the rows
+          // rather than dropping a column — `isCityBound()` has already
+          // decided it per trip.
+          r: rowsInDirection(
+            filterRows(
+              trainRows(trains, {
+                ...rowOptions,
+                walkTime: card.walkTime,
+                // One full-height list, not two columns.
+                limit: rowOptions.limit * 2,
+              }),
+              card.routes
+            ).map(toBoardRow),
+            card.direction
+          ),
         },
       ],
     };
@@ -630,9 +671,12 @@ async function busCard(
     })
   );
 
-  const columns = results
-    .map((result) => result.column)
-    .filter((column): column is BoardColumn => column !== undefined);
+  const columns = keepDirection(
+    results
+      .map((result) => result.column)
+      .filter((column): column is BoardColumn => column !== undefined),
+    card.direction
+  );
 
   // The card is named for its first stop, as every other type is. A corner's
   // two IDs share a `stop_name` — both sides of W 42 St/5 Av are "W 42 ST/5

@@ -256,6 +256,8 @@ describe("slot parsing", () => {
       title: "Home",
       // Absent unless the card narrows itself to particular lines.
       routes: undefined,
+      // Absent unless the card is narrowed to one direction.
+      direction: undefined,
     });
   });
 

@@ -74,6 +74,7 @@ interface JsonCard {
   walk?: unknown;
   title?: unknown;
   visible?: unknown;
+  direction?: unknown;
 }
 
 interface JsonBoard {
@@ -196,6 +197,12 @@ function parseCard(slot: number, entry: JsonCard): CardSettings | undefined {
 
   const title = asText(entry.title);
 
+  // Anything but "1" or "2" means both, including the empty string a
+  // never-touched select sends — a card showing one direction when the
+  // user asked for none is worse than one showing both.
+  const picked = asText(entry.direction);
+  const direction = picked === "1" ? 1 : picked === "2" ? 2 : undefined;
+
   return {
     slot,
     transitType,
@@ -203,6 +210,7 @@ function parseCard(slot: number, entry: JsonCard): CardSettings | undefined {
     walkTime: asNumber(entry.walk, DEFAULT_WALK_TIME),
     title: title === "" ? undefined : title,
     routes: routes.length > 0 ? routes : undefined,
+    direction,
   };
 }
 

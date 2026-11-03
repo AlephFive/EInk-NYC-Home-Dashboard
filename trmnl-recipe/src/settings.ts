@@ -72,6 +72,21 @@ export interface CardSettings {
    * rides the 1/2/3 does not want nine other lines competing for the rows.
    */
   routes?: string[];
+  /**
+   * Show only one of a card's two directions, or both when unset.
+   *
+   * A card is usually half wasted: someone leaving home only ever rides
+   * one way, and the other column is a list of trains they will not take.
+   * Narrowing to one direction gives the rows they do want the whole card.
+   *
+   * 1 and 2 rather than compass points or "inbound", because what the two
+   * mean differs by network and there is no shared vocabulary. On a
+   * railroad 1 is city-bound and 2 is outbound, which `isCityBound()`
+   * already decides per trip. On subway and bus the card simply has two
+   * columns and the numbers are their order — the heading above each says
+   * which is which, so a rider can see what they picked.
+   */
+  direction?: 1 | 2;
 }
 
 /** A whole board, as one poll describes it. */
@@ -211,6 +226,7 @@ interface SlotParams {
   station: string | null;
   walk: string | undefined;
   title: string | undefined;
+  direction: string | undefined;
 }
 
 /**
@@ -307,6 +323,8 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   if (stopIds.length === 0) return undefined;
 
   const title = cardTitle(params.title ?? "");
+  const picked = (params.direction ?? "").trim();
+  const direction = picked === "1" ? 1 : picked === "2" ? 2 : undefined;
   const walk = parseNumber(params.walk, DEFAULT_WALK_TIME);
 
   return {
@@ -316,6 +334,7 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
     walkTime: walk,
     title: title === "" ? undefined : title,
     routes: routes.length > 0 ? routes : undefined,
+    direction,
   };
 }
 
@@ -419,6 +438,7 @@ export function parseBoardSettings(url: URL): BoardSettings {
       station: params.get(`c${slot}`),
       walk: params.get(`w${slot}`) ?? undefined,
       title: params.get(`n${slot}`) ?? undefined,
+      direction: params.get(`d${slot}`) ?? undefined,
     });
     if (!card) continue;
 
