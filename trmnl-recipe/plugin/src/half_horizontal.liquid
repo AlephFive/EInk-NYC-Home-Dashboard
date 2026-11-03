@@ -251,6 +251,34 @@
     font-variant-numeric: tabular-nums;
     /* Separates the digits from the destination clipping into them. */
     padding-left: 0.2em;
+    /* A hair under the row's size. The clock is five glyphs that never
+       change shape, so it loses nothing by being slightly smaller — and
+       the width it gives back goes to the destination, which is the one
+       thing on the row whose useful length varies by station. */
+    font-size: 15px;
+    /* The board's face is a bitmap with a real bold cut, so this picks a
+       drawn weight rather than synthesising one — which on a 1-bit panel
+       is the difference between heavier and blurred. */
+    font-weight: bold;
+    /* Pulls the digits together without touching their size. Tabular
+       figures are spaced for columns of numbers, which is wider than a
+       clock needs. */
+    letter-spacing: -0.03em;
+  }
+  /* The departure text was thin enough to read as grey from across the
+     room. The face has a bold cut, so this picks a drawn weight rather
+     than synthesising one.
+
+     The destination is deliberately left at the normal weight. Bold glyphs
+     are wider, and the destination is the one element on the row with no
+     width to spare — bolding it cost three characters in a split subway
+     column, where "Coney Island-Stillwell Av" was already down to eight.
+     It is also the row's least urgent element: the badge says which train
+     and the clock says when, both of which now carry the weight. */
+  .row-badge,
+  .card-name,
+  .type-tag {
+    font-weight: bold;
   }
   /* A subway card splits into two direction columns, so its rows get half
      the width every other card's do — 122px against 253px. Badge, clock and

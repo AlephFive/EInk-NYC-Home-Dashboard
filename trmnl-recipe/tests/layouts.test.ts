@@ -193,15 +193,20 @@ describe("the display rule is identical in every layout", () => {
     //
     // The destination gives way instead: a clipped station name survives
     // being clipped, where a smaller clock is just harder to read.
+    // The clock has one size of its own (15px, a hair under the row, to
+    // give the destination back some width). What must not exist is a
+    // *second* size applied to some rows and not others.
     for (const [name, markup] of layouts) {
-      assert.doesNotMatch(
-        markup,
-        /\.row-time\s*\{[^}]*font-size/s,
-        `${name}.liquid resizes the clock`
-      );
       assert.ok(
         !markup.includes("row-line--split"),
         `${name}.liquid still has a narrower row variant`
+      );
+      const sizes = [
+        ...markup.matchAll(/\.row-time[^{]*\{[^}]*?font-size:\s*([^;]+)/gs),
+      ].map((m) => m[1].trim());
+      assert.ok(
+        new Set(sizes).size <= 1,
+        `${name}.liquid gives the clock more than one size: ${sizes.join(", ")}`
       );
     }
   });
