@@ -69,7 +69,26 @@ function pollingUrlFromTxt(text: string): string {
   return candidates[candidates.length - 1];
 }
 
-const shippedUrl = pollingUrlFromSettings(settingsYml);
+/**
+ * The polling body out of a settings.yml.
+ *
+ * A literal block scalar (`|-`), so the value is the indented lines after
+ * `polling_body:` with the indent removed and newlines kept.
+ */
+function pollingBodyFromSettings(yaml: string): string {
+  const start = yaml.indexOf("polling_body:");
+  assert.ok(start >= 0, "settings.yml has no polling_body");
+  const lines = yaml.slice(start).split(/\r?\n/).slice(1);
+
+  const kept: string[] = [];
+  for (const line of lines) {
+    if (line.trim() !== "" && !/^\s/.test(line)) break; // dedent ends the block
+    kept.push(line.replace(/^ {2}/, ""));
+  }
+  return kept.join("\n");
+}
+
+const shippedBody = pollingBodyFromSettings(settingsYml);
 const pastedUrl = pollingUrlFromTxt(pollingUrlTxt);
 
 describe("every card field is actually wired up", () => {
@@ -87,7 +106,7 @@ describe("every card field is actually wired up", () => {
           `${key} is missing from settings.yml`
         );
         assert.ok(
-          shippedUrl.includes(key),
+          shippedBody.includes(key),
           `${key} is declared but never written to the polling URL`
         );
       });
@@ -105,53 +124,54 @@ describe("every card field is actually wired up", () => {
         `${key} is missing`
       );
       assert.ok(
-        shippedUrl.includes(`v${slot}={{ ${key} }}`),
+        shippedBody.includes(`"visible": "{{ ${key}`),
         `${key} is not passed to the Worker as v${slot}`
       );
     }
   });
 
-  test("each card field is written as its own parameter", () => {
-    // Not packed into one. A title is free text and was last in the packed
-    // form, so a colon in it was indistinguishable from a separator — and a
-    // title that already held a packed slot grew another tail on every
-    // round trip. Pinned because the packed form reads tidier in the YAML.
+  test("each card field is its own key in the body", () => {
+    // Not packed into one value. The query string packed station, walk and
+    // title together and the parser had to infer which was which from
+    // where a separator fell — a station name can contain every separator
+    // the grammar used, which is where most of this project's bugs came
+    // from. A JSON key cannot be mistaken for another key.
     for (const slot of [1, 2, 3, 4, 5, 6]) {
-      assert.ok(
-        shippedUrl.includes(`&w${slot}={{ card${slot}_walk }}`),
-        `card${slot}_walk is not its own parameter`
-      );
-      assert.ok(
-        shippedUrl.includes(`&n${slot}={{ card${slot}_title | url_encode }}`),
-        `card${slot}_title is not its own url_encoded parameter`
-      );
-      assert.ok(
-        !shippedUrl.includes(`:{{ card${slot}_walk }}:`),
-        `card${slot} still packs its fields into one parameter`
-      );
+      for (const field of ["station", "routes", "walk", "title", "visible"]) {
+        assert.ok(
+          shippedBody.includes(`"${field}": "{{ card${slot}_${field}`),
+          `card${slot}_${field} is not its own key`
+        );
+      }
     }
   });
 
-  test("every interpolated value is url_encoded", () => {
-    // `c1` went in raw while `n1` was encoded — the same asymmetry that
-    // made the packed format fragile, left behind after it was split up.
-    // A station value is picker-generated so it has never broken in
-    // practice, but "has not broken yet" is not a property.
+  test("every interpolated value strips what would break the JSON", () => {
+    // Only two characters can, and TRMNL's Liquid has no working JSON
+    // filter: `| json` does not exist and renders nothing, `| jsonify`
+    // does not escape, `| escape` writes `&quot;` into the document. All
+    // three were checked against the engine.
     //
-    // The "!" between station and routes is written as a literal %21 so it
-    // survives as a separator rather than being encoded as content.
-    for (const slot of [1, 2, 3, 4, 5, 6]) {
-      assert.ok(
-        shippedUrl.includes(`{{ card${slot}_station | url_encode }}`),
-        `card${slot}_station is interpolated raw`
+    // Stripping rather than escaping is safe because neither character
+    // belongs in any of these fields — a station is a picker-generated id,
+    // routes and walk are short codes and digits, and no stop name in the
+    // bundled tables contains either. A quote typed into a title is lost;
+    // the board is not.
+    const interpolations = [...shippedBody.matchAll(/\{\{([^}]*)\}\}/g)].map(
+      (m) => m[1]
+    );
+    assert.ok(interpolations.length > 0, "the body interpolates nothing");
+
+    for (const expression of interpolations) {
+      assert.match(
+        expression,
+        /replace:\s*'\\'/,
+        `a value does not strip backslashes: {{${expression}}}`
       );
-      assert.ok(
-        shippedUrl.includes(`%21{{ card${slot}_routes | url_encode }}`),
-        `card${slot}_routes is interpolated raw`
-      );
-      assert.ok(
-        !shippedUrl.includes(`!{{ card${slot}_routes`),
-        `card${slot} uses a literal "!" that encoding could swallow`
+      assert.match(
+        expression,
+        /replace:\s*'"'/,
+        `a value does not strip quotes: {{${expression}}}`
       );
     }
   });
@@ -177,20 +197,17 @@ describe("every card field is actually wired up", () => {
   });
 
   test("visibility is never decided in Liquid", () => {
-    // It was once, and the toggle did nothing: Liquid treats only `nil` and
-    // `false` as falsy, so a checkbox stored as the string "false" is
+    // It was once, and the toggle did nothing: Liquid treats only `nil`
+    // and `false` as falsy, so a checkbox stored as the string "false" is
     // truthy and `{% if cardN_visible %}` never hides anything. The value
-    // goes to the Worker raw, where parseBoolean knows every spelling.
+    // goes to the Worker as data, where every spelling is understood.
     //
     // Pinned because the obvious-looking fix is to put the test back.
-    for (const slot of [1, 2, 3, 4, 5, 6]) {
-      assert.ok(
-        !/card\d_visible\s*(!=|==|and|or|%\})/.test(
-          shippedUrl.split(`v${slot}={{ card${slot}_visible }}`).join("")
-        ),
-        `card${slot}_visible is used in a Liquid condition`
-      );
-    }
+    assert.doesNotMatch(
+      shippedBody,
+      /\{%\s*if[^%]*_visible/,
+      "a card's visibility is decided in the template"
+    );
   });
 
   test("the card groups name their grid position", () => {
@@ -233,7 +250,7 @@ describe("every card field is actually wired up", () => {
   test("display settings are sent", () => {
     for (const key of ["use_24_hour", "urgent_threshold", "show_leave_in"]) {
       assert.ok(declaredFields(settingsYml).includes(key), `${key} missing`);
-      assert.ok(shippedUrl.includes(key), `${key} is never sent`);
+      assert.ok(shippedBody.includes(key), `${key} is never sent`);
     }
   });
 });
@@ -252,11 +269,16 @@ describe("the two configuration sources agree", () => {
   const withoutHost = (url: string) =>
     url.replace(/https:\/\/[^/]+\//, "https://HOST/");
 
-  test("the polling URLs are identical apart from the host", () => {
-    // One is pasted into TRMNL's UI, the other uploaded by trmnlp. A board
-    // built from one would differ from the other in ways no test of the
-    // Worker could see, because the Worker only ever sees the result.
-    assert.equal(withoutHost(pastedUrl), withoutHost(shippedUrl));
+  test("the pasteable copy documents the same endpoint", () => {
+    // `polling-url.txt` is the paste-by-hand copy for TRMNL's web UI. The
+    // plugin POSTs a JSON body now, so the two no longer share a long
+    // interpolated URL to compare — what must still match is the endpoint
+    // they point at, since a stale host there sends a hand-configured
+    // user to the wrong Worker.
+    assert.ok(
+      pastedUrl.includes("/api/board"),
+      "polling-url.txt does not document the board endpoint"
+    );
   });
 
   test("both forms declare the same card fields", () => {
@@ -364,36 +386,55 @@ describe("the two configuration sources agree", () => {
 });
 
 describe("the polling URL is well formed", () => {
-  test("every slot is guarded on its station", () => {
-    // An empty station is what turns a slot off, now that there is no type
-    // field. The Worker skips an empty parameter, so a cleared card leaves
-    // its column to its neighbour rather than rendering blank.
-    const guards = shippedUrl.match(/card\d_station != blank/g) ?? [];
-    assert.equal(guards.length, 6);
+  test("a slot needs no guard, because an empty station is data", () => {
+    // The query string needed `{% if cardN_station != blank %}` so a
+    // cleared card wrote an empty parameter rather than a stray separator.
+    // A JSON body has no such hazard: an empty string is a value, and the
+    // Worker skips a card whose station is empty.
+    //
+    // Pinned because reintroducing the guard would write the literal
+    // string "false" or an empty object into the document.
+    assert.doesNotMatch(
+      shippedBody,
+      /\{%\s*if/,
+      "the polling body branches in Liquid"
+    );
   });
 
-  test("the routes filter is optional", () => {
-    // Blank must omit the segment entirely rather than send an empty "!",
-    // which would parse as a filter matching nothing and empty the card.
-    const guards = shippedUrl.match(/card\d_routes != blank/g) ?? [];
-    assert.equal(guards.length, 6);
+  test("a blank routes filter is harmless", () => {
+    // The query string needed a guard: an empty "!" parsed as a filter
+    // matching nothing and emptied the card. In the body `routes` is its
+    // own key, and an empty string is simply no filter — so the guard is
+    // gone and must stay gone, since `{% if %}` in a JSON document is how
+    // a trailing comma gets written.
+    assert.ok(
+      shippedBody.includes('"routes": "{{ card1_routes'),
+      "routes is not a key of its own"
+    );
+    assert.doesNotMatch(
+      shippedBody,
+      /card\d_routes != blank/,
+      "the body still guards an optional field"
+    );
   });
 
   test("it carries all six slots", () => {
     for (const slot of [1, 2, 3, 4, 5, 6]) {
       assert.ok(
-        shippedUrl.includes(`c${slot}=`),
-        `slot ${slot} has no parameter`
+        shippedBody.includes(`card${slot}_station`),
+        `slot ${slot} is missing from the body`
       );
     }
   });
 
   test("the transit type is not written into the value", () => {
-    // `{{ cardN_type }}` as a value would doubled-prefix the station. The
-    // Worker tolerates that, but the URL should not produce it.
-    assert.ok(
-      !/=\{\{\s*card\d_type\s*\}\}/.test(shippedUrl),
-      "a card writes its type into the slot value"
+    // `{{ cardN_type }}` alongside the station would doubled-prefix it —
+    // the picker already stores the type on the front of its own value.
+    assert.doesNotMatch(
+      shippedBody,
+      /card\d_type/,
+      "a card writes its type into the body"
     );
   });
+
 });

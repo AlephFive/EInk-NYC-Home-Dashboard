@@ -50,13 +50,82 @@ categories:
   - productivity
 
 strategy: polling
-polling_verb: GET
-polling_url: >-
-  https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/board?c1={% if card1_station != blank %}{{ card1_station | url_encode }}{% if card1_routes != blank %}%21{{ card1_routes | url_encode }}{% endif %}{% endif %}&w1={{ card1_walk }}&n1={{ card1_title | url_encode }}&v1={{ card1_visible }}&c2={% if card2_station != blank %}{{ card2_station | url_encode }}{% if card2_routes != blank %}%21{{ card2_routes | url_encode }}{% endif %}{% endif %}&w2={{ card2_walk }}&n2={{ card2_title | url_encode }}&v2={{ card2_visible }}&c3={% if card3_station != blank %}{{ card3_station | url_encode }}{% if card3_routes != blank %}%21{{ card3_routes | url_encode }}{% endif %}{% endif %}&w3={{ card3_walk }}&n3={{ card3_title | url_encode }}&v3={{ card3_visible }}&c4={% if card4_station != blank %}{{ card4_station | url_encode }}{% if card4_routes != blank %}%21{{ card4_routes | url_encode }}{% endif %}{% endif %}&w4={{ card4_walk }}&n4={{ card4_title | url_encode }}&v4={{ card4_visible }}&c5={% if card5_station != blank %}{{ card5_station | url_encode }}{% if card5_routes != blank %}%21{{ card5_routes | url_encode }}{% endif %}{% endif %}&w5={{ card5_walk }}&n5={{ card5_title | url_encode }}&v5={{ card5_visible }}&c6={% if card6_station != blank %}{{ card6_station | url_encode }}{% if card6_routes != blank %}%21{{ card6_routes | url_encode }}{% endif %}{% endif %}&w6={{ card6_walk }}&n6={{ card6_title | url_encode }}&v6={{ card6_visible }}&h24={{ use_24_hour }}&urgent={{ urgent_threshold }}&dscale={{ destination_scale }}&leavein={{ show_leave_in }}
-
-# TRMNL's store minimum, and the reason the board shows clock times rather than
-# a countdown: a "leave in 6 min" line is stale by up to the refresh interval,
-# while "16:12" never is.
+# POST, with the board as JSON.
+#
+# It was a GET with the whole board packed into the query string, and that
+# format caused more defects than anything else in this project: a card
+# called "Bus:6:", a heading reading ":5:", a route filter silently
+# ignored for sitting past a tail. Every one was the parser inferring
+# which field it was reading from where a separator fell — and a station
+# name can contain every separator the grammar used.
+#
+# JSON has no positions, so a field is whatever its key says.
+#
+# **The escaping is two `replace` filters, not a JSON filter.** TRMNL's
+# Liquid has no working one: `| json` does not exist and renders nothing,
+# `| jsonify` does not escape, and `| escape` writes `&quot;` into the
+# document. Verified against the engine, not assumed.
+#
+# Stripping is safe here rather than merely expedient, because only two
+# characters can break a JSON string and neither belongs in any of these
+# fields: a station is a picker-generated id, routes and walk time are
+# short codes and digits, and no MTA stop name in the bundled tables
+# contains a quote or a backslash (checked: 0 of 496). A user who types a
+# quote into a card title loses the quote, not the board.
+polling_verb: POST
+polling_url: https://trmnl-nyc-transit.spo2-spire-club.workers.dev/api/board
+polling_headers: "content-type=application/json"
+polling_body: |-
+  {
+    "cards": [
+      {
+        "station": "{{ card1_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "routes": "{{ card1_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "walk": "{{ card1_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "title": "{{ card1_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "visible": "{{ card1_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      },
+      {
+        "station": "{{ card2_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "routes": "{{ card2_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "walk": "{{ card2_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "title": "{{ card2_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "visible": "{{ card2_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      },
+      {
+        "station": "{{ card3_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "routes": "{{ card3_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "walk": "{{ card3_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "title": "{{ card3_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "visible": "{{ card3_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      },
+      {
+        "station": "{{ card4_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "routes": "{{ card4_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "walk": "{{ card4_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "title": "{{ card4_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "visible": "{{ card4_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      },
+      {
+        "station": "{{ card5_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "routes": "{{ card5_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "walk": "{{ card5_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "title": "{{ card5_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "visible": "{{ card5_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      },
+      {
+        "station": "{{ card6_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "routes": "{{ card6_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "walk": "{{ card6_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "title": "{{ card6_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+        "visible": "{{ card6_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+      }
+    ],
+    "use24Hour": "{{ use_24_hour | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+    "urgent": "{{ urgent_threshold | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+    "destinationScale": "{{ destination_scale | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+    "showLeaveIn": "{{ show_leave_in | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+  }
 refresh_interval: 900
 
 # The panel is 1-bit; the board draws its own emphasis by inverting rows.

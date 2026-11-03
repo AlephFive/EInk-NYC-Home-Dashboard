@@ -1,0 +1,50 @@
+{
+  "cards": [
+    {
+      "station": "{{ card1_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "routes": "{{ card1_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "walk": "{{ card1_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "title": "{{ card1_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "visible": "{{ card1_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+    },
+    {
+      "station": "{{ card2_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "routes": "{{ card2_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "walk": "{{ card2_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "title": "{{ card2_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "visible": "{{ card2_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+    },
+    {
+      "station": "{{ card3_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "routes": "{{ card3_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "walk": "{{ card3_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "title": "{{ card3_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "visible": "{{ card3_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+    },
+    {
+      "station": "{{ card4_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "routes": "{{ card4_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "walk": "{{ card4_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "title": "{{ card4_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "visible": "{{ card4_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+    },
+    {
+      "station": "{{ card5_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "routes": "{{ card5_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "walk": "{{ card5_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "title": "{{ card5_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "visible": "{{ card5_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+    },
+    {
+      "station": "{{ card6_station | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "routes": "{{ card6_routes | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "walk": "{{ card6_walk | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "title": "{{ card6_title | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+      "visible": "{{ card6_visible | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+    }
+  ],
+  "use24Hour": "{{ use_24_hour | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+  "urgent": "{{ urgent_threshold | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+  "destinationScale": "{{ destination_scale | replace: '\', '' | replace: '"', '' | strip_newlines }}",
+  "showLeaveIn": "{{ show_leave_in | replace: '\', '' | replace: '"', '' | strip_newlines }}"
+}
