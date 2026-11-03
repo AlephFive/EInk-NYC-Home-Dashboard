@@ -176,8 +176,12 @@ custom_fields:
     field_type: author_bio
     name: About
     description: >-
-      Built by Shao-en Ma. Source, issues and setup notes:
-      <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">github.com/AlephFive/EInk-NYC-Home-Dashboard</a>
+      Built by Shao-en Ma.
+      <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard/blob/main/docs/USER-GUIDE.md">Full
+      guide</a> — filtering routes, picking a direction, splitting a
+      station across two cards.
+      <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">Source
+      and issues</a>.
 
   - keyname: card1_visible
     field_type: boolean
@@ -221,20 +225,22 @@ custom_fields:
   - keyname: card1_direction
     field_type: select
     name: Direction
-    description: Leave on Both unless you only ever travel one way
+    description: Leave blank to show both
     group: Column 1 · Row 1
     optional: true
     options:
-      - Both
       - "1"
       - "2"
-    default: Both
     help_text: >-
-      A card normally shows both directions side by side. Pick one and it
-      gets the whole card, which is worth doing when you only ever ride
-      one way from this stop. On a railroad, 1 is towards the city and 2
-      is away from it. On subway and bus the two are the card's left and
-      right columns — the heading above each says where it goes.
+      Blank shows both directions side by side. Pick one and it gets the
+      whole card, which is worth doing when you only ever ride one way
+      from this stop.
+
+      On a railroad, 1 is towards the city and 2 is away from it — so at
+      a terminal like Grand Central, 1 is empty, because nothing departs
+      towards the city from there. On subway and bus, 1 and 2 are simply
+      the card's left and right columns; the heading above each says
+      where it goes, so pick one and check.
 
   - keyname: card1_walk
     field_type: number
@@ -297,20 +303,22 @@ custom_fields:
   - keyname: card2_direction
     field_type: select
     name: Direction
-    description: Leave on Both unless you only ever travel one way
+    description: Leave blank to show both
     group: Column 1 · Row 2
     optional: true
     options:
-      - Both
       - "1"
       - "2"
-    default: Both
     help_text: >-
-      A card normally shows both directions side by side. Pick one and it
-      gets the whole card, which is worth doing when you only ever ride
-      one way from this stop. On a railroad, 1 is towards the city and 2
-      is away from it. On subway and bus the two are the card's left and
-      right columns — the heading above each says where it goes.
+      Blank shows both directions side by side. Pick one and it gets the
+      whole card, which is worth doing when you only ever ride one way
+      from this stop.
+
+      On a railroad, 1 is towards the city and 2 is away from it — so at
+      a terminal like Grand Central, 1 is empty, because nothing departs
+      towards the city from there. On subway and bus, 1 and 2 are simply
+      the card's left and right columns; the heading above each says
+      where it goes, so pick one and check.
 
   - keyname: card2_walk
     field_type: number
@@ -373,20 +381,22 @@ custom_fields:
   - keyname: card3_direction
     field_type: select
     name: Direction
-    description: Leave on Both unless you only ever travel one way
+    description: Leave blank to show both
     group: Column 2 · Row 1
     optional: true
     options:
-      - Both
       - "1"
       - "2"
-    default: Both
     help_text: >-
-      A card normally shows both directions side by side. Pick one and it
-      gets the whole card, which is worth doing when you only ever ride
-      one way from this stop. On a railroad, 1 is towards the city and 2
-      is away from it. On subway and bus the two are the card's left and
-      right columns — the heading above each says where it goes.
+      Blank shows both directions side by side. Pick one and it gets the
+      whole card, which is worth doing when you only ever ride one way
+      from this stop.
+
+      On a railroad, 1 is towards the city and 2 is away from it — so at
+      a terminal like Grand Central, 1 is empty, because nothing departs
+      towards the city from there. On subway and bus, 1 and 2 are simply
+      the card's left and right columns; the heading above each says
+      where it goes, so pick one and check.
 
   - keyname: card3_walk
     field_type: number
@@ -449,20 +459,22 @@ custom_fields:
   - keyname: card4_direction
     field_type: select
     name: Direction
-    description: Leave on Both unless you only ever travel one way
+    description: Leave blank to show both
     group: Column 2 · Row 2
     optional: true
     options:
-      - Both
       - "1"
       - "2"
-    default: Both
     help_text: >-
-      A card normally shows both directions side by side. Pick one and it
-      gets the whole card, which is worth doing when you only ever ride
-      one way from this stop. On a railroad, 1 is towards the city and 2
-      is away from it. On subway and bus the two are the card's left and
-      right columns — the heading above each says where it goes.
+      Blank shows both directions side by side. Pick one and it gets the
+      whole card, which is worth doing when you only ever ride one way
+      from this stop.
+
+      On a railroad, 1 is towards the city and 2 is away from it — so at
+      a terminal like Grand Central, 1 is empty, because nothing departs
+      towards the city from there. On subway and bus, 1 and 2 are simply
+      the card's left and right columns; the heading above each says
+      where it goes, so pick one and check.
 
   - keyname: card4_walk
     field_type: number
@@ -525,20 +537,22 @@ custom_fields:
   - keyname: card5_direction
     field_type: select
     name: Direction
-    description: Leave on Both unless you only ever travel one way
+    description: Leave blank to show both
     group: Column 3 · Row 1
     optional: true
     options:
-      - Both
       - "1"
       - "2"
-    default: Both
     help_text: >-
-      A card normally shows both directions side by side. Pick one and it
-      gets the whole card, which is worth doing when you only ever ride
-      one way from this stop. On a railroad, 1 is towards the city and 2
-      is away from it. On subway and bus the two are the card's left and
-      right columns — the heading above each says where it goes.
+      Blank shows both directions side by side. Pick one and it gets the
+      whole card, which is worth doing when you only ever ride one way
+      from this stop.
+
+      On a railroad, 1 is towards the city and 2 is away from it — so at
+      a terminal like Grand Central, 1 is empty, because nothing departs
+      towards the city from there. On subway and bus, 1 and 2 are simply
+      the card's left and right columns; the heading above each says
+      where it goes, so pick one and check.
 
   - keyname: card5_walk
     field_type: number
@@ -601,20 +615,22 @@ custom_fields:
   - keyname: card6_direction
     field_type: select
     name: Direction
-    description: Leave on Both unless you only ever travel one way
+    description: Leave blank to show both
     group: Column 3 · Row 2
     optional: true
     options:
-      - Both
       - "1"
       - "2"
-    default: Both
     help_text: >-
-      A card normally shows both directions side by side. Pick one and it
-      gets the whole card, which is worth doing when you only ever ride
-      one way from this stop. On a railroad, 1 is towards the city and 2
-      is away from it. On subway and bus the two are the card's left and
-      right columns — the heading above each says where it goes.
+      Blank shows both directions side by side. Pick one and it gets the
+      whole card, which is worth doing when you only ever ride one way
+      from this stop.
+
+      On a railroad, 1 is towards the city and 2 is away from it — so at
+      a terminal like Grand Central, 1 is empty, because nothing departs
+      towards the city from there. On subway and bus, 1 and 2 are simply
+      the card's left and right columns; the heading above each says
+      where it goes, so pick one and check.
 
   - keyname: card6_walk
     field_type: number
