@@ -318,6 +318,36 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("no type size is a pixel literal", () => {
+    // The framework multiplies every size by the user's chosen
+    // `--modifier-scale`, so a literal does not scale with the board. The
+    // clock was `font-size: 15px`: on a panel set above Regular it stayed
+    // 15px while everything around it grew, leaving the time the smallest
+    // thing on the row and the destination the largest — the reverse of
+    // what matters.
+    //
+    // Our own rules must size in `em`. Fixed pixel *boxes* are fine; this
+    // is about type.
+    for (const [name, markup] of layouts) {
+      // Every style block, not the first: the device profile sits in one
+      // of its own at the top, and all the type is in the next.
+      const blocks = [...markup.matchAll(/<style>([\s\S]*?)<\/style>/g)];
+      assert.ok(blocks.length > 0, `${name}.liquid has no style block`);
+      const css = blocks
+        .map((b) => b[1])
+        .join("\n")
+        .replace(/\/\*[\s\S]*?\*\//g, "");
+      const literals = [...css.matchAll(/font-size:\s*([0-9.]+px)/g)].map(
+        (m) => m[1]
+      );
+      assert.deepEqual(
+        literals,
+        [],
+        `${name}.liquid sets type in pixels: ${literals.join(", ")}`
+      );
+    }
+  });
+
   test("the destination clips instead of wrapping", () => {
     // A wrapped name makes its row taller than its neighbours, which is
     // exactly what uniform row height exists to prevent.
