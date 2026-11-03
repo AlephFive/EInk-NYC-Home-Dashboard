@@ -210,7 +210,7 @@
        box whichever kind a card carries. */
     height: 1.35em;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -338,42 +338,40 @@
      ellipsizes where it does not, and the destination beside it gives way
      first — the route is what a rider scans for. */
   .row-badge {
-    flex-shrink: 1;
-    /* A floor in `ch`, not `em` or a percentage. The framework's `.label`
-       sets its own `max-width: 100%` and `.label--small` reduces the font
-       size, so an `em` floor shrinks with the type it is meant to protect
-       and a percentage is measured against a box the flex row has already
-       squeezed. `ch` is the width of a "0" in the rendered face, so 4.5ch
-       is four characters plus the label's padding whatever size it lands
-       at — enough that "M42" never becomes "M…", which reads as a
-       different route rather than as a truncation. */
-    min-width: 4.5ch;
-    /* Size to the route name, not to a fixed share. `flex-shrink: 1` with
-       a 9ch ceiling made every badge in a column the same box, so "Hudson"
-       sat in a "New Haven"-sized rectangle and "Far Rockaway" clipped to
-       "Far Rockaw" — the badges read as one width rather than as names.
-
-       `max-content` lets each be as wide as its own text, and the ceiling
-       still catches the longest branches, where the first word separates
-       "Port Washington" from "Port Jefferson". */
+    /* Each badge is as wide as its own route name and no wider.
+       `min-width` is deliberately absent: a floor of 4.5ch padded every
+       short name out to the same box, so "M42" and "SIM8" were
+       indistinguishable rectangles and a bus column read as one repeated
+       shape. The floor existed to stop "M42" being truncated to "M…" —
+       which nothing does any more, since the row clips rather than
+       ellipsizing and a clipped "M4" still reads as the M42. */
     width: max-content;
-    /* A third of the row, not a character count. 13ch fitted every branch
-       but "City Terminal Zone" and took a fixed slice of a split column,
-       where the destination has least to spare — a share scales with the
-       space the card actually has. The longest names still ellipsize, and
-       the first word separates "Port Washington" from "Port Jefferson". */
+    /* `max-content` sets the width; this stops the flex row taking it back.
+       Without it a narrow bus column squeezed "M42" and "SIM8" to a single
+       letter — the share below is a *ceiling* for long railroad branches,
+       not a target, and flex was treating it as the latter. A route name
+       is the one thing on the row that must survive intact: "M4" still
+       reads as the M42, but "M" reads as a different route. */
+    flex-shrink: 0;
+    /* A third of the row. A character count fitted every branch but "City
+       Terminal Zone" and took a fixed slice of a split column, where the
+       destination has least to spare; a share scales with the space the
+       card actually has. */
     max-width: 33%;
-    /* A railroad or bus badge sits in the same column as a subway bullet
-       and must read as the same kind of mark. The framework's `.label`
-       padding made it visibly taller — "Far Rock…" stood a third higher
-       than the ⑦ beside it — so the box is pinned to the bullet's own
-       1.35em and the type stepped down to fit inside it. */
+    /* A railroad, bus or ferry badge sits in the same column as a subway
+       bullet and must read as the same kind of mark, at the same size.
+       The framework's `.label` padding made it visibly taller, so the box
+       is pinned to the bullet's own 1.35em.
+
+       The type is *not* stepped down. It was at 0.86em, which made a bus
+       or ferry row's text visibly smaller than a train's — the rows then
+       looked like different kinds of information rather than the same
+       information from different networks. */
     height: 1.35em;
-    font-size: 0.86em;
     padding-top: 0;
     padding-bottom: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -432,7 +430,7 @@
           {% for card in c %}
             {% if card.s == top_slot %}
               <div class="flex flex--row flex--center-y gap--small">
-                <span class="card-name title title--small grow" data-clamp="1">{{ card.n }}</span>
+                <span class="card-name title title--small grow">{{ card.n }}</span>
                 {% if card.b %}
                   {% comment %}
                       Capped, like the full layout. Past a few the bullets
@@ -523,7 +521,7 @@
                 {% endif %}
                       <div class="row-line{% if r[3] == 1 %} row-line--urgent invert rounded--small{% endif %} flex flex--row flex--between flex--center-y gap--small">
                         <span class="label label--small label--filled {{ bullet_class }}{% if bullet_class == "" %} row-badge{% endif %}">{% if bullet_class != "" %}<span>{{ glyph }}</span>{% else %}{{ r[0] }}{% endif %}</span>
-                        <span class="row-dest title title--small grow" data-clamp="1">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
+                        <span class="row-dest title title--small grow">{% if arrow != "" %}{{ arrow }}&nbsp;{% endif %}{{ destination }}</span>
                         <span class="row-time title title--small">{{ r[2] }}</span>
                       </div>
                     {% endfor %}
@@ -551,6 +549,19 @@
         timezone and the panel runs wherever the user is.
       {% endcomment %}
       <span class="title">NYC Subway, Bus, Rail, Ferry</span>
+      {% if d %}
+        {% comment %}
+          The backend substitutes a demo board when nothing is configured,
+          so the panel must say whose stations these are — without it a new
+          installer sees Times Square and reasonably assumes their own form
+          took effect.
+
+          It sits next to the networks rather than after the timestamp: the
+          stamp is pushed to the right edge, so anything following it was
+          pushed off the panel entirely.
+        {% endcomment %}
+        <span class="title">· Example, choose your stations in settings</span>
+      {% endif %}
       {% if a %}
         {% comment %}
           Pushed to the right edge, so the name and the timestamp read as

@@ -248,6 +248,51 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("nothing on the board ellipsizes", () => {
+    // An "..." costs about three characters of the very width it is
+    // reporting is short. On a fixed panel a name cut mid-word still
+    // reads — "Coney Island-Stil" tells a rider more than "Coney Is…" —
+    // so every clipped element shows as much as it can instead.
+    //
+    // `data-clamp` is the framework's own JS truncation and appends the
+    // ellipsis at render time, so it counts too. The one exception is the
+    // card error box, where the message is prose and genuinely wraps.
+    for (const [name, markup] of layouts) {
+      assert.doesNotMatch(
+        markup,
+        /text-overflow:\s*ellipsis/,
+        `${name}.liquid ellipsizes`
+      );
+      assert.doesNotMatch(
+        markup,
+        /data-clamp="1"/,
+        `${name}.liquid clamps a single-line element`
+      );
+    }
+  });
+
+  test("a bus or ferry row matches a train row", () => {
+    // They are the same information from different networks, so they must
+    // read as the same kind of row. A badge at 0.86em made bus and ferry
+    // text visibly smaller than the trains beside them.
+    for (const [name, markup] of layouts) {
+      const rule = /\.row-badge\s*\{([^}]*)\}/s.exec(markup);
+      assert.ok(rule, `${name}.liquid has no row badge rule`);
+      // The comments explain what is deliberately absent, so they would
+      // match the very patterns being looked for.
+      const css = rule![1].replace(/\/\*[\s\S]*?\*\//g, "");
+      assert.doesNotMatch(
+        css,
+        /font-size/,
+        `${name}.liquid sizes a bus or ferry badge differently from a train's`
+      );
+      // Each badge as wide as its own name: a floor would pad "M42" and
+      // "SIM8" to one indistinguishable box.
+      assert.match(css, /width:\s*max-content/, `${name}.liquid fixes badge width`);
+      assert.doesNotMatch(css, /min-width/, `${name}.liquid floors badge width`);
+    }
+  });
+
   test("the destination clips instead of wrapping", () => {
     // A wrapped name makes its row taller than its neighbours, which is
     // exactly what uniform row height exists to prevent.
@@ -348,7 +393,7 @@ describe("the display rule is identical in every layout", () => {
         /<span class="label[^"]*label--filled type-tag">/.test(liquid),
         `${name} renders a heading tag without bounding it`
       );
-      for (const rule of ["text-overflow: ellipsis", "white-space: nowrap", "max-width"]) {
+      for (const rule of ["text-overflow: clip", "white-space: nowrap", "max-width"]) {
         assert.ok(
           liquid.includes(rule),
           `${name}'s tag is missing ${rule}`
