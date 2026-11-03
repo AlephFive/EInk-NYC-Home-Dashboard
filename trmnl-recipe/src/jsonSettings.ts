@@ -100,6 +100,28 @@ function asText(value: unknown): string {
 }
 
 /**
+ * **Why `station` is a string and not an object.**
+ *
+ * `{ "type": "subway", "ids": ["117"] }` would delete the last parsing in
+ * this file, and it was spiked against the real engine — it works. TRMNL
+ * stores the picker's `id` verbatim, so a JSON-shaped id survives, and
+ * `{{ cardN_station | split: '::' | first }}` interpolated *unquoted*
+ * renders a real nested object. Verified: `{"station": {"type":"subway"}}`.
+ *
+ * It is not used, because the value then has to reach the body with its
+ * own quotes intact — which means the quote-strip that makes every other
+ * field safe cannot apply to it. The failure mode that buys is severe and
+ * total: a malformed stored id writes malformed JSON and the *whole body*
+ * fails to parse, so all six cards vanish rather than the one that is
+ * broken. The board today loses only the card whose value is bad.
+ *
+ * Against that it removes one split, on a prefix drawn from a closed set,
+ * where the only remaining ambiguity was `::` and that is now handled.
+ * Not a trade worth making until a stored id can be trusted absolutely —
+ * and this session is a long argument that it cannot.
+ */
+
+/**
  * One card, or undefined when the entry names no stop.
  *
  * `station` is still `type:ids` — a single opaque token the picker writes
