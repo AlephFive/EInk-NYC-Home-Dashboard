@@ -369,6 +369,18 @@
   .row-line--urgent {
     background: #fff;
   }
+  /* The empty state is a line of its own, not a row.
+     
+     It was a `<span>` carrying `.row-dest` and `w--full`, which centred
+     nothing: width does not apply to an inline element, so the span was
+     only as wide as its text and `text-align` had no room to work in.
+     `.row-dest`'s clipping rules are for a flex row and did not belong
+     here either. A block element sized by its parent is all it needs.
+     
+     Sized to match a destination, since that is what it stands in for. */
+  .row-empty {
+    font-size: calc(0.86em * var(--dest-scale, 1));
+  }
   /* The destination takes whatever the badge and the clock leave, and clips
      rather than wrapping: a wrapped name would make its row taller than its
      neighbours, and on a fixed panel a name cut mid-word still reads. */
@@ -900,7 +912,7 @@
                           does not guess whether service ended, the stop is
                           peak-only, or everything is inside the walk time.
                         {% endcomment %}
-                        <span class="row-dest title title--small w--full text--center">No upcoming departures</span>
+                        <div class="row-empty title title--small text--center">No upcoming departures</div>
                       {% endif %}
                     </div>
                     {% endfor %}
