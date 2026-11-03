@@ -96,10 +96,14 @@
   }
   .bullet--express {
     border-radius: 0;
-    /* A rotated square's bounding box grows by root 2, so a diamond would sit
-       29px wide beside a 20px circle and push its row out of line. Scaling by
-       1/root 2 keeps the two occupying the same space. */
-    transform: rotate(45deg) scale(0.707);
+    /* A rotated square's bounding box grows by root 2, so a diamond would
+       sit 29px wide beside a 20px circle and push its row out of line.
+       Scaling by 1/root 2 would keep the two in exactly the same space —
+       but a diamond reads smaller than a circle of equal bounding box,
+       because the corners that carry its width hold no ink. 0.78 gives
+       back the couple of pixels that costs, which is a hair over its
+       share and still well inside the row. */
+    transform: rotate(45deg) scale(0.78);
   }
   /* Counter-rotate the glyph so the number stays upright in the diamond. */
   .bullet--express > span {
@@ -290,7 +294,12 @@
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     /* Separates the digits from the destination clipping into them. */
-    padding-left: 0.2em;
+    /* Negative, against the row's own 7px `gap--small`. The gap is right
+       between the badge and the destination, where two blocks of text
+       need separating, but wasteful before a right-aligned clock that
+       already has its own whitespace built in. Pulling 3px back goes to
+       the destination, which is the only element short of room. */
+    margin-left: -3px;
     /* The size comes from the framework class on the element
        (`value--xsmall`, 20px), not from here. An `em` rule was tried and
        is a no-op: `font-size: 1em` computes against the inherited size,
@@ -609,7 +618,7 @@
                   {% assign total = 0 %}
                   {% for col in card.k %}{% assign total = total | plus: col.r.size %}{% endfor %}
                   {% if total == 0 %}
-                    <span class="row-dest title title--small">No upcoming departures</span>
+                    <span class="row-dest title title--small w--full text--center">No upcoming departures</span>
                   {% endif %}
                 </div>
               {% endif %}
