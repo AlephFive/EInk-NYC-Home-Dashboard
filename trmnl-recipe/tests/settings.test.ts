@@ -228,20 +228,26 @@ describe("narrowing a card to some routes", () => {
   // accepted the field and ignored it — a user asking for the Babylon
   // branch got all nine, with nothing to say the request had been dropped.
   test("every transit type accepts a route filter", () => {
-    const cases: [string, string][] = [
-      ["subway:127!1,2,3", "subway"],
-      ["lirr:102!Babylon", "railroad-lirr"],
-      ["mtn:1!Hudson", "railroad-mtn"],
-      ["bus:403257!M42", "bus"],
-      ["ferry:87!ER", "ferry"],
+    // The expected routes are spelled out, not counted. An earlier version
+    // asserted only `routes.length > 0`, which is satisfied by the wrong
+    // answer: when a packed tail slipped into the list, ["1","2","3:5"]
+    // passed and the bug shipped. A count says the field was read; the
+    // values say it was read correctly.
+    const cases: [string, string, string[]][] = [
+      ["subway:127!1,2,3", "subway", ["1", "2", "3"]],
+      ["lirr:102!Babylon", "railroad-lirr", ["BABYLON"]],
+      ["mtn:1!Hudson", "railroad-mtn", ["HUDSON"]],
+      ["bus:403257!M42", "bus", ["M42"]],
+      ["ferry:87!ER", "ferry", ["ER"]],
     ];
 
-    for (const [slot, type] of cases) {
+    for (const [slot, type, routes] of cases) {
       const { cards } = board(`c1=${slot}`);
       assert.equal(cards[0]?.transitType, type, slot);
-      assert.ok(
-        (cards[0]?.routes?.length ?? 0) > 0,
-        `${type} dropped its route filter at parse`
+      assert.deepEqual(
+        cards[0]?.routes,
+        routes,
+        `${type} did not read its route filter correctly`
       );
     }
   });
