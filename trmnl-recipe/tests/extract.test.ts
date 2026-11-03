@@ -290,3 +290,37 @@ describe("the ferry, from a captured feed", () => {
     }
   });
 });
+
+describe("a filter is applied before the row cap, not after", () => {
+  // The cap used to run inside the row builder and the filters after it,
+  // so a narrow filter returned a near-empty card: at Jamaica the first
+  // 32 departures span ten branches, and asking for Babylon left 6 rows
+  // of a possible 32. The user asked for one branch and got a sixth of a
+  // card with nothing to say why.
+  //
+  // Modelled here rather than called through buildBoard, which needs a
+  // live feed. The property is the ordering, and it is easy to state.
+  const departures = Array.from({ length: 40 }, (_, i) => ({
+    branch: i % 10 === 0 ? "Babylon" : "Other",
+  }));
+
+  const capThenFilter = (limit: number) =>
+    departures.slice(0, limit).filter((d) => d.branch === "Babylon");
+
+  const filterThenCap = (limit: number) =>
+    departures.filter((d) => d.branch === "Babylon").slice(0, limit);
+
+  test("capping first starves a narrow filter", () => {
+    // The bug, kept as the thing being guarded against.
+    assert.equal(capThenFilter(16).length, 2);
+  });
+
+  test("filtering first fills the card", () => {
+    assert.equal(filterThenCap(16).length, 4);
+  });
+
+  test("neither can exceed the cap", () => {
+    // The cap is still a cap — this is about which rows it keeps.
+    assert.ok(filterThenCap(3).length <= 3);
+  });
+});

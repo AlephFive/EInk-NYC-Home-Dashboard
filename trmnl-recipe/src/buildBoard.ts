@@ -373,6 +373,30 @@ function rowsInDirection(
   return rows.filter((row) => row[4] === wanted || !row[4]);
 }
 
+/**
+ * Build rows, then narrow them, then cap — in that order.
+ *
+ * The cap used to be applied inside `trainRows` and the filters after it,
+ * which quietly made a narrow filter return a near-empty card: at Jamaica
+ * the first 32 departures span ten branches, so asking for Babylon left 6
+ * rows out of a possible 32. The user asked for one branch and got a
+ * sixth of a card, with nothing to say why.
+ *
+ * So the build runs uncapped — `limit: Infinity` — and the cap lands last,
+ * on the rows that survived. The extra work is bounded by what the feed
+ * holds for one stop and happens after decode, which is the expensive part
+ * either way.
+ */
+function narrowedRows(
+  build: (limit: number) => DepartureRowData[],
+  routes: string[] | undefined,
+  direction: 1 | 2 | undefined,
+  limit: number
+): BoardRow[] {
+  const rows = filterRows(build(Number.POSITIVE_INFINITY), routes).map(toBoardRow);
+  return rowsInDirection(rows, direction).slice(0, limit);
+}
+
 function filterRows(
   rows: DepartureRowData[],
   routes: string[] | undefined
@@ -594,20 +618,15 @@ async function railroadCard(
       k: [
         {
           h: "",
-          // A railroad card is one list, so direction filters the rows
-          // rather than dropping a column — `isCityBound()` has already
-          // decided it per trip.
-          r: rowsInDirection(
-            filterRows(
-              trainRows(trains, {
-                ...rowOptions,
-                walkTime: card.walkTime,
-                // One full-height list, not two columns.
-                limit: rowOptions.limit * 2,
-              }),
-              card.routes
-            ).map(toBoardRow),
-            card.direction
+          // One list, not two columns, so it gets double the rows — and
+          // direction filters those rows rather than dropping a column,
+          // since `isCityBound()` decides it per trip.
+          r: narrowedRows(
+            (limit) =>
+              trainRows(trains, { ...rowOptions, walkTime: card.walkTime, limit }),
+            card.routes,
+            card.direction,
+            rowOptions.limit * 2
           ),
         },
       ],
@@ -652,10 +671,13 @@ async function busCard(
         return {
           column: {
             h: "",
-            r: filterRows(
-              busRows(buses, { ...rowOptions, walkTime: card.walkTime }),
-              card.routes
-            ).map(toBoardRow),
+            r: narrowedRows(
+              (limit) =>
+                busRows(buses, { ...rowOptions, walkTime: card.walkTime, limit }),
+              card.routes,
+              undefined, // a bus card's direction is its column, dropped above
+              rowOptions.limit
+            ),
           },
         };
       } catch (err) {
@@ -748,13 +770,17 @@ async function ferryCard(
       k: [
         {
           h: "",
-          r: filterRows(
-            liveFerryRows(sailings, {
-              ...rowOptions,
-              walkTime: card.walkTime,
-            }),
-            card.routes
-          ).map(toBoardRow),
+          r: narrowedRows(
+            (limit) =>
+              liveFerryRows(sailings, {
+                ...rowOptions,
+                walkTime: card.walkTime,
+                limit,
+              }),
+            card.routes,
+            undefined, // a ferry landing has no inbound/outbound to pick
+            rowOptions.limit
+          ),
         },
       ],
     };
