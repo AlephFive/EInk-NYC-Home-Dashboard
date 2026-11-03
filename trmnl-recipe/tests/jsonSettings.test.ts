@@ -45,6 +45,53 @@ describe("a card from a JSON body", () => {
     );
   });
 
+  test("TRMNL's `id::label` storage keeps only the id", () => {
+    // What the form actually sends. An xhrSelectSearch value is stored as
+    // the id, two colons, then the label the dropdown showed — so a card
+    // arrives as "subway:117::116 St-Columbia University (1) · Subway".
+    //
+    // Splitting on the first colon put the whole label inside the stop ID
+    // list, the card resolved to nothing, and a fully configured board
+    // fell back to the demo. Captured from a real request.
+    const sent = [
+      ["subway:117::116 St-Columbia University (1) · Subway", "subway", ["117"]],
+      [
+        "subway:127+725+902+A27+R16::Times Sq-42 St (1/2/3/7/S/N/Q/R/W/A/C/E) · Subway",
+        "subway",
+        ["127", "725", "902", "A27", "R16"],
+      ],
+      ["bus:505506::CENTER BLVD/BORDEN AV (Q101/Q103) · Bus", "bus", ["505506"]],
+      ["mtn:4::Harlem-125 St · Metro-North", "railroad-mtn", ["4"]],
+      ["lirr:349::Grand Central · LIRR", "railroad-lirr", ["349"]],
+      ["ferry:4::Hunters Point South · Ferry", "ferry", ["4"]],
+    ] as [string, string, string[]][];
+
+    for (const [station, type, ids] of sent) {
+      const { cards } = boardFromJson({ cards: [{ station }] });
+      assert.equal(cards[0]?.transitType, type, station);
+      assert.deepEqual(cards[0]?.stopIds, ids, station);
+    }
+  });
+
+  test("the whole board the form sends parses", () => {
+    // Six cards, every network. The failure was not one bad value — it
+    // was every card but one, which is what made it look like the board
+    // had reverted to the demo.
+    const { cards, isDemo } = boardFromJson({
+      cards: [
+        { station: "subway:117::116 St-Columbia University (1) · Subway" },
+        { station: "subway:127+725::Times Sq-42 St · Subway", routes: "7" },
+        { station: "bus:505506::CENTER BLVD/BORDEN AV · Bus" },
+        { station: "mtn:4::Harlem-125 St · Metro-North" },
+        { station: "lirr:349::Grand Central · LIRR" },
+        { station: "ferry:4::Hunters Point South · Ferry" },
+      ],
+    });
+    assert.equal(isDemo, false);
+    assert.equal(cards.length, 6);
+    assert.deepEqual(cards[1].routes, ["7"]);
+  });
+
   test("a stored dropdown label is recovered", () => {
     // JSON does not help here — it is the wrong *value*, not a parsing
     // ambiguity — so the same recovery runs as on the query string.

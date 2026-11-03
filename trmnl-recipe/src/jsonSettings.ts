@@ -111,12 +111,19 @@ function parseCard(slot: number, entry: JsonCard): CardSettings | undefined {
   const raw = asText(entry.station);
   if (raw === "") return undefined;
 
-  // TRMNL sometimes stores the dropdown's label where the id belongs, so
-  // the field reads correctly in the form while the Worker gets
-  // "116 St-Columbia University (1) · Subway". JSON does not help with
-  // that — it is the wrong *value*, not a parsing ambiguity — so the same
-  // recovery applies here.
-  const station = valueFromLabel(raw) ?? raw;
+  // TRMNL stores an xhrSelectSearch value as `id::label`, so what arrives
+  // is "subway:117::116 St-Columbia University (1) · Subway". Everything
+  // from "::" on is the display text the dropdown showed, and keeping it
+  // put the whole label inside the stop ID list — the card then resolved
+  // to nothing and the board fell back to the demo.
+  //
+  // Cut there rather than at the last colon: a label can contain colons,
+  // and an id never contains "::".
+  const stored = raw.split("::")[0]!.trim();
+
+  // Older values are the bare label with no id in front — the form reads
+  // correctly while the Worker gets prose — so that is recovered too.
+  const station = valueFromLabel(stored) ?? stored;
 
   const colon = station.indexOf(":");
   if (colon === -1) return undefined;

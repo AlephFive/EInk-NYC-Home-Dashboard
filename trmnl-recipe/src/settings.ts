@@ -260,7 +260,12 @@ function parseCard(slot: number, params: SlotParams): CardSettings | undefined {
   // have stored. The form reads correctly while the Worker gets the label,
   // so without this the card silently drops and a panel whose settings all
   // look right shows the demo board.
-  const station = valueFromLabel(params.station!) ?? params.station!;
+  // TRMNL stores an xhrSelectSearch value as `id::label`, so everything
+  // from "::" on is the display text the dropdown showed. Cut there
+  // rather than at the last colon: a label can contain colons, an id
+  // never contains "::".
+  const stored = params.station!.split("::")[0]!.trim();
+  const station = valueFromLabel(stored) ?? stored;
 
   const split = splitStationValue(station);
   if (!split) return undefined;

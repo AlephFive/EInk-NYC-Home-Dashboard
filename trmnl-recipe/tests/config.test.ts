@@ -88,7 +88,17 @@ function pollingBodyFromSettings(yaml: string): string {
   return kept.join("\n");
 }
 
-const shippedBody = pollingBodyFromSettings(settingsYml);
+/**
+ * The JSON polling body, from the file that holds it.
+ *
+ * It lives in `recipe/` rather than in settings.yml because `trmnlp push`
+ * drops `polling_body` — verified by pushing and pulling back, in both
+ * block-scalar and one-line form. The Worker reads the body on POST and
+ * the format is the one this recipe wants; the plugin cannot send it
+ * until the CLI uploads the field, so settings.yml still ships the GET
+ * query string and both are tested.
+ */
+const shippedBody = read("recipe/polling-body.json");
 const pastedUrl = pollingUrlFromTxt(pollingUrlTxt);
 
 describe("every card field is actually wired up", () => {
