@@ -97,7 +97,16 @@ const DEFAULT_WALK_TIME = 5;
 
 /** Destinations at the row's own size, which is what the panel shipped with. */
 const DEFAULT_DESTINATION_SCALE = 1;
-const DEFAULT_URGENT_THRESHOLD = 10;
+/**
+ * Minutes before you must leave, below which a row is highlighted.
+ *
+ * Was 10, which marked 33 of the demo board's 62 rows: once half the panel
+ * is inverted the highlight has stopped distinguishing anything. 5 is the
+ * value at which it still picks out a minority — and it must match the
+ * form's own default, or a field left untouched and a field cleared mean
+ * different things.
+ */
+const DEFAULT_URGENT_THRESHOLD = 5;
 const DEFAULT_FETCH_DEPARTURES = 8;
 
 /** Treat TRMNL's unset/off values as absent rather than as content. */

@@ -156,6 +156,26 @@ describe("every card field is actually wired up", () => {
     }
   });
 
+  test("a form default matches the Worker's own", () => {
+    // Two defaults for one setting is a bug waiting to happen: a field the
+    // user never touched sends the form's, a field they cleared sends
+    // nothing and gets the Worker's. They must agree.
+    const defaults: [string, string][] = [
+      ["urgent_threshold", "5"],
+      ["card1_walk", "5"],
+    ];
+    for (const [key, expected] of defaults) {
+      const block = settingsYml.slice(settingsYml.indexOf(`keyname: ${key}`));
+      const match = /default:[ \t]*"?([^"\r\n]+)"?/.exec(block);
+      assert.ok(match, `${key} declares no default`);
+      assert.equal(
+        match![1].trim(),
+        expected,
+        `${key}'s form default disagrees with settings.ts`
+      );
+    }
+  });
+
   test("visibility is never decided in Liquid", () => {
     // It was once, and the toggle did nothing: Liquid treats only `nil` and
     // `false` as falsy, so a checkbox stored as the string "false" is

@@ -223,6 +223,26 @@ describe("the display rule is identical in every layout", () => {
     }
   });
 
+  test("becoming urgent changes a row's colour and nothing else", () => {
+    // The highlight once carried a negative margin so it could reach the
+    // card edge without narrowing the row. Two bugs came of it: a negative
+    // margin pulls the row outside its parent, which clips, so the left
+    // edge of every highlight was shaved off — and only urgent rows moved,
+    // so a highlight visibly shifted its own row against its neighbours.
+    //
+    // Every row carries the inset now, so the urgent rule may set colour
+    // and nothing that affects layout.
+    for (const [name, markup] of layouts) {
+      const rule = /\.row-line--urgent\s*\{([^}]*)\}/s.exec(markup);
+      assert.ok(rule, `${name}.liquid has no urgent row rule`);
+      assert.doesNotMatch(
+        rule![1],
+        /margin|padding|width|font-size/,
+        `${name}.liquid lets the highlight change the row's geometry`
+      );
+    }
+  });
+
   test("the destination clips instead of wrapping", () => {
     // A wrapped name makes its row taller than its neighbours, which is
     // exactly what uniform row height exists to prevent.

@@ -415,12 +415,14 @@ custom_fields:
     name: Highlight departures within (minutes)
     group: Display
     optional: true
-    default: 10
-    placeholder: 10
+    default: 5
+    placeholder: 5
     help_text: >
-      Rows this close to your leave time are marked with a filled route
-      badge. Counted after walk time is subtracted, so it is how long you
-      have before you must go.
+      Rows this close to your leave time are highlighted — drawn white on
+      black, so they are what the eye lands on first. Counted after walk
+      time is subtracted, so it is how long you have before you must leave,
+      not how long until the train arrives. Lower it if most of the board
+      ends up highlighted: once half the rows are marked, nothing is.
 
   - keyname: destination_scale
     field_type: select

@@ -403,7 +403,7 @@ describe("display settings", () => {
   test("defaults", () => {
     const s = board("c1=subway:721&w1=10");
     assert.equal(s.use24HourTime, true);
-    assert.equal(s.urgentThresholdMinutes, 10);
+    assert.equal(s.urgentThresholdMinutes, 5);
     assert.equal(s.showLeaveIn, false);
   });
 

@@ -234,6 +234,11 @@
     margin-bottom: 0.14em;
     padding-top: 0.1em;
     padding-bottom: 0.1em;
+    /* The highlight's inset, carried by every row so that becoming urgent
+       changes a row's colour and nothing else. On an ordinary row it is
+       invisible; on an urgent one it keeps the glyphs off the black edge. */
+    padding-left: 0.3em;
+    padding-right: 0.3em;
   }
   /* The clock is fixed width and never gives way. Without this the flex row
      squeezes it like any other text child, and a long destination pushes
@@ -269,19 +274,18 @@
      to invert *into* black. Without it the text flips to white and
      disappears against the page.
 
-     The inset is a negative margin plus matching padding, not padding
-     alone. Padding alone narrows the row's content box, so an urgent row
-     clipped its destination several characters shorter than the ordinary
-     rows around it — the highlight cost exactly the width the name needed.
-     Pulling the margin out by the same amount lets the highlight bleed
-     into the card's own padding instead, so both kinds of row give their
-     content the same space. */
+     It adds no geometry of its own. The inset was once a negative margin
+     plus matching padding, so the highlight could reach the card edge
+     without narrowing the row — but a negative margin pulls the row
+     outside its parent, and the parent clips, so the left edge of every
+     highlight was shaved off. Worse, only urgent rows moved, so a
+     highlight visibly shifted its own row relative to its neighbours.
+
+     Every row carries the inset instead, urgent or not: see `.row-line`.
+     An urgent row then differs from an ordinary one in exactly one way,
+     which is the colour. */
   .row-line--urgent {
     background: #fff;
-    margin-left: -0.35em;
-    margin-right: -0.35em;
-    padding-left: 0.35em;
-    padding-right: 0.35em;
   }
   /* The destination takes whatever the badge and the clock leave, and clips
      rather than wrapping: a wrapped name would make its row taller than its
