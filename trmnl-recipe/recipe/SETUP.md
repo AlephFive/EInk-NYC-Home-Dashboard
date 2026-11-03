@@ -1,16 +1,26 @@
-# Setting up the recipe — phase 1 (debug)
+# Setting up the recipe
 
-What this gets you: the board's data on a real device, rendered as plain text.
-No styling — that is phase 2, and deliberately so. If a station is wrong or a
-card fails, it is visible here with nothing between you and the data.
+This is for configuring the plugin by hand through TRMNL's web UI. If you
+are developing the recipe, `trmnlp push` does all of it from
+`plugin/src/settings.yml` instead — see `docs/NEXT-SESSION.md`, which also
+explains what that push damages on the way through.
 
 Three files in this directory go into the plugin:
 
 | File | Where it goes |
 |---|---|
 | `form.yaml` | Custom Fields |
-| `polling-url.txt` | Polling URL (the one-line version) |
-| `markup-debug.liquid` | Markup |
+| `polling-body.json` | Polling Body, with the verb set to POST |
+| `../plugin/src/*.liquid` | Markup, one per layout |
+
+Set the Polling URL to your Worker's `/api/board` with no query string,
+and add a header `content-type: application/json`. The board travels in
+the body — see `docs/NEXT-SESSION.md` for why it is a POST and not a
+query string.
+
+`polling-url.txt` holds the older GET form. The Worker still accepts it,
+so a plugin configured that way keeps working, but new setups should use
+the body.
 
 ---
 
@@ -95,14 +105,16 @@ The point of the debug markup is that each line is verifiable:
   `{id, name}` pairs are the usual cause, and they cannot be repaired in
   place: the stored text is a display label, not an ID.
 
-## Known gaps in phase 1
+## Known limitations
 
-- **No styling.** Phase 2 rebuilds this on the TRMNL design framework.
-- **Rows per card is a flat 5** (10 for a railroad card), not derived from card
-  height. The framework measures height at runtime, so the real number is a
-  phase 2 decision.
-- **Ferry is omitted.** It is still schedule-based, which conflicts with the
-  live-data-only rule. See the spec's open questions.
-- **No payload enforcement.** The response reports its size in
-  `x-payload-bytes`; it does not yet trim. Measured boards run 1.8KB against a
-  5KB cap, so there is room, but a six-card board should be watched.
+- **Only the full-screen layout has been seen on hardware.** The three
+  mashup layouts render correctly in `trmnlp build`, but half and quarter
+  cells have never been tested on a real panel.
+- **A card narrowed to direction 1 is empty at a terminal.** This is
+  correct rather than broken: a trip counts as city-bound when it *ends*
+  at a city terminal, and nothing departs Grand Central towards the city.
+  At a through station like Jamaica both directions are populated.
+- **Bus stop IDs expire.** The MTA retires and re-IDs stops, and a retired
+  ID stays in the published data. The picker filters on `valid_to` so it
+  will not offer one, but a stop picked long ago can stop working. Re-pick
+  it if a bus card goes quiet while the others are fine.

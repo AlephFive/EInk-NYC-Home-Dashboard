@@ -1,165 +1,120 @@
-## Local renders are not what the device shows
+# Where this is, and what submission still needs
 
-The board **works on TRMNL** — a rendered screenshot from the plugin page
-shows all six cards, every transit type, correct 800x480. But it is visibly
-tighter than any local render, and that gap is structural:
-
-- The framework multiplies every size by `--ui-scale`, computed as
-  `--device-ui-scale * --modifier-scale`.
-- That calculation happens in exactly one place: `.trmnl .screen`, a wrapper
-  **TRMNL supplies above our markup**. Our layouts start at `.view`.
-- Locally both factors are 1, so **`trmnlp build` always renders the
-  unscaled case.** The device raises `--device-ui-scale`.
-
-Consequences, verified against the CSS:
-
-- `screen--scale-small` / `screen--text-scale-small` **cannot help us**.
-  They only set `--modifier-scale`, and setting it on a descendant of
-  `.screen` is too late — the calculation has already run.
-- `md:` and `lg:` size variants fire on an 800px panel, so the card heading
-  renders at `title--large` while its column stays 253px. That is what
-  truncates "Times Sq-42 St" to "Times Sq…" on the device and not locally.
-
-**Removing the responsive variants by regex breaks the layout** — it strips
-the prefix and leaves classes the framework no longer matches, and the board
-renders as unstyled text. Tried and reverted. If this is worth fixing, swap
-each class deliberately (`title--small md:title--base` -> `title--small`)
-and re-render after each file.
-
-Also: `trmnlp build --png` renders every view at one size. Pass
-`--width`/`--height` to see a mashup at its true dimensions —
-800x240 half_horizontal, 400x480 half_vertical, 400x240 quadrant. All four
-are correct at their real sizes; the default render is misleading.
-
-## `trmnlp push` rewrites settings.yml — check the diff
-
-The plugin exists: **524413**, https://trmnl.com/plugin_settings/524413/edit
-
-`push` writes the server's normalised copy back over `src/settings.yml`, and
-that round-trip is lossy. After the first push it had:
-
-- `refresh_interval` **900 -> 1440** (15 minutes became 24 hours)
-- `recipe_overview` and `categories` **dropped** — the store listing copy
-- `placeholder: "1,2,3"` -> `123`, a quoted string read as a number
-- em-dashes mojibaked (`—` -> `â€"`), so something reads the file as cp1252
-
-Only the `id` was worth keeping, and it is now committed. **After any push,
-`git diff` the file and restore everything but the id.** Do not let the
-server's copy stand.
-
-## Station picker: fixed, needs one retest
-
-`depends_on` is not supported on `xhrSelectSearch` — it is an `xhrSelect`
-property — and declaring it stopped the widget initialising. The dropdown was
-empty and the Worker saw no request at all.
-
-Fixed: `depends_on` removed, and each slot's endpoint now carries its own
-slot (`/api/stations?slot=2`) so the Worker reads that card's transit type
-rather than the first one it finds. Deployed and verified by hand.
-
-**Still to confirm in the UI**: push the plugin, open card 1, and check the
-dropdown now populates. If it does, the question of whether the search widget
-renders at all is finally answered yes.
+The recipe is live on TRMNL as plugin **524413** and rendering a real
+six-card board on hardware. What follows is the state as of 2026-11-03,
+then the gaps between here and a store submission.
 
 ## State
 
 | | |
 |---|---|
-| Branch | `phase2-layout`, 9 commits ahead of `main`, pushed |
-| Worker | deployed and live, but **running phase 1 code** — `main` has moved since |
-| CI | green on all three workflows |
-| Plugin | never pushed to TRMNL; `src/settings.yml` has no `id` yet |
+| Worker | deployed, CI green on push to `main` |
+| Plugin | pushed; `id: 524413` in `plugin/src/settings.yml` |
+| Polling | `POST` with a JSON body — see below |
+| Tests | 352 |
+| Device | rendering correctly; every transit type verified live |
 
-## What phase 2 produced
+## The polling format, and why it changed
 
-The board on TRMNL's framework: three columns, each splittable in two,
-direction columns side by side, route badges, outlined urgent rows, per-card
-error and empty states. Plus the three mashup layouts, TRMNL X scaling, a demo
-board for unconfigured installs, store metadata, and payload trimming.
+The board was a `GET` with the whole thing packed into the query string,
+and that format caused more defects than anything else in this project: a
+card headed "Bus Stop 6" built from a stop that does not exist, a heading
+reading ":5:", "· Subway" smuggled through an `@name` suffix, a route
+filter silently ignored for sitting past a tail, a badge reading "ACE:5:",
+and a fully configured board falling back to the demo because TRMNL stores
+a picker value as `id::label` and the parser split on the first colon.
 
-Renders are in `docs/images/`. The plan and its open questions are in
-`docs/PHASE-2-LAYOUT.md`.
+Every one was the Worker inferring which field it was reading from where a
+separator fell, in a value that can contain every separator.
 
-## Pick up here
+It is a `POST` with a JSON body now. The station arrives already split —
+`{"type": "subway", "ids": ["127", "725"]}` — built in Liquid from the
+readable value TRMNL stores, so the form still shows a human-readable
+string and the Worker reads named fields. Values are escaped with
+`| json`.
 
-1. **Re-run `/code-review max`.** It died on a rate limit mid-session, so the
-   last review pass was self-review only. Worth a second opinion before
-   submitting anything.
-2. **Merge `phase2-layout` to `main`** (squash, per convention). That triggers
-   the Worker deploy, which updates the live endpoint to match.
-3. **Push the plugin to TRMNL.** Needs `trmnlp login`, then `trmnlp push`.
-   Copy the returned plugin id into `src/settings.yml` **before** enabling the
-   push job in `.github/workflows/plugin.yml` — without an id, every run
-   creates a new plugin instead of updating one.
-4. **See it on the real device**, which is the one thing never yet tested. The
-   whole board has only ever been rendered by `trmnlp build --png`.
-5. **Submit**, when ready: plugin id, owner email, rationale, a video of
-   installation from scratch, and test credentials, to `team@trmnl.com`.
+**`| json` exists and works.** An earlier pass concluded it did not,
+having probed it inside an HTML attribute where the quotes were mangled
+and read the empty result as a missing filter. Tested properly it quotes,
+escapes and handles empty strings.
 
-## Known gaps
+The query-string parser is still there, for a board rendered by a polling
+template that has not been re-saved.
 
-- **Arrow-shaped railroad badges** were dropped in the port. The dashboard
-  clips them into chevrons to carry direction; `label` has no such variant.
-  Arguably moot now that duplicate destinations are suppressed, but it is a
-  deliberate loss rather than an oversight.
-- **The half/quadrant layouts have never been seen at their real size.**
-  trmnlp previews every layout at 800x480 regardless, so their cell
-  dimensions were derived rather than observed.
-- **`trmnlp lint` only validates `label--*` sizes.** Five classes that do not
-  exist in v3.4.4 have passed lint silently: `nowrap`, `overflow--hidden`,
-  `items--stretch`, `col--start` inside `.content`, and `flex--1` — the last
-  used thirteen times across four layouts before being caught. The real
-  flex-grow utility is `grow`, and `basis--0` is needed alongside it for an
-  even split.
-  Check new utility classes against the framework stylesheet directly:
-  `curl -s https://trmnl.com/css/3.4.4/plugins.css | grep -F '.classname{'`
+## Pushing the plugin, carefully
 
-## Deferred by decision
+`trmnlp push` **rewrites the local file**: it flattens the indentation,
+mangles placeholders ("1,2,3" became "123"), drops `polling_body` and
+`polling_headers`, and has dropped `custom_fields` entirely.
 
-- **Caching the MTA feeds across requests.** One fetch returns a whole
-  division — 349 stops on `a_division` — so every user on those lines pulls
-  identical bytes. Worth doing at ~100 installs, pointless at one, since polls
-  are 15 minutes apart. Reasoning and the measured numbers are in the spec,
-  §7.2.
+The discipline that works:
+
+1. **Commit before pushing.** Twice now the rewritten file has been
+   committed instead of the real one, and the second time it blanked the
+   board — `polling_verb: post` with an empty body means TRMNL posts
+   nothing and the Worker returns the demo.
+2. **After pushing, `git checkout --` the file.** Treat the post-push
+   working tree as damage to discard, never as something to `git add`.
+
+Also note `trmnlp pull` never returns `polling_body` — it comes back as an
+empty key every time. It cannot be used to verify what was uploaded, and
+reading it as "the body was dropped" has sent this project down two blind
+alleys.
+
+## Before submitting
+
+1. **Test the three mashup layouts on the device.** Only `full` has been
+   seen on real hardware. `half_horizontal`, `half_vertical` and
+   `quadrant` have never left `trmnlp build`.
+2. **Set `refresh_interval` to 900 in the web UI.** The push round trip
+   rewrites it to 1440, so the server has been wrong for some time.
+3. **Rotate the TRMNL API key.** It was pasted into a chat transcript
+   repeatedly during development.
+4. **Record the installation video.** Submission wants it from scratch:
+   install, pick six stations, see the board.
+5. **Email `team@trmnl.com`** with the plugin id, owner email, rationale,
+   the video, and test credentials.
+
+## Open, and deliberately not fixed
+
+- **A squashed last row on some cards.** Three attempts, each on an
+  unverified hypothesis, none of which changed the render: a whole-row
+  height budget, clipping the limiter's box, overriding the framework's
+  `word-break: break-word`. What is known: the Content Limiter measures in
+  the browser, `.content` carries `max-height: 100%` and `word-break:
+  break-word`, and every card receives the same
+  `data-content-max-height`. The next attempt should start from the
+  rendered page, not the CSS.
+- **SI bullet centring.** `.bullet--pair` compensates its `letter-spacing`
+  with `text-indent`, which indents the line box rather than the inline
+  content and may be doing nothing. Only appears on a Staten Island
+  Railway card. `padding-left` would be the honest lever.
+- **Direction 1 is always empty at a terminal.** Correct rather than
+  broken — `isCityBound()` asks whether a trip *ends* at a city terminal,
+  and nothing departs Grand Central towards the city. Whether a terminal
+  should fall back to showing both is a product call, not a bug.
 
 ## Gotchas worth not rediscovering
 
-- **A deployed Worker runs in UTC.** `wrangler dev` inherits the developer's
-  zone, so a timezone bug is invisible locally. CI guards this under `TZ=UTC`.
-- **TRMNL refuses to poll a *private* address**, so while the Worker was
-  local, `.trmnlp.yml` carried a captured response under `variables:`. That
-  block is gone: the deployed Worker is public and `trmnlp` fetches it live.
-  Do not reintroduce it — it froze the preview on a four-day-old board.
-- **The local preview renders the demo board, not your panel.** TRMNL has no
-  API to read a user's stored settings back (`trmnlp` only pushes), so the
-  preview cannot discover what any given device is configured to show. It
-  renders the demo board instead — the same board an unconfigured install
-  gets — generated from `DEMO_CARDS` by `npm run preview:sync` so the two
-  cannot drift. To preview your own panel, edit the generated block in
-  `.trmnlp.yml` by hand and do not re-run the sync.
+- **A deployed Worker runs in UTC.** `wrangler dev` inherits the
+  developer's zone, so a timezone bug is invisible locally. CI guards this
+  under `TZ=UTC`.
+- **The local preview renders the demo board, not your panel.** TRMNL has
+  no API to read a user's stored settings back, so the preview cannot
+  discover what a device is configured to show. It renders `DEMO_CARDS`,
+  generated into `.trmnlp.yml` by `npm run preview:sync`.
 
   The consequence worth remembering: **the preview cannot show a bug in a
   stored value**, because every value in it was written correctly by the
-  generator. That is how `Bus:6:` reached the device while every local
+  generator. That is how "Bus:6:" reached the device while every local
   screenshot stayed clean.
-- **`trmnlp` does not stamp a device class on `.screen`.** TRMNL's framework
-  carries a per-device block (`.screen--ogv2`, `.screen--og`, …) setting
-  screen size, pixel ratio, gap scale and colour depth; `trmnlp` emits a bare
-  `screen screen--fonts-trmnl`, so a local build falls back to the `:root`
-  defaults. Each layout therefore sets those variables itself, pinned to
-  `ogv2` and checked against the live stylesheet by `layouts.test.ts`.
-
-  For an 800x480 device at scale **Regular** this changes nothing visually —
-  every value already matches. It is there so a framework upgrade that
-  retunes the device fails a test instead of surprising the panel. Two
-  caveats: `--quadrant-w/h` are deliberately *not* copied (the device's
-  `100%` collapses against trmnlp's unsized wrapper), and `--modifier-scale`
-  is a per-plugin **user setting** (`screen--scale-small` … `xxlarge`), not a
-  device property — if the panel is not on Regular, the preview will not
-  match and no amount of CSS here fixes it.
-- **`trmnlp` needs a Windows-style path** for its Docker volume mount;
-  `/tmp/...` from Git Bash silently fails to mount.
-- **The demo board is what an unconfigured install shows.** It is live data
-  from Times Square, Penn Station and Grand Central, flagged `d` so the panel
-  labels itself "Example". That also keeps the author's home stations out of
-  the public recipe preview.
+- **Every 800x480 device has `--device-ui-scale: 1`.** The multiplier that
+  varies is `--modifier-scale`, a per-plugin *user* setting
+  (`screen--scale-small` … `xxlarge`). An earlier note here claimed the
+  device raised `--device-ui-scale`; reading the framework disproved it.
+- **Type must never be sized in pixels.** The framework multiplies every
+  size by the user's scale, so a literal does not scale with the board. A
+  test enforces this.
+- **`trmnlp` does not stamp a device class on `.screen`.** Each layout
+  pins the `ogv2` profile itself, checked against the live stylesheet by
+  `layouts.test.ts`.

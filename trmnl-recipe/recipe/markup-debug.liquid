@@ -1,5 +1,10 @@
 {% comment %}
-  Phase 1 debug markup — text only, deliberately.
+  Debug markup — text only, deliberately. Not what the plugin ships.
+
+  The real layouts are `plugin/src/*.liquid`. This exists to answer one
+  question when a card looks wrong: is the board bad, or is the styling
+  hiding it? Paste this in as the markup and every field the endpoint
+  sent is listed as plain lines.
 
   This renders every field the endpoint sends, as plain lines, so an
   end-to-end test has nothing to debug but the data: if a station is wrong,

@@ -18,8 +18,8 @@ recipe_overview: >-
   A live departure board for New York City transit, filtered by how long it
   takes you to walk to the stop.
 
-  Pick up to six stations across subway, Long Island Rail Road, Metro-North and
-  MTA bus, and set a walk time for each. Departures you could not physically
+  Pick up to six stations across subway, Long Island Rail Road, Metro-North,
+  MTA bus and NYC Ferry, and set a walk time for each. Departures you could not physically
   reach are hidden, so every row on the panel is a train or bus you can still
   catch if you leave now. That filter is the point: the MTA's own apps show you
   everything, including the train pulling out as you read about it.
@@ -31,10 +31,15 @@ recipe_overview: >-
   retired stop IDs stay in the published data and would otherwise produce a
   card that never loads.
 
-  The board shows arrival clock times rather than a countdown. A panel refreshes
-  on an interval, so "leaves in 6 minutes" is stale the moment it is drawn,
-  while "16:42" stays true. Departures close enough that you should already be
-  leaving are outlined.
+  The board shows departure clock times rather than a countdown. A panel
+  refreshes on an interval, so "leaves in 6 minutes" is stale the moment it is
+  drawn, while "16:42" stays true. Departures close enough that you should
+  already be leaving are highlighted, drawn white on black so they are what the
+  eye lands on first.
+
+  A card can be narrowed to the routes you actually ride, and to one direction.
+  Most people only travel one way from a given stop, and giving those rows the
+  whole card is worth more than listing trains you will never take.
 
   Data comes from the MTA's own realtime feeds and nothing else. There is no
   fallback to a printed timetable: if a feed says nothing is coming, the card
@@ -177,6 +182,7 @@ custom_fields:
   - keyname: card1_visible
     field_type: boolean
     name: Show this card
+    description: Untick to park a card without losing its settings
     group: Column 1 · Row 1
     optional: true
     default: true
@@ -233,6 +239,7 @@ custom_fields:
   - keyname: card1_walk
     field_type: number
     name: Walk time (minutes)
+    description: How long it takes you to reach this stop
     group: Column 1 · Row 1
     optional: true
     default: 5
@@ -242,6 +249,7 @@ custom_fields:
   - keyname: card1_title
     field_type: string
     name: Card heading
+    description: Leave blank to use the station's own name
     group: Column 1 · Row 1
     optional: true
     placeholder: Defaults to the station name
@@ -250,6 +258,7 @@ custom_fields:
   - keyname: card2_visible
     field_type: boolean
     name: Show this card
+    description: Untick to park a card without losing its settings
     group: Column 1 · Row 2
     optional: true
     default: true
@@ -306,6 +315,7 @@ custom_fields:
   - keyname: card2_walk
     field_type: number
     name: Walk time (minutes)
+    description: How long it takes you to reach this stop
     group: Column 1 · Row 2
     optional: true
     default: 5
@@ -315,6 +325,7 @@ custom_fields:
   - keyname: card2_title
     field_type: string
     name: Card heading
+    description: Leave blank to use the station's own name
     group: Column 1 · Row 2
     optional: true
     placeholder: Defaults to the station name
@@ -323,6 +334,7 @@ custom_fields:
   - keyname: card3_visible
     field_type: boolean
     name: Show this card
+    description: Untick to park a card without losing its settings
     group: Column 2 · Row 1
     optional: true
     default: true
@@ -379,6 +391,7 @@ custom_fields:
   - keyname: card3_walk
     field_type: number
     name: Walk time (minutes)
+    description: How long it takes you to reach this stop
     group: Column 2 · Row 1
     optional: true
     default: 5
@@ -388,6 +401,7 @@ custom_fields:
   - keyname: card3_title
     field_type: string
     name: Card heading
+    description: Leave blank to use the station's own name
     group: Column 2 · Row 1
     optional: true
     placeholder: Defaults to the station name
@@ -396,6 +410,7 @@ custom_fields:
   - keyname: card4_visible
     field_type: boolean
     name: Show this card
+    description: Untick to park a card without losing its settings
     group: Column 2 · Row 2
     optional: true
     default: true
@@ -452,6 +467,7 @@ custom_fields:
   - keyname: card4_walk
     field_type: number
     name: Walk time (minutes)
+    description: How long it takes you to reach this stop
     group: Column 2 · Row 2
     optional: true
     default: 5
@@ -461,6 +477,7 @@ custom_fields:
   - keyname: card4_title
     field_type: string
     name: Card heading
+    description: Leave blank to use the station's own name
     group: Column 2 · Row 2
     optional: true
     placeholder: Defaults to the station name
@@ -469,6 +486,7 @@ custom_fields:
   - keyname: card5_visible
     field_type: boolean
     name: Show this card
+    description: Untick to park a card without losing its settings
     group: Column 3 · Row 1
     optional: true
     default: true
@@ -525,6 +543,7 @@ custom_fields:
   - keyname: card5_walk
     field_type: number
     name: Walk time (minutes)
+    description: How long it takes you to reach this stop
     group: Column 3 · Row 1
     optional: true
     default: 5
@@ -534,6 +553,7 @@ custom_fields:
   - keyname: card5_title
     field_type: string
     name: Card heading
+    description: Leave blank to use the station's own name
     group: Column 3 · Row 1
     optional: true
     placeholder: Defaults to the station name
@@ -542,6 +562,7 @@ custom_fields:
   - keyname: card6_visible
     field_type: boolean
     name: Show this card
+    description: Untick to park a card without losing its settings
     group: Column 3 · Row 2
     optional: true
     default: true
@@ -598,6 +619,7 @@ custom_fields:
   - keyname: card6_walk
     field_type: number
     name: Walk time (minutes)
+    description: How long it takes you to reach this stop
     group: Column 3 · Row 2
     optional: true
     default: 5
@@ -607,6 +629,7 @@ custom_fields:
   - keyname: card6_title
     field_type: string
     name: Card heading
+    description: Leave blank to use the station's own name
     group: Column 3 · Row 2
     optional: true
     placeholder: Defaults to the station name
@@ -615,13 +638,19 @@ custom_fields:
   - keyname: use_24_hour
     field_type: boolean
     name: 24-hour clock
+    description: 16:45 rather than 4:45 PM
     group: Display
     optional: true
     default: true
+    help_text: >-
+      Departure times only. The panel shows clock times rather than a
+      countdown, because it refreshes on an interval: "leaves in 6
+      minutes" is stale the moment it is drawn, where "16:45" never is.
 
   - keyname: urgent_threshold
     field_type: number
     name: Highlight departures within (minutes)
+    description: How soon counts as urgent, after walk time
     group: Display
     optional: true
     default: 5
@@ -636,6 +665,7 @@ custom_fields:
   - keyname: destination_scale
     field_type: select
     name: Destination text size
+    description: Smaller shows more of a long station name
     group: Display
     optional: true
     options:
@@ -655,6 +685,7 @@ custom_fields:
   - keyname: show_leave_in
     field_type: boolean
     name: Show "leave in N minutes"
+    description: Off by default, because a countdown goes stale
     group: Display
     optional: true
     default: false
