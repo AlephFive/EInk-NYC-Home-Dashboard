@@ -25,6 +25,7 @@ import assert from "node:assert/strict";
 import { extractDataByStop } from "../../EInk-NYC-Home-Dashboard/src/utils/subway/fetchTrainData.ts";
 import { extractFerryDataByStop } from "../../EInk-NYC-Home-Dashboard/src/utils/ferry/fetchFerryData.ts";
 import { isBoardable } from "../../EInk-NYC-Home-Dashboard/src/utils/departures.ts";
+import { liveFerryRows } from "../../EInk-NYC-Home-Dashboard/src/utils/departureRows.ts";
 import { loadFeed, loadFixture, editFeed } from "./fixtures/load.ts";
 
 describe("a subway stop, from a captured feed", () => {
@@ -322,5 +323,33 @@ describe("a filter is applied before the row cap, not after", () => {
   test("neither can exceed the cap", () => {
     // The cap is still a cap — this is about which rows it keeps.
     assert.ok(filterThenCap(3).length <= 3);
+  });
+});
+
+describe("a ferry sailing has no direction to filter on", () => {
+  // The Direction setting is accepted on every card, because TRMNL's form
+  // has no conditional fields — `depends_on` is an xhrSelect-only
+  // property. On a ferry it does nothing, and this pins that rather than
+  // leaving it to be rediscovered.
+  //
+  // Two reasons, either of which is sufficient: `ferryCard` passes
+  // undefined where the direction would go, and the rows carry none
+  // anyway. A landing has no inbound and outbound — the Rockaway route
+  // runs south *and* east — so the operator does not label one.
+  const feed = loadFeed("ferry-wall-st");
+
+  test("no ferry row reports a direction", () => {
+    const rows = liveFerryRows(
+      extractFerryDataByStop(feed as never, "87"),
+      { walkTime: 0, limit: 99, use24HourTime: true, urgentThresholdMinutes: 5 }
+    );
+    assert.ok(rows.length > 0, "the fixture has no sailings");
+    for (const row of rows) {
+      assert.equal(
+        row.direction,
+        undefined,
+        `${row.badge} to ${row.destination} reports a direction`
+      );
+    }
   });
 });

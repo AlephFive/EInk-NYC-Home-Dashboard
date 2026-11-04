@@ -242,6 +242,10 @@ custom_fields:
       the card's left and right columns; the heading above each says
       where it goes, so pick one and check.
 
+      Ignored on a ferry card. A landing has no inbound and outbound —
+      the Rockaway route runs south and east — so the operator does not
+      label one and neither does this.
+
   - keyname: card1_walk
     field_type: number
     name: Walk time (minutes)
@@ -319,6 +323,10 @@ custom_fields:
       towards the city from there. On subway and bus, 1 and 2 are simply
       the card's left and right columns; the heading above each says
       where it goes, so pick one and check.
+
+      Ignored on a ferry card. A landing has no inbound and outbound —
+      the Rockaway route runs south and east — so the operator does not
+      label one and neither does this.
 
   - keyname: card2_walk
     field_type: number
@@ -398,6 +406,10 @@ custom_fields:
       the card's left and right columns; the heading above each says
       where it goes, so pick one and check.
 
+      Ignored on a ferry card. A landing has no inbound and outbound —
+      the Rockaway route runs south and east — so the operator does not
+      label one and neither does this.
+
   - keyname: card3_walk
     field_type: number
     name: Walk time (minutes)
@@ -475,6 +487,10 @@ custom_fields:
       towards the city from there. On subway and bus, 1 and 2 are simply
       the card's left and right columns; the heading above each says
       where it goes, so pick one and check.
+
+      Ignored on a ferry card. A landing has no inbound and outbound —
+      the Rockaway route runs south and east — so the operator does not
+      label one and neither does this.
 
   - keyname: card4_walk
     field_type: number
@@ -554,6 +570,10 @@ custom_fields:
       the card's left and right columns; the heading above each says
       where it goes, so pick one and check.
 
+      Ignored on a ferry card. A landing has no inbound and outbound —
+      the Rockaway route runs south and east — so the operator does not
+      label one and neither does this.
+
   - keyname: card5_walk
     field_type: number
     name: Walk time (minutes)
@@ -631,6 +651,10 @@ custom_fields:
       towards the city from there. On subway and bus, 1 and 2 are simply
       the card's left and right columns; the heading above each says
       where it goes, so pick one and check.
+
+      Ignored on a ferry card. A landing has no inbound and outbound —
+      the Rockaway route runs south and east — so the operator does not
+      label one and neither does this.
 
   - keyname: card6_walk
     field_type: number
