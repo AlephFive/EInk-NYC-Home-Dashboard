@@ -1,0 +1,21 @@
+# GitHub Pages, serving from /docs on main.
+#
+# The site inherits brian.ma because the account's user site
+# (alephfive.github.io) has that CNAME: a project site is then served at
+# <domain>/<repo>/, which is why there is no CNAME file here. Verified —
+# brian.ma/blog and brian.ma/clock resolve the same way.
+title: NYC Transit Board
+description: A TRMNL recipe showing New York departures you can still catch
+theme: jekyll-theme-primer
+
+# Development notes, not user documentation. They stay in the repo and out
+# of the site: a reader looking for how to filter routes should not land in
+# a page about Liquid escaping.
+exclude:
+  - NEXT-SESSION.md
+  - PHASE-2-LAYOUT.md
+  - SERVER-ARCHITECTURE.md
+  - TRMNL-RECIPE-SPEC.md
+
+# Pretty paths: /EInk-NYC-Home-Dashboard/guide/ rather than /guide.html
+permalink: pretty
