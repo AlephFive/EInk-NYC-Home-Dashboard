@@ -370,9 +370,7 @@ layout: null
     <h1>Your next train, on the wall</h1>
     <p class="standfirst">
       Six cards of live departures on a TRMNL panel — subway, LIRR, Metro-North, bus and
-      NYC Ferry. This guide covers setting up each card, splitting a complex like Times
-      Square, and the places where NYC transit is stranger than it looks: bus directions,
-      railroad terminals, and stop&nbsp;IDs.
+      NYC Ferry. Set your walk time and every departure you see is one you can still make.
     </p>
   </header>
 
@@ -382,7 +380,7 @@ layout: null
       <li><a href="#layout">The six slots</a></li>
       <li><a href="#card">Setting up a card</a></li>
       <li><a href="#lines">Choosing routes</a></li>
-      <li><a href="#split">Splitting a station</a></li>
+      <li><a href="#split">Splitting a big station</a></li>
       <li><a href="#rail">Railroads &amp; ferry</a></li>
       <li><a href="#bus">Bus directions</a></li>
       <li><a href="#stopids">About stop IDs</a></li>
@@ -417,18 +415,13 @@ layout: null
       <p>
         Leaving a slot <strong>Off</strong> is how you get a tall card. The remaining card in
         that column stretches to fill it and shows about twice as many rows. A column with
-        both slots off simply disappears and the others widen.
-      </p>
-
-      <p>
-        Three columns is the maximum by design. At four, a subway destination gets about one
-        character of width before it clips.
+        both slots off disappears and the others widen.
       </p>
     </section>
 
     <section id="card">
       <h2>Setting up a card</h2>
-      <p class="sec-note">Six fields per card, five of them optional.</p>
+      <p class="sec-note">Six fields. Only the station is required.</p>
 
       <div class="fields">
         <div class="field">
@@ -437,7 +430,6 @@ layout: null
             <p>Untick to park a card without losing its settings — a summer ferry,
             a station you only use on weekdays. Its column-mate then fills the
             column and shows about twice as many departures.</p>
-            <p>Clearing the station does the same thing, destructively.</p>
           </div>
         </div>
 
@@ -447,7 +439,7 @@ layout: null
             <p>Type at least two characters and pick from the list. <strong>One search
             covers all five networks</strong> — there is no transit type to choose
             first — and each result says which it is:
-            <em>Jamaica (E J Z) · Subway</em> beside <em>Jamaica (LIRR) · LIRR</em>.</p>
+            <em>Jamaica (E J Z) · Subway</em> beside <em>Jamaica · LIRR</em>.</p>
             <p>You never type a stop ID. The search resolves the hard cases for you:
             a complex comes through with <em>every</em> platform, a bus corner with
             <em>both</em> sides of the street.</p>
@@ -462,8 +454,8 @@ layout: null
             <p>Works on every card type: subway lines, railroad branches
             (<code>Babylon</code>, <code>Hudson</code>), bus routes (<code>M42</code>) and
             ferry routes (<code>ER</code>).</p>
-            <p>See <a href="#lines">Choosing lines</a>, which is also how you split a big
-            station across two cards.</p>
+            <p>See <a href="#lines">Choosing routes</a>, which is also how you split a
+            crowded station across two cards.</p>
           </div>
         </div>
 
@@ -471,26 +463,24 @@ layout: null
           <div class="fname">Direction<span>cardN_direction</span></div>
           <div class="fdesc">
             <p>Optional. Blank shows both directions side by side; pick
-            <code>1</code> or <code>2</code> and that one gets the whole card.</p>
-            <p>Worth doing when you only ever ride one way from a stop — those
-            rows then get full width, so destinations have room instead of being
-            clipped into two narrow columns.</p>
+            <code>1</code> or <code>2</code> and that one gets the whole card,
+            which gives destinations room instead of clipping them into two
+            narrow columns. Worth doing when you only ride one way from a stop.</p>
             <p>On a <strong>railroad</strong>, 1 is towards the city and 2 is away
             from it. On <strong>subway and bus</strong>, 1 and 2 are the card's left
             and right columns; the heading above each says where it goes.</p>
-            <p><strong>Ignored on a ferry card.</strong> A landing has no inbound and
-            outbound — the Rockaway route runs south <em>and</em> east — so the
-            operator does not label one and neither does this.</p>
+            <p><strong>Ignored on a ferry card</strong>, which has no inbound and
+            outbound to split.</p>
           </div>
         </div>
 
         <div class="field">
           <div class="fname">Walk time<span>cardN_walk</span></div>
           <div class="fdesc">
-            <p>Minutes from your door to the platform. Departures you could not physically
-            reach are hidden, so the first row is always one you can still make.</p>
-            <p>This is the setting that makes the board more useful than the MTA's own app.
-            Measure it honestly — including stairs.</p>
+            <p>Minutes from your door to the platform. Departures you could not reach in
+            time are hidden, so the first row is always one you can still make.</p>
+            <p>Measure it honestly, stairs included — everything else on the card
+            depends on this number.</p>
           </div>
         </div>
 
@@ -505,18 +495,22 @@ layout: null
 
       <h3>Display settings</h3>
       <p>
-        Four settings apply to the whole board: a <strong>24-hour clock</strong> toggle;
-        the <strong>highlight threshold</strong> (rows this close to your leave time are
-        drawn white on black, default 5 minutes); <strong>destination text size</strong>,
-        where smaller shows more of a long station name; and <strong>"leave in N
-        minutes"</strong>, which is off by default — the panel refreshes on an interval,
-        so a countdown can be stale while a clock time never is.
+        Four settings apply to the whole board:
       </p>
+      <ul>
+        <li><strong>24-hour clock</strong> — off by default.</li>
+        <li><strong>Highlight threshold</strong> — rows this close to your leave time are
+        drawn white on black. Default 5 minutes.</li>
+        <li><strong>Destination text size</strong> — smaller shows more of a long
+        station name.</li>
+        <li><strong>Leave in N minutes</strong> — adds a countdown column. Off by
+        default, because the panel only refreshes every 15 minutes, so a countdown
+        can be stale where a clock time never is.</li>
+      </ul>
 
       <div class="note">
         <span class="note-label">Refresh rate</span>
-        <p>Set 15 minutes or slower. That is TRMNL's store minimum, and it is why the board
-        shows clock times rather than counting down.</p>
+        <p>Set 15 minutes or slower — that is TRMNL's minimum for store plugins.</p>
       </div>
     </section>
 
@@ -578,17 +572,15 @@ layout: null
 
       <p>
         Capitalisation does not matter, and a partial name works —
-        <code>far</code> finds the Far&nbsp;Rockaway branch. Short entries are
-        generous rather than strict: <code>M4</code> matches the M42 as well as the M4, which
-        is deliberate. A filter that shows a few extra rows is easier to spot and fix than
-        one that empties the card.
+        <code>far</code> finds the Far&nbsp;Rockaway branch. Matching is generous, so
+        <code>M4</code> brings in the M42 along with the M4; write the full route name
+        when you want just the one.
       </p>
 
       <div class="note">
         <span class="note-label">Branch, not destination</span>
-        <p>On a railroad card the badge is the <em>branch</em> — Port Jefferson, Ronkonkoma —
-        and the text beside it is where that particular train ends up, which is often
-        somewhere else entirely. Filter on the branch.</p>
+        <p>Filter a railroad card on the branch — <code>Babylon</code> — not on where
+        the train ends up, which is often somewhere else along it.</p>
       </div>
     </section>
 
@@ -598,13 +590,13 @@ layout: null
 
       <p>
         Pick <em>Times Sq-42 St</em> and you get one card carrying the 1, 2, 3, 7, N, Q, R, W,
-        A, C, E and the shuttle. That is a complete and almost useless card: twelve routes
-        competing for the same rows, and the trains you actually take buried among them.
+        A, C, E and the shuttle — twelve routes competing for the same handful of rows, with
+        the trains you actually take buried among them.
       </p>
 
       <p>
-        <strong>The fix is to use the same station twice, with a different line filter on
-        each.</strong> Nothing special is required — just two cards.
+        <strong>Use the same station on two cards, with a different route filter on
+        each.</strong>
       </p>
 
       <div class="split">
@@ -623,10 +615,10 @@ layout: null
       </div>
 
       <p>
-        Now one card is the red lines and the other the yellow, stacked in a single column,
-        each with its own heading and its own share of the rows. The same approach works
-        anywhere a complex carries more than you care about — Atlantic&nbsp;Av-Barclays&nbsp;Ctr,
-        Fulton&nbsp;St, Jay&nbsp;St-MetroTech.
+        One card is now the red lines and the other the yellow, each with its own heading and
+        its own share of the rows. The same approach works anywhere a complex carries more
+        than you care about — Atlantic&nbsp;Av-Barclays&nbsp;Ctr, Fulton&nbsp;St,
+        Jay&nbsp;St-MetroTech.
       </p>
 
       <h3>Splitting by direction instead</h3>
@@ -656,30 +648,27 @@ layout: null
       </div>
 
       <div class="note">
-        <span class="note-label">Why the card heading matters here</span>
-        <p>Two cards from one station will both default to the same heading. Set
-        <strong>Card heading</strong> on at least one — <em>Times Sq 1/2/3</em> and
-        <em>Times Sq N/Q/R/W</em> — or you will have two identically-titled cards.</p>
+        <span class="note-label">Set a card heading when you split</span>
+        <p>Both cards default to the station's name, so you get two identical headings.
+        Name them — <em>Times Sq 1/2/3</em> and <em>Times Sq N/Q/R/W</em>.</p>
       </div>
 
-      <h3>One oddity worth knowing</h3>
+      <h3>If the heading says Port Authority</h3>
       <p>
-        Times Square's A/C/E platform is officially named <em>42&nbsp;St-Port Authority Bus
-        Terminal</em>. It is part of the same complex and you reach it through the same
-        passageways, so the search offers all of it under Times&nbsp;Sq — but if the heading
-        says Port Authority, that is why, and nothing is wrong.
+        Times Square's A/C/E platform is officially <em>42&nbsp;St-Port Authority Bus
+        Terminal</em>, part of the same complex through the same passageways. The search
+        offers all of it under Times&nbsp;Sq, so that heading is the station doing the
+        confusing, not the board. Rename the card if it bothers you.
       </p>
     </section>
 
     <section id="rail">
       <h2>Railroads &amp; ferry</h2>
-      <p class="sec-note">One list per card, with an arrow for direction.</p>
+      <p class="sec-note">One list per card. On a railroad, an arrow for direction.</p>
 
       <p>
         LIRR, Metro-North and ferry cards all read the same way: a route badge, where the
-        boat or train is headed, and the time. No direction columns — unlike the subway,
-        these networks do not run two ways from a single platform in a way worth splitting a
-        card over.
+        train or boat is headed, and the time. One list, no direction columns.
       </p>
 
       <div class="panel-demo">
@@ -709,62 +698,42 @@ layout: null
       </div>
 
       <p>
-        This matters more than it sounds. At a station like Jamaica or Harlem-125&nbsp;St,
-        trains run in both directions from the same platforms, and two rows can carry the
-        same branch badge going opposite ways. The arrow is what tells them apart.
-      </p>
-
-      <p>
-        Every row you see carries an arrow. A train with nowhere further to go has no
-        direction to report — but it is also not one you can board, so it never reaches the
-        list in the first place.
+        At a through station like Jamaica or Harlem-125&nbsp;St, trains run both ways from the
+        same platforms, so two rows can carry the same branch badge going opposite
+        directions. The arrow is what tells them apart — check it before you run.
       </p>
 
       <h3>Terminals</h3>
 
       <p>
         At a terminal — Penn Station, Grand Central, Atlantic Terminal — trains only leave in
-        one direction, because there is no further to go. The board handles this: it shows
-        only trains you can actually board, so arriving trains ending their run are left out,
-        and the single live direction gets the card's full width rather than half a card
-        reading "no upcoming trains".
-      </p>
-
-      <p>
-        So a terminal card is correct and complete. It will simply show every arrow pointing
-        the same way, and the branch badge will often repeat the destination — at Penn
-        Station roughly three rows in four read <code>Ronkonkoma › Ronkonkoma</code>, because
-        most trains run to their branch's namesake.
+        one direction, so a terminal card shows every arrow pointing the same way and gives
+        that direction the card's full width. The branch badge will often repeat the
+        destination: at Penn Station roughly three rows in four read
+        <code>Ronkonkoma › Ronkonkoma</code>, because most trains run to their branch's
+        namesake. All of that is correct.
       </p>
 
       <div class="note">
-        <span class="note-label">Why the board may look emptier than the station's</span>
-        <p>The departure boards inside a terminal list arrivals too. This card does not — an
-        arriving train is not one you can catch. If you are meeting someone off a train, the
-        station's own board is the right one to read.</p>
+        <span class="note-label">Leave Direction blank at a terminal</span>
+        <p>Nothing departs Grand Central <em>towards</em> the city, so a card there
+        filtered to direction 1 is empty. Leave it blank, or pick 2.</p>
       </div>
 
       <div class="note">
-        <span class="note-label">Direction 1 is empty at a terminal</span>
-        <p>A train counts as city-bound when it <em>ends</em> at a city terminal — so
-        nothing departs Grand Central towards the city, and a card there filtered to
-        direction 1 is correctly empty. Leave it blank, or pick 2.</p>
+        <span class="note-label">This card shows fewer trains than the station's board</span>
+        <p>The boards inside a terminal list arrivals as well as departures; this card
+        lists only trains you can board. If you are meeting someone off a train, read the
+        station's board.</p>
       </div>
 
+      <h3>Two Grand Centrals</h3>
       <p>
-        If your station is a terminal, use it. If you are choosing between a terminal and a
-        nearby through station — Penn&nbsp;Station versus Jamaica, say — the through station
-        packs more into the same rows: ten branches instead of one direction's worth, and
-        destinations that differ from the badge beside them.
-      </p>
-
-      <h3>LIRR and Metro-North are searched separately</h3>
-      <p>
-        Pick the right <strong>Transit type</strong> first. Both railroads serve a station
-        called <em>Grand Central</em> and both have a stop numbered 1, but they are different
+        Both railroads serve a station called <em>Grand Central</em>, and they are different
         places on different tracks — Metro-North upstairs, the LIRR in Grand Central Madison
-        deep below. Searching the wrong one finds real trains going somewhere you did not
-        mean.
+        deep below. The search lists both, so read the network on the end of the result:
+        <em>Grand Central · Metro-North</em> or <em>Grand Central · LIRR</em>. Pick the wrong
+        one and you get real trains going somewhere you did not mean.
       </p>
 
       <h3>The ferry</h3>
@@ -784,22 +753,22 @@ layout: null
       </div>
 
       <p>
-        Ferry rows carry <strong>no arrow</strong>. The routes are not radial the way a
-        commuter railroad is — the Rockaway route runs south <em>and</em> east — so inbound
-        and outbound would be labels the operator itself does not use. The headsign already
-        says where the boat is going.
+        Ferry rows carry <strong>no arrow</strong> and the Direction setting does nothing on
+        a ferry card. NYC Ferry routes are not radial the way a commuter railroad is — the
+        Rockaway route runs south <em>and</em> east — so there is no inbound and outbound to
+        label. The headsign says where the boat is going.
       </p>
 
       <div class="note">
         <span class="note-label">Ferries stop running earlier than trains</span>
-        <p>Service is roughly 5am to 10pm. Outside those hours a ferry card is empty, and
-        correctly so — the feed is reporting that no boats are sailing, not failing.</p>
+        <p>Service is roughly 5am to 10pm. Outside those hours a ferry card is empty
+        because no boats are sailing.</p>
       </div>
     </section>
 
     <section id="bus">
       <h2>Bus directions</h2>
-      <p class="sec-note">The one place riders are most often surprised.</p>
+      <p class="sec-note">A bus stop is one side of the street.</p>
 
       <div class="stop">
         <span class="stop-label">The key fact</span>
@@ -808,15 +777,15 @@ layout: null
       </div>
 
       <p>
-        A subway station has trains running both ways from one place. A bus stop does not. If
-        a card showed only one stop, you would see buses going one direction and no hint that
-        the other direction exists.
+        A subway station has trains running both ways from one place; a bus stop does not. So
+        a card built on a single stop would show one direction with no sign that the other
+        exists.
       </p>
 
       <p>
-        <strong>The station search handles this for you.</strong> Search for a corner and it
-        is offered once, carrying both sides. Pick it and the card renders two columns, one
-        per direction.
+        <strong>The search handles this for you.</strong> Look up a corner and it is offered
+        once, carrying both sides — pick it and the card renders two columns, one per
+        direction.
       </p>
 
       <div class="panel-demo">
@@ -826,42 +795,34 @@ layout: null
       </div>
 
       <p>
-        The columns carry no heading, deliberately. A heading could only name one
-        destination, but a single stop serves several routes going different places — so the
-        label would be wrong for most of the column rather than merely redundant. Each row
-        names its own destination instead.
+        Bus columns carry no heading — one stop serves several routes going different places,
+        so each row names its own destination. Those names run longer than the column is
+        wide and will cut off mid-word.
       </p>
 
       <div class="note">
         <span class="note-label">If you only see one direction</span>
-        <p>You most likely picked a single stop rather than the corner. Re-open the search and
-        choose the entry that names the cross-street — that is the one carrying both sides.</p>
+        <p>You picked a single stop rather than the corner. Search again and choose the
+        entry naming the cross-street — that is the one carrying both sides.</p>
       </div>
-
-      <p>
-        Bus destinations are also longer than the column is wide, so they clip. That is
-        deliberate: an ellipsis costs about three characters of exactly the space being
-        reported as short, and a name cut mid-word still reads.
-      </p>
     </section>
 
     <section id="stopids">
       <h2>About stop IDs</h2>
-      <p class="sec-note">You never type one. It still helps to know they are there.</p>
+      <p class="sec-note">You never type one, but three things about them explain odd behaviour.</p>
 
       <p>
         Behind every station name is one or more stop IDs — <code>721</code> for Vernon
-        Blvd-Jackson Av, <code>505507</code> for one side of a bus corner. The search resolves
-        them, so this section is background rather than instruction. Three things are worth
-        knowing because they explain otherwise-baffling behaviour.
+        Blvd-Jackson Av, <code>505507</code> for one side of a bus corner. The search fills
+        them in for you. Three things about them explain behaviour that is otherwise
+        baffling.
       </p>
 
       <h3>One station can be several IDs</h3>
       <p>
         Times Square is five separate records sharing a complex: the 1/2/3 platforms, the 7,
-        the shuttle, the N/Q/R/W, and the A/C/E. The search offers the complex as one choice
-        carrying all five. This is why picking a station by hand elsewhere is risky — choosing
-        one platform group silently gives you real trains, just not the line you meant.
+        the shuttle, the N/Q/R/W, and the A/C/E. The search offers all five as one choice, so
+        you get the whole complex and narrow it with <strong>Routes</strong>.
       </p>
 
       <h3>One ID can be several lines</h3>
@@ -873,10 +834,10 @@ layout: null
 
       <h3>Bus stop IDs expire</h3>
       <p>
-        The MTA retires and re-numbers bus stops. A stop that worked last year can stop
-        existing — the pole is still on the corner, but its ID now returns an error. The
-        search only offers stops that are currently valid, so a card configured today will
-        work; a card configured two years ago may need re-picking.
+        The MTA retires and re-numbers bus stops. The pole stays on the corner but its ID
+        starts returning an error, so a bus card that worked for a year can go bad on its
+        own. The search only offers stops that are currently valid — re-pick the stop and
+        it works again.
       </p>
 
       <div class="note">
@@ -888,7 +849,7 @@ layout: null
 
     <section id="reading">
       <h2>Reading the board</h2>
-      <p class="sec-note">What the shapes and the inversion mean.</p>
+      <p class="sec-note">What the shapes, tags and highlighting mean.</p>
 
       <div class="panel-demo">
         <div class="pd-head"><span class="bul">7</span> Vernon Blvd-Jackson Av</div>
@@ -898,55 +859,50 @@ layout: null
 
       <ul>
         <li><strong>A circle</strong> is a local — it makes every stop.</li>
-        <li><strong>A diamond</strong> is the same line running express. The MTA signs express
-        by shape, so the board does too.</li>
-        <li><strong>A highlighted row</strong> (white on black, with rounded corners) means
-        you should be leaving about now. That is counted <em>after</em> your walk time, so it is how long you have
-        before you must go — not how long until the train arrives.</li>
-        <li><strong>Two columns</strong> on a subway card are the two directions, labelled with
-        the MTA's own platform wording — <em>Manhattan</em>, <em>Queens</em> — rather than
-        north and south.</li>
+        <li><strong>A diamond</strong> is the same line running express, the way the MTA
+        signs it.</li>
+        <li><strong>A highlighted row</strong>, white on black, means leave now. The
+        threshold counts from your <em>leave</em> time, not the departure — a highlighted
+        row is one where walking out the door is already overdue.</li>
+        <li><strong>Two columns</strong> on a subway card are the two directions, labelled
+        with the MTA's own platform wording — <em>Manhattan</em>, <em>Queens</em> — rather
+        than north and south.</li>
         <li><strong>A tag beside the heading</strong> — <em>LIRR</em>, <em>Metro North</em>,
-        <em>Bus</em>, <em>Ferry</em> — names the network. A subway card shows its route
-        bullets in the same place instead.</li>
+        <em>Bus</em>, <em>Ferry</em> — names the network. Subway cards show route bullets
+        there instead.</li>
         <li><strong>An arrow</strong> on a railroad row is the direction of travel:
-        <code>‹</code> toward the city, <code>›</code> away from it. See
-        <a href="#rail">Railroads &amp; ferry</a>.</li>
+        <code>‹</code> toward the city, <code>›</code> away from it.</li>
+        <li><strong>One column where you expected two</strong> means a terminal: nothing is
+        boardable the other way, so the live direction takes the full width.</li>
       </ul>
-
-      <p>
-        At a terminal, one direction has nothing you can board: every train there is ending
-        its run. The card drops that column and gives the live direction the full width,
-        rather than showing you half a card that says "no upcoming trains".
-      </p>
     </section>
 
     <section id="trouble">
       <h2>When a card looks wrong</h2>
-      <p class="sec-note">Most surprises have a transit explanation rather than a bug.</p>
+      <p class="sec-note">Most surprises turn out to be the transit network, not a bug.</p>
 
       <div class="fields">
         <div class="field">
           <div class="fname">Card is empty</div>
           <div class="fdesc">
-            <p>An empty card means the feed had nothing — not that something failed. Check
-            your walk time first: a generous one filters out everything in the next quarter
-            hour. Late at night, service genuinely thins out.</p>
+            <p>The feed had nothing to show, which is not the same as a failure. Check your
+            walk time first — a generous one hides everything in the next quarter hour. Late
+            at night, service genuinely thins out.</p>
           </div>
         </div>
         <div class="field">
           <div class="fname">Every train goes the same way</div>
           <div class="fdesc">
-            <p>Your station is a <strong>terminal</strong>, and that is the whole truth of
-            the place — trains only leave in one direction from the end of a line. Nothing is
-            wrong. See <a href="#rail">Terminals</a>.</p>
+            <p>Your station is a <strong>terminal</strong>: trains only leave in one
+            direction from the end of a line. See <a href="#rail">Terminals</a>.</p>
           </div>
         </div>
         <div class="field">
           <div class="fname">Wrong Grand Central</div>
           <div class="fdesc">
-            <p>LIRR and Metro-North both serve one. Check <strong>Transit type</strong> — the
-            station search looks at one railroad at a time.</p>
+            <p>LIRR and Metro-North both serve one. Re-pick the station and read the
+            network after the <code>·</code> — <em>Grand Central · LIRR</em> is the deep
+            Madison level, <em>· Metro-North</em> is upstairs.</p>
           </div>
         </div>
         <div class="field">
@@ -988,9 +944,9 @@ layout: null
       </div>
 
       <p>
-        The board reports what the live feeds say and nothing more. It never falls back to a
-        printed timetable to guess at a departure, and it never infers <em>why</em> a feed is
-        empty — an empty feed only proves the feed is empty.
+        Every row comes from a live feed. The board never falls back to a printed timetable,
+        so if a train is not running you will not see it — which is the point, but it does
+        mean an empty card is sometimes just an accurate one.
       </p>
     </section>
 
