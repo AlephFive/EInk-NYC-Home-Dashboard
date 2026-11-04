@@ -20,7 +20,7 @@ failure.*
 
 ## Documentation
 
-**[Setup guide](guide.html)** — the six slots, every field on a card,
+**[Setup guide](guide/)** — the six slots, every field on a card,
 filtering routes, picking a direction, splitting a station across two
 cards, and the places NYC transit is stranger than it looks: bus
 directions, railroad terminals, and the two Grand Centrals.

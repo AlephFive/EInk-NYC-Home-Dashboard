@@ -177,7 +177,7 @@ custom_fields:
     name: About
     description: >-
       Built by Shao-en Ma.
-      <a href="https://brian.ma/EInk-NYC-Home-Dashboard/guide.html">Full
+      <a href="https://brian.ma/EInk-NYC-Home-Dashboard/guide/">Full
       guide</a> — filtering routes, picking a direction, splitting a
       station across two cards.
       <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">Source
