@@ -17,5 +17,6 @@ exclude:
   - SERVER-ARCHITECTURE.md
   - TRMNL-RECIPE-SPEC.md
 
-# Pretty paths: /EInk-NYC-Home-Dashboard/guide/ rather than /guide.html
-permalink: pretty
+# The guide is the site — it is docs/index.html, so the URL is the repo
+# root with no subpath. `permalink: pretty` is gone with it: it rewrote
+# guide.html to /guide/, which 404'd every link written to the file name.

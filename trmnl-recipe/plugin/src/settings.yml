@@ -177,10 +177,10 @@ custom_fields:
     name: About
     description: >-
       Built by Shao-en Ma.
-      <a href="https://brian.ma/EInk-NYC-Home-Dashboard/guide/">Full
+      <a href="https://brian.ma/nyc-transit-board/">Full
       guide</a> — filtering routes, picking a direction, splitting a
       station across two cards.
-      <a href="https://github.com/AlephFive/EInk-NYC-Home-Dashboard">Source
+      <a href="https://github.com/AlephFive/nyc-transit-board">Source
       and issues</a>.
 
   - keyname: card1_visible
