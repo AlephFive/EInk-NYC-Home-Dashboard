@@ -1,0 +1,999 @@
+---
+layout: null
+---
+<title>Transit Board Setup</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --paper: #faf8f5;
+    --paper-raised: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #524d47;
+    --ink-faint: #6b6560;
+    --rule: #e3ddd4;
+    --rule-strong: #cdc5b9;
+    --accent: #0039a6;
+    --accent-soft: #e8edf7;
+    --warn-bg: #fdf6e8;
+    --warn-edge: #c9972a;
+    --stop-bg: #fbeee9;
+    --stop-edge: #b4441f;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #16161a;
+      --paper-raised: #1f1f25;
+      --ink: #f0ece6;
+      --ink-soft: #c3bdb4;
+      --ink-faint: #938d84;
+      --rule: #32323a;
+      --rule-strong: #45454f;
+      --accent: #7fa5ef;
+      --accent-soft: #1e2740;
+      --warn-bg: #2b2415;
+      --warn-edge: #d9ad4a;
+      --stop-bg: #2d1b16;
+      --stop-edge: #e0765090;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #16161a;
+    --paper-raised: #1f1f25;
+    --ink: #f0ece6;
+    --ink-soft: #c3bdb4;
+    --ink-faint: #938d84;
+    --rule: #32323a;
+    --rule-strong: #45454f;
+    --accent: #7fa5ef;
+    --accent-soft: #1e2740;
+    --warn-bg: #2b2415;
+    --warn-edge: #d9ad4a;
+    --stop-bg: #2d1b16;
+    --stop-edge: #e07650;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 56px;
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 0 28px 120px;
+  }
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; gap: 0; padding: 0 20px 80px; }
+    nav.toc { position: static !important; margin: 0 0 32px; }
+  }
+
+  /* ---- masthead ---- */
+  header.mast {
+    grid-column: 1 / -1;
+    padding: 72px 0 40px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 0;
+  }
+
+  /* ---- contents rail ---- */
+  nav.toc {
+    position: sticky;
+    top: 28px;
+    align-self: start;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  nav.toc p {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 12px;
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  nav.toc li { counter-increment: s; margin-bottom: 9px; }
+  nav.toc a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    display: block;
+    padding-left: 24px;
+    position: relative;
+  }
+  nav.toc a::before {
+    content: counter(s);
+    position: absolute;
+    left: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    top: 2px;
+  }
+  nav.toc a:hover { color: var(--accent); }
+
+  main { min-width: 0; }
+
+  section { margin-bottom: 68px; scroll-margin-top: 24px; }
+  h2 {
+    font-family: var(--display);
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .sec-note {
+    color: var(--ink-faint);
+    font-size: 15px;
+    margin: 0 0 26px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  h3 {
+    font-family: var(--display);
+    font-size: 19px;
+    font-weight: 600;
+    margin: 34px 0 10px;
+    text-wrap: balance;
+  }
+  p { margin: 0 0 16px; max-width: 68ch; }
+  ul, ol { max-width: 66ch; padding-left: 22px; margin: 0 0 16px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; color: var(--ink-soft); }
+  a { color: var(--accent); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.87em;
+    background: var(--accent-soft);
+    color: var(--ink);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ---- the grid diagram ---- */
+  .grid-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 440px;
+    margin: 22px 0 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .gslot {
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 14px 10px;
+    text-align: center;
+    background: var(--paper-raised);
+    color: var(--ink-soft);
+  }
+  .gslot.tall { grid-row: span 2; display: flex; align-items: center; justify-content: center; }
+  .gslot b { display: block; font-family: var(--display); color: var(--ink); font-size: 14px; }
+  .gcap { font-size: 14px; color: var(--ink-faint); margin: 0 0 24px; }
+
+  /* ---- field table ---- */
+  .fields { margin: 20px 0 8px; border-top: 1px solid var(--rule); }
+  .field {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  @media (max-width: 620px) { .field { grid-template-columns: 1fr; gap: 5px; } }
+  .fname { font-family: var(--display); font-weight: 600; font-size: 15px; }
+  .fname span { display: block; font-family: var(--mono); font-size: 11.5px; font-weight: 400; color: var(--ink-faint); margin-top: 3px; }
+  .fdesc { font-size: 15.5px; color: var(--ink-soft); }
+  .fdesc p { margin: 0 0 8px; }
+  .fdesc p:last-child { margin: 0; }
+
+  /* ---- callouts ---- */
+  .note, .stop {
+    border-left: 3px solid var(--warn-edge);
+    background: var(--warn-bg);
+    padding: 15px 18px;
+    margin: 22px 0;
+    border-radius: 0 4px 4px 0;
+    max-width: 68ch;
+  }
+  .stop { border-left-color: var(--stop-edge); background: var(--stop-bg); }
+  .note p:last-child, .stop p:last-child { margin: 0; }
+  .note-label, .stop-label {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warn-edge);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .stop-label { color: var(--stop-edge); }
+
+  /* ---- worked example ---- */
+  .example {
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 6px;
+    background: var(--paper-raised);
+    padding: 20px 22px;
+    margin: 24px 0;
+    max-width: 68ch;
+  }
+  .example-head {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+  }
+  .kv { display: grid; grid-template-columns: 160px minmax(0,1fr); gap: 4px 16px; font-size: 15px; }
+  @media (max-width: 560px) { .kv { grid-template-columns: 1fr; } .kv dt { margin-top: 8px; } }
+  .kv dt { color: var(--ink-faint); font-size: 14px; }
+  .kv dd { margin: 0; font-family: var(--mono); font-size: 13.5px; }
+  .kv dd.plain { font-family: var(--body); font-size: 15px; }
+
+  /* ---- MTA bullets ---- */
+  .bul {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    vertical-align: -6px;
+    margin: 0 1px;
+  }
+  .bul.two { font-size: 10px; letter-spacing: -0.04em; }
+  .bul.dia { border-radius: 2px; transform: rotate(45deg) scale(0.74); }
+  .bul.dia > span { transform: rotate(-45deg) scale(1.35); display: block; }
+
+  /* ---- split comparison ---- */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 22px 0;
+  }
+  @media (max-width: 620px) { .split { grid-template-columns: 1fr; } }
+  .scard {
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 6px;
+    padding: 16px 18px;
+    background: var(--paper-raised);
+  }
+  .scard h4 {
+    font-family: var(--display);
+    font-size: 15px;
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+  .scard .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .scard p { font-size: 14.5px; margin: 0; color: var(--ink-soft); }
+
+  /* ---- a rendered row, as the panel shows it ---- */
+  .panel-demo {
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 6px;
+    background: var(--paper-raised);
+    padding: 16px 18px;
+    margin: 20px 0;
+    max-width: 440px;
+  }
+  .pd-head {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 16px;
+    padding-bottom: 7px;
+    border-bottom: 1.5px dotted var(--rule-strong);
+    margin-bottom: 11px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .pd-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14px;
+    padding: 4px 0;
+  }
+  .pd-row .dest { flex: 1; color: var(--ink-soft); min-width: 0; overflow: hidden; }
+  .pd-row .t { font-family: var(--mono); font-weight: 600; font-size: 13.5px; }
+
+  footer {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--rule);
+    padding-top: 22px;
+    font-size: 14px;
+    color: var(--ink-faint);
+    max-width: 68ch;
+  }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <p class="eyebrow">TRMNL Recipe · Setup Guide</p>
+    <h1>Your next train, on the wall</h1>
+    <p class="standfirst">
+      Six cards of live departures on a TRMNL panel — subway, LIRR, Metro-North, bus and
+      NYC Ferry. This guide covers setting up each card, splitting a complex like Times
+      Square, and the places where NYC transit is stranger than it looks: bus directions,
+      railroad terminals, and stop&nbsp;IDs.
+    </p>
+  </header>
+
+  <nav class="toc">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#layout">The six slots</a></li>
+      <li><a href="#card">Setting up a card</a></li>
+      <li><a href="#lines">Choosing routes</a></li>
+      <li><a href="#split">Splitting a station</a></li>
+      <li><a href="#rail">Railroads &amp; ferry</a></li>
+      <li><a href="#bus">Bus directions</a></li>
+      <li><a href="#stopids">About stop IDs</a></li>
+      <li><a href="#reading">Reading the board</a></li>
+      <li><a href="#trouble">When a card looks wrong</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="layout">
+      <h2>The six slots</h2>
+      <p class="sec-note">A fixed three-column grid. Where you put a card is where it stays.</p>
+
+      <p>
+        The board is three columns wide and at most two cards tall. Slots are numbered down
+        each column, so card&nbsp;1 and card&nbsp;2 share the left column, 3 and 4 the middle,
+        5 and 6 the right.
+      </p>
+
+      <div class="grid-demo">
+        <div class="gslot"><b>Card 1</b>left, top</div>
+        <div class="gslot"><b>Card 3</b>middle, top</div>
+        <div class="gslot tall"><b>Card 5</b></div>
+        <div class="gslot"><b>Card 2</b>left, bottom</div>
+        <div class="gslot"><b>Card 4</b>middle, bottom</div>
+      </div>
+      <p class="gcap">
+        Card 6 is set to <strong>Off</strong> here, so card 5 takes the whole right column —
+        and roughly twice the departures.
+      </p>
+
+      <p>
+        Leaving a slot <strong>Off</strong> is how you get a tall card. The remaining card in
+        that column stretches to fill it and shows about twice as many rows. A column with
+        both slots off simply disappears and the others widen.
+      </p>
+
+      <p>
+        Three columns is the maximum by design. At four, a subway destination gets about one
+        character of width before it clips.
+      </p>
+    </section>
+
+    <section id="card">
+      <h2>Setting up a card</h2>
+      <p class="sec-note">Six fields per card, five of them optional.</p>
+
+      <div class="fields">
+        <div class="field">
+          <div class="fname">Show this card<span>cardN_visible</span></div>
+          <div class="fdesc">
+            <p>Untick to park a card without losing its settings — a summer ferry,
+            a station you only use on weekdays. Its column-mate then fills the
+            column and shows about twice as many departures.</p>
+            <p>Clearing the station does the same thing, destructively.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="fname">Station or stop<span>cardN_station</span></div>
+          <div class="fdesc">
+            <p>Type at least two characters and pick from the list. <strong>One search
+            covers all five networks</strong> — there is no transit type to choose
+            first — and each result says which it is:
+            <em>Jamaica (E J Z) · Subway</em> beside <em>Jamaica (LIRR) · LIRR</em>.</p>
+            <p>You never type a stop ID. The search resolves the hard cases for you:
+            a complex comes through with <em>every</em> platform, a bus corner with
+            <em>both</em> sides of the street.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="fname">Routes<span>cardN_routes</span></div>
+          <div class="fdesc">
+            <p>Optional. Comma-separated — <code>1,2,3</code>, and spaces around the
+            commas are fine. Blank means everything that calls there.</p>
+            <p>Works on every card type: subway lines, railroad branches
+            (<code>Babylon</code>, <code>Hudson</code>), bus routes (<code>M42</code>) and
+            ferry routes (<code>ER</code>).</p>
+            <p>See <a href="#lines">Choosing lines</a>, which is also how you split a big
+            station across two cards.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="fname">Direction<span>cardN_direction</span></div>
+          <div class="fdesc">
+            <p>Optional. Blank shows both directions side by side; pick
+            <code>1</code> or <code>2</code> and that one gets the whole card.</p>
+            <p>Worth doing when you only ever ride one way from a stop — those
+            rows then get full width, so destinations have room instead of being
+            clipped into two narrow columns.</p>
+            <p>On a <strong>railroad</strong>, 1 is towards the city and 2 is away
+            from it. On <strong>subway and bus</strong>, 1 and 2 are the card's left
+            and right columns; the heading above each says where it goes.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="fname">Walk time<span>cardN_walk</span></div>
+          <div class="fdesc">
+            <p>Minutes from your door to the platform. Departures you could not physically
+            reach are hidden, so the first row is always one you can still make.</p>
+            <p>This is the setting that makes the board more useful than the MTA's own app.
+            Measure it honestly — including stairs.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="fname">Card heading<span>cardN_title</span></div>
+          <div class="fdesc">
+            <p>Optional. Defaults to the station name. Worth setting when the default is
+            long, or when you'd rather read <em>Home</em> than <em>Vernon Blvd-Jackson Av</em>.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Display settings</h3>
+      <p>
+        Four settings apply to the whole board: a <strong>24-hour clock</strong> toggle;
+        the <strong>highlight threshold</strong> (rows this close to your leave time are
+        drawn white on black, default 5 minutes); <strong>destination text size</strong>,
+        where smaller shows more of a long station name; and <strong>"leave in N
+        minutes"</strong>, which is off by default — the panel refreshes on an interval,
+        so a countdown can be stale while a clock time never is.
+      </p>
+
+      <div class="note">
+        <span class="note-label">Refresh rate</span>
+        <p>Set 15 minutes or slower. That is TRMNL's store minimum, and it is why the board
+        shows clock times rather than counting down.</p>
+      </div>
+    </section>
+
+    <section id="lines">
+      <h2>Choosing routes</h2>
+      <p class="sec-note">Use the letter or number painted on the train.</p>
+
+      <p>
+        Leave <strong>Routes</strong> blank and the card shows everything that stops
+        there. Fill it in and the card narrows. Write the lines the way you'd say them out
+        loud, comma-separated:
+      </p>
+
+      <div class="example">
+        <p class="example-head">Three ways to narrow a card</p>
+        <dl class="kv">
+          <dt>Just the local</dt><dd>1,2,3</dd>
+          <dt>One line</dt><dd>G</dd>
+          <dt>A shuttle</dt><dd>S</dd>
+        </dl>
+      </div>
+
+      <p>Two conveniences are built in, because the feeds name things differently than signs do:</p>
+
+      <ul>
+        <li>
+          <strong>Express is included automatically.</strong> Asking for <code>7</code> gives
+          you the <span class="bul">7</span> and the
+          <span class="bul dia"><span>7</span></span> — the same line, running express. You
+          never write <code>7X</code>.
+        </li>
+        <li>
+          <strong>Every shuttle is <code>S</code>.</strong> One entry covers all three —
+          42nd&nbsp;St, Franklin&nbsp;Av, and Rockaway&nbsp;Park — because that is what each one
+          is signed as. The board sorts out which is which.
+        </li>
+      </ul>
+
+      <p>
+        The Staten Island Railway is <span class="bul two">SI</span>, matching the bullet on
+        the new R211 trains rather than the <em>SIR</em> you may remember from the subway map.
+      </p>
+
+      <h3>Railroads, buses and ferries too</h3>
+      <p>
+        The same field narrows any card. Use the name on the badge — a railroad
+        <strong>branch</strong>, not a destination:
+      </p>
+
+      <div class="example">
+        <p class="example-head">Narrowing the other types</p>
+        <dl class="kv">
+          <dt>One LIRR branch</dt><dd>Babylon</dd>
+          <dt>Two Metro-North lines</dt><dd>Hudson,Harlem</dd>
+          <dt>One bus route</dt><dd>M42</dd>
+          <dt>One ferry route</dt><dd>ER</dd>
+        </dl>
+      </div>
+
+      <p>
+        Capitalisation does not matter, and a partial name works —
+        <code>far</code> finds the Far&nbsp;Rockaway branch. Short entries are
+        generous rather than strict: <code>M4</code> matches the M42 as well as the M4, which
+        is deliberate. A filter that shows a few extra rows is easier to spot and fix than
+        one that empties the card.
+      </p>
+
+      <div class="note">
+        <span class="note-label">Branch, not destination</span>
+        <p>On a railroad card the badge is the <em>branch</em> — Port Jefferson, Ronkonkoma —
+        and the text beside it is where that particular train ends up, which is often
+        somewhere else entirely. Filter on the branch.</p>
+      </div>
+    </section>
+
+    <section id="split">
+      <h2>Splitting a big station</h2>
+      <p class="sec-note">Times Square is twelve routes. You probably want two of them.</p>
+
+      <p>
+        Pick <em>Times Sq-42 St</em> and you get one card carrying the 1, 2, 3, 7, N, Q, R, W,
+        A, C, E and the shuttle. That is a complete and almost useless card: twelve routes
+        competing for the same rows, and the trains you actually take buried among them.
+      </p>
+
+      <p>
+        <strong>The fix is to use the same station twice, with a different line filter on
+        each.</strong> Nothing special is required — just two cards.
+      </p>
+
+      <div class="split">
+        <div class="scard">
+          <h4>Card 1</h4>
+          <span class="tag">left column, top</span>
+          <p><strong>Station:</strong> Times Sq-42 St<br>
+          <strong>Routes:</strong> <code>1,2,3</code></p>
+        </div>
+        <div class="scard">
+          <h4>Card 2</h4>
+          <span class="tag">left column, bottom</span>
+          <p><strong>Station:</strong> Times Sq-42 St<br>
+          <strong>Routes:</strong> <code>N,Q,R,W</code></p>
+        </div>
+      </div>
+
+      <p>
+        Now one card is the red lines and the other the yellow, stacked in a single column,
+        each with its own heading and its own share of the rows. The same approach works
+        anywhere a complex carries more than you care about — Atlantic&nbsp;Av-Barclays&nbsp;Ctr,
+        Fulton&nbsp;St, Jay&nbsp;St-MetroTech.
+      </p>
+
+      <h3>Splitting by direction instead</h3>
+      <p>
+        The same trick splits a station by <strong>direction</strong> rather than by route,
+        which is the better choice when you take one line both ways. Point both rows of a
+        column at the same station, set <strong>Direction</strong> to <code>1</code> on one
+        and <code>2</code> on the other, and name them <em>Downtown</em> and <em>Uptown</em>.
+        Each card then shows one direction at full width.
+      </p>
+
+      <div class="split">
+        <div class="scard">
+          <h4>Card 1</h4>
+          <span class="tag">left column, top</span>
+          <p><strong>Station:</strong> 116 St-Columbia University<br>
+          <strong>Direction:</strong> <code>1</code><br>
+          <strong>Card heading:</strong> Downtown</p>
+        </div>
+        <div class="scard">
+          <h4>Card 2</h4>
+          <span class="tag">left column, bottom</span>
+          <p><strong>Station:</strong> 116 St-Columbia University<br>
+          <strong>Direction:</strong> <code>2</code><br>
+          <strong>Card heading:</strong> Uptown</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <span class="note-label">Why the card heading matters here</span>
+        <p>Two cards from one station will both default to the same heading. Set
+        <strong>Card heading</strong> on at least one — <em>Times Sq 1/2/3</em> and
+        <em>Times Sq N/Q/R/W</em> — or you will have two identically-titled cards.</p>
+      </div>
+
+      <h3>One oddity worth knowing</h3>
+      <p>
+        Times Square's A/C/E platform is officially named <em>42&nbsp;St-Port Authority Bus
+        Terminal</em>. It is part of the same complex and you reach it through the same
+        passageways, so the search offers all of it under Times&nbsp;Sq — but if the heading
+        says Port Authority, that is why, and nothing is wrong.
+      </p>
+    </section>
+
+    <section id="rail">
+      <h2>Railroads &amp; ferry</h2>
+      <p class="sec-note">One list per card, with an arrow for direction.</p>
+
+      <p>
+        LIRR, Metro-North and ferry cards all read the same way: a route badge, where the
+        boat or train is headed, and the time. No direction columns — unlike the subway,
+        these networks do not run two ways from a single platform in a way worth splitting a
+        card over.
+      </p>
+
+      <div class="panel-demo">
+        <div class="pd-head" style="justify-content:space-between;">
+          <span>Jamaica</span>
+          <span class="bul two" style="width:auto;padding:0 6px;border-radius:3px;font-size:10px;">LIRR</span>
+        </div>
+        <div class="pd-row"><span class="bul two" style="width:62px;border-radius:3px;font-size:10px;">Port Jeff</span><span class="dest">&#8249;&nbsp;Penn Station</span><span class="t">11:25</span></div>
+        <div class="pd-row"><span class="bul two" style="width:62px;border-radius:3px;font-size:10px;">Ronkonkoma</span><span class="dest">&#8250;&nbsp;Ronkonkoma</span><span class="t">11:23</span></div>
+        <div class="pd-row"><span class="bul two" style="width:62px;border-radius:3px;font-size:10px;">Babylon</span><span class="dest">&#8250;&nbsp;Massapequa</span><span class="t">11:29</span></div>
+      </div>
+
+      <p>
+        The badge is the <strong>branch</strong> — Port Jefferson, Ronkonkoma, Babylon on the
+        LIRR; Hudson, Harlem, New Haven on Metro-North. The text beside it is where that
+        particular train ends up, which is often <em>not</em> the branch's namesake.
+      </p>
+
+      <h3>Inbound and outbound</h3>
+
+      <div class="stop">
+        <span class="stop-label">The arrows</span>
+        <p><strong><code>‹</code> is toward the city</strong> — Penn Station, Grand Central,
+        Atlantic Terminal, Long Island City, Hunterspoint Av.<br>
+        <strong><code>›</code> is away from it</strong>, out toward Long Island or up the
+        Hudson.</p>
+      </div>
+
+      <p>
+        This matters more than it sounds. At a station like Jamaica or Harlem-125&nbsp;St,
+        trains run in both directions from the same platforms, and two rows can carry the
+        same branch badge going opposite ways. The arrow is what tells them apart.
+      </p>
+
+      <p>
+        Every row you see carries an arrow. A train with nowhere further to go has no
+        direction to report — but it is also not one you can board, so it never reaches the
+        list in the first place.
+      </p>
+
+      <h3>Terminals</h3>
+
+      <p>
+        At a terminal — Penn Station, Grand Central, Atlantic Terminal — trains only leave in
+        one direction, because there is no further to go. The board handles this: it shows
+        only trains you can actually board, so arriving trains ending their run are left out,
+        and the single live direction gets the card's full width rather than half a card
+        reading "no upcoming trains".
+      </p>
+
+      <p>
+        So a terminal card is correct and complete. It will simply show every arrow pointing
+        the same way, and the branch badge will often repeat the destination — at Penn
+        Station roughly three rows in four read <code>Ronkonkoma › Ronkonkoma</code>, because
+        most trains run to their branch's namesake.
+      </p>
+
+      <div class="note">
+        <span class="note-label">Why the board may look emptier than the station's</span>
+        <p>The departure boards inside a terminal list arrivals too. This card does not — an
+        arriving train is not one you can catch. If you are meeting someone off a train, the
+        station's own board is the right one to read.</p>
+      </div>
+
+      <div class="note">
+        <span class="note-label">Direction 1 is empty at a terminal</span>
+        <p>A train counts as city-bound when it <em>ends</em> at a city terminal — so
+        nothing departs Grand Central towards the city, and a card there filtered to
+        direction 1 is correctly empty. Leave it blank, or pick 2.</p>
+      </div>
+
+      <p>
+        If your station is a terminal, use it. If you are choosing between a terminal and a
+        nearby through station — Penn&nbsp;Station versus Jamaica, say — the through station
+        packs more into the same rows: ten branches instead of one direction's worth, and
+        destinations that differ from the badge beside them.
+      </p>
+
+      <h3>LIRR and Metro-North are searched separately</h3>
+      <p>
+        Pick the right <strong>Transit type</strong> first. Both railroads serve a station
+        called <em>Grand Central</em> and both have a stop numbered 1, but they are different
+        places on different tracks — Metro-North upstairs, the LIRR in Grand Central Madison
+        deep below. Searching the wrong one finds real trains going somewhere you did not
+        mean.
+      </p>
+
+      <h3>The ferry</h3>
+      <p>
+        NYC Ferry works the same way: pick a landing, get one list. The badge is the route
+        code — <code>ER</code> East River, <code>SB</code> South Brooklyn,
+        <code>SG</code> St.&nbsp;George, <code>RS</code> Rockaway, <code>AS</code> Astoria — and the destination is the operator's own headsign.
+      </p>
+
+      <div class="panel-demo">
+        <div class="pd-head" style="justify-content:space-between;">
+          <span>Wall St/Pier 11</span>
+          <span class="bul two" style="width:auto;padding:0 6px;border-radius:3px;font-size:10px;">Ferry</span>
+        </div>
+        <div class="pd-row"><span class="bul two" style="width:30px;border-radius:3px;font-size:10px;">ER</span><span class="dest">East 34th Street</span><span class="t">10:58</span></div>
+        <div class="pd-row"><span class="bul two" style="width:30px;border-radius:3px;font-size:10px;">AS</span><span class="dest">East 90th St</span><span class="t">11:26</span></div>
+      </div>
+
+      <p>
+        Ferry rows carry <strong>no arrow</strong>. The routes are not radial the way a
+        commuter railroad is — the Rockaway route runs south <em>and</em> east — so inbound
+        and outbound would be labels the operator itself does not use. The headsign already
+        says where the boat is going.
+      </p>
+
+      <div class="note">
+        <span class="note-label">Ferries stop running earlier than trains</span>
+        <p>Service is roughly 5am to 10pm. Outside those hours a ferry card is empty, and
+        correctly so — the feed is reporting that no boats are sailing, not failing.</p>
+      </div>
+    </section>
+
+    <section id="bus">
+      <h2>Bus directions</h2>
+      <p class="sec-note">The one place riders are most often surprised.</p>
+
+      <div class="stop">
+        <span class="stop-label">The key fact</span>
+        <p>A bus stop is <strong>one side of the street</strong>. The pole across the road is
+        a different stop with a different ID — same name, opposite direction.</p>
+      </div>
+
+      <p>
+        A subway station has trains running both ways from one place. A bus stop does not. If
+        a card showed only one stop, you would see buses going one direction and no hint that
+        the other direction exists.
+      </p>
+
+      <p>
+        <strong>The station search handles this for you.</strong> Search for a corner and it
+        is offered once, carrying both sides. Pick it and the card renders two columns, one
+        per direction.
+      </p>
+
+      <div class="panel-demo">
+        <div class="pd-head">BORDEN AV/5 ST</div>
+        <div class="pd-row"><span class="bul two" style="width:34px;border-radius:3px;font-size:10px;">Q67</span><span class="dest">LONG ISLAND CITY</span><span class="t">14:08</span></div>
+        <div class="pd-row"><span class="bul two" style="width:34px;border-radius:3px;font-size:10px;">Q67</span><span class="dest">MIDDLE VILLAGE</span><span class="t">14:15</span></div>
+      </div>
+
+      <p>
+        The columns carry no heading, deliberately. A heading could only name one
+        destination, but a single stop serves several routes going different places — so the
+        label would be wrong for most of the column rather than merely redundant. Each row
+        names its own destination instead.
+      </p>
+
+      <div class="note">
+        <span class="note-label">If you only see one direction</span>
+        <p>You most likely picked a single stop rather than the corner. Re-open the search and
+        choose the entry that names the cross-street — that is the one carrying both sides.</p>
+      </div>
+
+      <p>
+        Bus destinations are also longer than the column is wide, so they clip. That is
+        deliberate: an ellipsis costs about three characters of exactly the space being
+        reported as short, and a name cut mid-word still reads.
+      </p>
+    </section>
+
+    <section id="stopids">
+      <h2>About stop IDs</h2>
+      <p class="sec-note">You never type one. It still helps to know they are there.</p>
+
+      <p>
+        Behind every station name is one or more stop IDs — <code>721</code> for Vernon
+        Blvd-Jackson Av, <code>505507</code> for one side of a bus corner. The search resolves
+        them, so this section is background rather than instruction. Three things are worth
+        knowing because they explain otherwise-baffling behaviour.
+      </p>
+
+      <h3>One station can be several IDs</h3>
+      <p>
+        Times Square is five separate records sharing a complex: the 1/2/3 platforms, the 7,
+        the shuttle, the N/Q/R/W, and the A/C/E. The search offers the complex as one choice
+        carrying all five. This is why picking a station by hand elsewhere is risky — choosing
+        one platform group silently gives you real trains, just not the line you meant.
+      </p>
+
+      <h3>One ID can be several lines</h3>
+      <p>
+        Coney Island-Stillwell&nbsp;Av is a single ID carrying the
+        <span class="bul">D</span> <span class="bul">F</span> <span class="bul">N</span>
+        <span class="bul">Q</span>. If you want fewer, that is what the line filter is for.
+      </p>
+
+      <h3>Bus stop IDs expire</h3>
+      <p>
+        The MTA retires and re-numbers bus stops. A stop that worked last year can stop
+        existing — the pole is still on the corner, but its ID now returns an error. The
+        search only offers stops that are currently valid, so a card configured today will
+        work; a card configured two years ago may need re-picking.
+      </p>
+
+      <div class="note">
+        <span class="note-label">If a bus card says "No such stop"</span>
+        <p>That is a retired ID. Open the card, search the corner again, and pick it fresh.
+        The name will usually look familiar with the cross-streets swapped.</p>
+      </div>
+    </section>
+
+    <section id="reading">
+      <h2>Reading the board</h2>
+      <p class="sec-note">What the shapes and the inversion mean.</p>
+
+      <div class="panel-demo">
+        <div class="pd-head"><span class="bul">7</span> Vernon Blvd-Jackson Av</div>
+        <div class="pd-row"><span class="bul">7</span><span class="dest">34 St-Hudson Yards</span><span class="t">14:08</span></div>
+        <div class="pd-row"><span class="bul dia"><span>7</span></span><span class="dest">34 St-Hudson Yards</span><span class="t">14:13</span></div>
+      </div>
+
+      <ul>
+        <li><strong>A circle</strong> is a local — it makes every stop.</li>
+        <li><strong>A diamond</strong> is the same line running express. The MTA signs express
+        by shape, so the board does too.</li>
+        <li><strong>A highlighted row</strong> (white on black, with rounded corners) means
+        you should be leaving about now. That is counted <em>after</em> your walk time, so it is how long you have
+        before you must go — not how long until the train arrives.</li>
+        <li><strong>Two columns</strong> on a subway card are the two directions, labelled with
+        the MTA's own platform wording — <em>Manhattan</em>, <em>Queens</em> — rather than
+        north and south.</li>
+        <li><strong>A tag beside the heading</strong> — <em>LIRR</em>, <em>Metro North</em>,
+        <em>Bus</em>, <em>Ferry</em> — names the network. A subway card shows its route
+        bullets in the same place instead.</li>
+        <li><strong>An arrow</strong> on a railroad row is the direction of travel:
+        <code>‹</code> toward the city, <code>›</code> away from it. See
+        <a href="#rail">Railroads &amp; ferry</a>.</li>
+      </ul>
+
+      <p>
+        At a terminal, one direction has nothing you can board: every train there is ending
+        its run. The card drops that column and gives the live direction the full width,
+        rather than showing you half a card that says "no upcoming trains".
+      </p>
+    </section>
+
+    <section id="trouble">
+      <h2>When a card looks wrong</h2>
+      <p class="sec-note">Most surprises have a transit explanation rather than a bug.</p>
+
+      <div class="fields">
+        <div class="field">
+          <div class="fname">Card is empty</div>
+          <div class="fdesc">
+            <p>An empty card means the feed had nothing — not that something failed. Check
+            your walk time first: a generous one filters out everything in the next quarter
+            hour. Late at night, service genuinely thins out.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">Every train goes the same way</div>
+          <div class="fdesc">
+            <p>Your station is a <strong>terminal</strong>, and that is the whole truth of
+            the place — trains only leave in one direction from the end of a line. Nothing is
+            wrong. See <a href="#rail">Terminals</a>.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">Wrong Grand Central</div>
+          <div class="fdesc">
+            <p>LIRR and Metro-North both serve one. Check <strong>Transit type</strong> — the
+            station search looks at one railroad at a time.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">Only one direction</div>
+          <div class="fdesc">
+            <p>On a <strong>bus</strong> card, you picked one side of the street — see
+            <a href="#bus">Bus directions</a>. On a <strong>subway</strong> card at a terminal,
+            this is correct: nothing is boardable in the other direction.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">A card you configured is missing</div>
+          <div class="fdesc">
+            <p>Its station could not be resolved — usually a value saved before a
+            change to the picker. Open the card and re-pick the station.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">A line is missing</div>
+          <div class="fdesc">
+            <p>Check <strong>Routes</strong> — if it is filled in, anything unlisted
+            is hidden by design. Clear it to see everything the station carries.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">Card says "Unavailable"</div>
+          <div class="fdesc">
+            <p>That card's feed failed, and only that card is affected — the rest of the board
+            keeps working. Usually it resolves itself by the next refresh.</p>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fname">Times look hours off</div>
+          <div class="fdesc">
+            <p>The board renders in New York time regardless of where your panel is. If every
+            time is wrong by the same amount, that is worth reporting.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        The board reports what the live feeds say and nothing more. It never falls back to a
+        printed timetable to guess at a departure, and it never infers <em>why</em> a feed is
+        empty — an empty feed only proves the feed is empty.
+      </p>
+    </section>
+
+    <footer>
+      Live data from the MTA's GTFS-realtime and SIRI feeds. Not affiliated with the
+      Metropolitan Transportation Authority.
+    </footer>
+  </main>
+</div>
